@@ -17,18 +17,20 @@ requires = [
     'transaction',
     'ZODB3',
     'waitress',
-    ]
+    'babel',
+    'milkpricereport'
+]
 
 setup(name='price_watch',
       version='0.0',
       description='price_watch',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
-        "Programming Language :: Python",
-        "Framework :: Pyramid",
-        "Topic :: Internet :: WWW/HTTP",
-        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
-        ],
+          "Programming Language :: Python",
+          "Framework :: Pyramid",
+          "Topic :: Internet :: WWW/HTTP",
+          "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+      ],
       author='',
       author_email='',
       url='',

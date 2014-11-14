@@ -1,12 +1,13 @@
 <%inherit file="base.mako"/>
 <div class="pull-right well well-sm cat-price">
-    ${view.currency(req.context.get_price(), u'р.')}
+    ${median_price}
 </div>
 <h1>
-    <%block name="title">${req.context.get_data('keyword')}</%block>
+    <%block name="title">${cat_title}</%block>
 </h1>
 <div class="row-fluid marketing">
     <div class="span12">
+        <div id="chart_div" style="width: 700px; height: 300px;"></div>
         <table class="table">
             <thead>
             <tr>
@@ -16,18 +17,16 @@
             </tr>
             </thead>
             <tbody>
-                % for num, product in enumerate(sorted(req.context.get_qualified_products(), \
-                                                              key=lambda pr: pr.get_price())):
+                % for num, product, url, price, delta in products:
                     <tr>
-                        <td>${num+1}</td>
+                        <td>${num}</td>
                         <td>
-                            <a href="${req.resource_url(product)}">
+                            <a href="${url}">
                                 ${product.title}
                             </a>
                         </td>
                         <td>
-                            ${view.currency(product.get_price())}&nbsp;
-                            <% delta = product.get_price_delta(view.week_ago) %>
+                            ${price}
                             % if delta > 0:
                             <span class="glyphicon glyphicon-arrow-up" style="color:red"></span>
                             % elif delta < 0:
@@ -40,3 +39,26 @@
         </table>
     </div>
 </div>
+<%def name="js()">
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["corechart"]});
+        google.setOnLoadCallback(drawChart);
+        function drawChart() {
+            var headers = [['Дата', 'Средняя цена, руб.']];
+            var data = google.visualization.arrayToDataTable(
+                headers.concat(${price_data|n})
+            );
+            var options = {
+                title: 'Динамика цен',
+                curveType: 'function',
+                legend: {position: 'top'},
+                chartArea:{left:50, top:50, width:'90%', height:'75%'}
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+            chart.draw(data, options);
+        }
+    </script>
+</%def>

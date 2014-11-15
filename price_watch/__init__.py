@@ -5,8 +5,7 @@ from milkpricereport.models import StorageManager
 
 def root_factory(request):
     conn = get_connection(request)
-    keeper = StorageManager(connection=conn)
-    return keeper.connection.root()
+    return StorageManager(connection=conn)
 
 
 def main(global_config, **settings):

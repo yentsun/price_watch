@@ -50,7 +50,7 @@
                 headers.concat(${price_data|n})
             );
             var options = {
-                title: 'Динамика цен',
+                title: 'Динамика цены за неделю ',
                 curveType: 'function',
                 legend: {position: 'top'},
                 chartArea:{left:50, top:50, width:'90%', height:'75%'}

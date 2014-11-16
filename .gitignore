@@ -2,3 +2,4 @@
 *.pyc
 storage.*
 price_watch.egg-info/*
+cache/*

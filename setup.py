@@ -19,7 +19,8 @@ requires = [
     'waitress',
     'babel',
     'dogpile.cache',
-    'milkpricereport'
+    'milkpricereport',
+    'dogpile.cache'
 ]
 
 setup(name='price_watch',

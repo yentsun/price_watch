@@ -2,6 +2,7 @@
 
 import datetime
 import json
+from itertools import tee, islice, chain, izip
 from babel.core import Locale
 from babel.numbers import format_currency
 from pyramid.view import view_config, view_defaults
@@ -11,11 +12,19 @@ from milkpricereport.models import (ProductCategory, Product, PriceReport)
 
 MULTIPLIER = 1
 category_region = make_region().configure(
-    'dogpile.cache.dbm',
-    arguments={
-        'filename': 'cache/ProductCategory/cache.dbm'
-    }
+    'dogpile.cache.memory'
 )
+
+
+def previous_and_next(some_iterable):
+    """
+    Previous and next values inside a loop
+    credit: http://stackoverflow.com/a/1012089/216042
+    """
+    prevs, items, nexts = tee(some_iterable, 3)
+    prevs = chain([None], prevs)
+    nexts = chain(islice(nexts, 1, None), [None])
+    return izip(prevs, items, nexts)
 
 
 def get_datetimes(days):
@@ -37,7 +46,8 @@ class EntityView(object):
         self.context = request.context
         self.root = request.root
         self.locale = Locale(request.locale_name)
-        self.week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+        self.delta_period = datetime.datetime.now() - \
+                            datetime.timedelta(days=30)
 
     def currency(self, value, symbol=''):
         """Format currency value with Babel"""
@@ -67,18 +77,27 @@ class CategoryView(EntityView):
     def cached_data(self, category):
         """Return cached category data"""
         price_data = list()
-        datetimes = get_datetimes(7)
+        datetimes = get_datetimes(30)
         for date in datetimes:
             price_data.append([date.strftime('%d.%m'),
                                category.get_price(date)])
         products = list()
-        for num, product in enumerate(sorted(category.get_qualified_products(),
-                                             key=lambda pr: pr.get_price())):
+        sorted_products = sorted(category.get_qualified_products(),
+                                 key=lambda pr: pr.get_price())
+        for num, product in enumerate(sorted_products):
+            price = product.get_price()
+            middle_num = int(len(sorted_products) / 2)
+            median = (num == middle_num)
+            if len(sorted_products) % 2 == 0:
+                median = (num == middle_num or num == middle_num-1)
+
+            # construct data row as tuple
             products.append((num+1,
                              product,
                              self.request.resource_url(product),
-                             self.currency(product.get_price()),
-                             product.get_price_delta(self.week_ago)))
+                             self.currency(price),
+                             int(product.get_price_delta(self.delta_period)*100),
+                             median))
         return {'price_data': json.dumps(price_data),
                 'products': products,
                 'cat_title': category.get_data('keyword'),

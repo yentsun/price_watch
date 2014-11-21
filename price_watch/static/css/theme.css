@@ -38,4 +38,15 @@ body {
     font-size: 250%
 }
 
-th.price{width:6.5em}
+th.price{
+    width:6.5em
+}
+
+#product_list{
+    margin-top: 2em;
+}
+#product_list tr.median{
+}
+#chart_div{
+    margin-bottom: 2em;
+}

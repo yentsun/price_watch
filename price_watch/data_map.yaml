@@ -1,0 +1,365 @@
+---
+
+ProductPackage:
+  12 l:
+    synonyms:
+      - 12*1л
+  5 l:
+    synonyms:
+      - 5л
+  3 l:
+    synonyms:
+      - 3л
+  2 l:
+    synonyms:
+      - 2л
+  1.8 l:
+    synonyms:
+      - 1,8л
+  1.5 l:
+    synonyms:
+      - 1л + 0,5л
+      - 1,5л
+  1 l:
+    synonyms:
+      - 1л
+      - 1 л
+      - 1 L
+      - 1L
+      - 1l
+      - 1 l
+  0.95 l:
+    synonyms:
+      - 0,95л
+      - 0,95 л
+      - 950мл
+      - 950 мл
+  0.93 l:
+    synonyms:
+      - 0,93л
+      - 0,93 л
+      - 0.93 L
+      - 930мл
+      - 930 мл
+  0.9 l:
+    synonyms:
+      - 900мл
+      - 900 мл
+      - 0,9л
+  0.81 l:
+    synonyms:
+      - 810мл
+  0.75 l:
+    synonyms:
+      - 0,75л
+      - 750мл
+  0.5 l:
+    synonyms:
+      - 0,5л
+      - 0,5 л
+      - 0.5 л
+      - 0.5л
+      - 500мл
+      - 500 мл
+  0.45 l:
+    synonyms:
+      - 0,45л
+      - 0,45 л
+  0.2 l:
+    synonyms:
+      - 0,2л
+      - 0,2 л
+      - 200мл
+  5 kg:
+    synonyms:
+      - 5кг
+      - 5,0 кг
+      - 4,8-5,0 кг
+      - 4,8-5кг
+  4 kg:
+    synonyms:
+      - 4кг
+  2.1 kg:
+    synonyms:
+      - 1,9-2,1кг
+  1.45 kg:
+    synonyms:
+      - 1450г
+      - 1450 г
+  1 kg:
+    synonyms:
+      - 1кг
+      - 1 кг
+      - 1000г
+      - 1000 г
+  0.95 kg:
+    synonyms:
+      - 950г
+      - 950 г
+      - 0.95 kg
+      - 0.95kg
+  0.9 kg:
+    synonyms:
+      - 900г
+  0.8 kg:
+    synonyms:
+      - 800г
+  0.75 kg:
+    synonyms:
+      - 750г
+  0.65 kg:
+    synonyms:
+      - 0,65кг
+  0.6 kg:
+    synonyms:
+      - 600 г
+      - 600г
+  0.515 kg:
+    synonyms:
+      - 515г
+  0.5 kg:
+    synonyms:
+      - 500г
+      - 500 г
+      - 0,5кг
+  0.47 kg:
+    synonyms:
+      - 470г
+  0.45 kg:
+    synonyms:
+      - 450г
+      - 450g
+      - 0,45кг
+  0.4 kg:
+    synonyms:
+      - 400г
+      - 5*80г
+  0.372 kg:
+    synonyms:
+      - 372г
+  0.35 kg:
+    synonyms:
+      - 350г
+      - 350 г
+  0.33 kg:
+    synonyms:
+      - 330г
+  0.32 kg:
+    synonyms:
+      - 320г
+  0.3 kg:
+    synonyms:
+      - 300г
+      - 300 г
+      - 0,3кг
+  0.28 kg:
+    synonyms:
+      - 280г
+  0.27 kg:
+    synonyms:
+      - 270г
+      - 270 г
+  0.25 kg:
+    synonyms:
+      - 250г
+  0.24 kg:
+    synonyms:
+      - 240г
+  0.23 kg:
+    synonyms:
+      - 230г
+  0.22 kg:
+    synonyms:
+      - 220г
+  0.2 kg:
+    synonyms:
+      - 200г
+      - 200 г
+      - 0,2кг
+  0.18 kg:
+    synonyms:
+      - 180г
+  0.175 kg:
+    synonyms:
+      - 175г
+  0.15 kg:
+    synonyms:
+      - 150г
+  0.075 kg:
+    synonyms:
+      - 75г
+  30 pcs:
+    synonyms:
+      - 30шт
+  20 pcs:
+    synonyms:
+      - 20шт
+  10 pcs:
+    synonyms:
+      - десяток
+      - 10шт
+      - 10 шт
+  6 pcs:
+    synonyms:
+      - 6шт
+
+ProductCategory:
+  title: product_categories
+  sub:
+    food:
+      title: food
+      keyword: пищевые продукты
+      sub:
+        diary: &diary
+          title: diary
+          keyword: молочная продукция
+          sub:
+            milk:
+              title: milk
+              keyword: молоко
+              stopword: топленое
+              density: 1027
+              normal_package: 1 l
+              min_package_ratio: 0.8
+            sour cream:
+              title: sour cream
+              keyword: сметана
+              normal_package: 0.4 kg
+            chicken egg:
+              title: chicken egg
+              keyword: яйцо куриное
+              normal_package: 10 pcs
+        grocery:
+          title: grocery
+          keyword: бакалея
+          sub:
+            pasta:
+              title: pasta
+              keyword: макароны, макаронные изделия, вермишель, спагетти, лапша
+              normal_package: 0.5 kg
+              min_package_ratio: 0.8
+            oil:
+              title: oil
+              keyword: масло растительное
+              sub:
+                sunflower oil:
+                  title: sunflower oil
+                  keyword: масло подсолнечное
+                  normal_package: 1 l
+            sugar:
+              title: sugar
+              keyword: сахар
+              stopword: тростниковый коричневый
+              normal_package: 1 kg
+              min_package_ratio: 0.8
+            salt:
+              title: salt
+              keyword: соль
+              stopword: морская водорослевая
+              normal_package: 1 kg
+              min_package_ratio: 0.5
+            cereals:
+              title: cereals
+              keyword: крупы
+              sub:
+                rice:
+                  title: rice
+                  keyword: рис
+                  normal_package: 1 kg
+                  min_package_ratio: 0.8
+                buckwheat:
+                  title: buckwheat
+                  keyword: гречка, крупа гречневая, греча
+                  normal_package: 1 kg
+                  min_package_ratio: 0.8
+        bakery:
+          title: bakery
+          keyword: хлебобулочные изделия и выпечка
+          sub:
+            bread:
+              title: bread
+              keyword: хлеб
+              normal_package: 0.5 kg
+              min_package_ratio: 0.8
+        meat:
+        fish:
+          title: fish
+          sub:
+            tuna:
+              title: tuna
+        vegetables:
+          title: vegetables
+          keyword: овощи
+          sub:
+            potato:
+              title: potato
+              keyword: картофель
+              stopword: батат
+              normal_package: 1 kg
+              min_package_ratio: 1
+    home:
+      sub:
+        furniture:
+          title: furniture
+          sub:
+            chair:
+              title: chair
+
+    raw materials:
+
+Manufacturer:
+  - Alpsko mleko:
+      category: *diary
+  - Bio Max
+  - Campina
+  - Danmis
+  - Landliebe
+  - Meggle
+  - Milk Time
+  - Nestle
+  - Parmalat
+  - President
+  - Shakeria
+  - Zott
+  - Агуша
+  - Актуаль
+  - Александров
+  - Альпенгурт
+  - Амилка
+  - Белый город
+  - Большая кружка
+  - Брест-Литовск
+  - ВБД
+  - Веселый молочник
+  - Вологодское
+  - Волоколамский МЗ
+  - Домик в деревне
+  - Здрайверы
+  - Из Вологды
+  - Крепыш
+  - М Лианозовское
+  - Мажитэль
+  - Милава
+  - Можайское
+  - Молочная здравница
+  - Молочная культура
+  - Наша дойка
+  - Новая деревня
+  - Обнинский МЗ
+  - Останкино
+  - Петмол
+  - Полезные продукты
+  - Простоквашино
+  - Растишка
+  - Рузское молоко
+  - Смешарики (п)
+  - Тевье молочник
+  - Тёма
+  - Углече Поле
+  - Утренняя дойка
+  - ФрутоНяня
+  - Чистая линия (п)
+  - Чудо
+  - Ясный луг
+
+...

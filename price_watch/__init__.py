@@ -1,6 +1,6 @@
 from pyramid.config import Configurator
 from pyramid_zodbconn import get_connection
-from milkpricereport.models import StorageManager
+from price_watch.models import StorageManager
 
 
 def root_factory(request):

@@ -8,7 +8,7 @@ from babel.numbers import format_currency
 from pyramid.view import view_config, view_defaults
 from pyramid.httpexceptions import HTTPMethodNotAllowed, HTTPAccepted
 from dogpile.cache import make_region
-from milkpricereport.models import (ProductCategory, Product, PriceReport)
+from price_watch.models import (ProductCategory, Product, PriceReport)
 
 MULTIPLIER = 1
 category_region = make_region().configure(
@@ -46,8 +46,8 @@ class EntityView(object):
         self.context = request.context
         self.root = request.root
         self.locale = Locale(request.locale_name)
-        self.delta_period = datetime.datetime.now() - \
-                            datetime.timedelta(days=30)
+        self.delta_period = (datetime.datetime.now() -
+                             datetime.timedelta(days=30))
 
     def currency(self, value, symbol=''):
         """Format currency value with Babel"""
@@ -92,12 +92,14 @@ class CategoryView(EntityView):
                 median = (num == middle_num or num == middle_num-1)
 
             # construct data row as tuple
-            products.append((num+1,
-                             product,
-                             self.request.resource_url(product),
-                             self.currency(price),
-                             int(product.get_price_delta(self.delta_period)*100),
-                             median))
+            products.append((
+                num+1,
+                product,
+                self.request.resource_url(product),
+                self.currency(price),
+                int(product.get_price_delta(self.delta_period)*100),
+                median
+            ))
         return {'price_data': json.dumps(price_data),
                 'products': products,
                 'cat_title': category.get_data('keyword'),
@@ -126,7 +128,7 @@ class RootView(EntityView):
     @view_config(request_method='POST', renderer='json')
     def post(self):
         if self.context is self.root['PriceReport']:
-            #receive a new report
+            # receive a new report
             return {'status': 'post PriceReport'}
         raise HTTPMethodNotAllowed
 

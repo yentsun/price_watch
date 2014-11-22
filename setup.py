@@ -18,8 +18,9 @@ requires = [
     'ZODB3',
     'waitress',
     'babel',
-    'dogpile.cache',
-    'milkpricereport',
+    'fabric',
+    'dogpile',
+    'numpy',
     'dogpile.cache'
 ]
 

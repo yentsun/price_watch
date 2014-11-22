@@ -22,11 +22,12 @@
             </thead>
             <tbody>
                 % for num, product, url, price, delta, median in products:
-                % if median:
-                    <tr class="info" title="Этот товар имеет среднюю цену в категории">
-                % else:
-                    <tr>
-                % endif
+                    % if median:
+                        <tr class="info" title="Этот товар имеет среднюю цену
+                                                в категории">
+                    % else:
+                        <tr>
+                    % endif
                         <td>${num}</td>
                         <td>
                             <a href="${url}">

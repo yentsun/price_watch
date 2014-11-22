@@ -2,13 +2,14 @@
 <html lang="${req.locale_name}">
 <head>
     <meta charset="utf-8">
-    <%def name="project_title()">The Price Watch</%def>
+    <%def name="project_title()">food-price.net</%def>
 
     <title>${self.title()} - ${project_title()}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Max Korinets">
-
+    <link rel="shortcut icon" type="image/png"
+          href="${request.static_url('price_watch:static/favicon.png')}"/>
     <!-- Le styles -->
     <link href="${request.static_url('price_watch:static/css/'
     'bootstrap.min.css')}"
@@ -34,7 +35,8 @@
             <li><a href="#">About</a></li>
             <li><a href="#">Contact</a></li>
         </ul>
-        <h3 class="muted">Price Watch</h3>
+        <img src="${request.static_url('price_watch:static/img/logo.png')}"
+             alt="Логотип" width="230"/>
     </div>
 
     <hr>

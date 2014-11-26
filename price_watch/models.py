@@ -88,7 +88,7 @@ def keyword_lookup(string_, data_map):
 
 class DuplicateReportError(Exception):
     """Exception raised when trying to add same report"""
-    #TODO deprecate this
+    # TODO deprecate this
     def __init__(self, report):
         message = 'Trying to add duplicate report {0}'.format(report)
 
@@ -126,19 +126,18 @@ class StorageManager(object):
             self.connection = self._db.open()
         self._root = self.connection.root()
 
-    def __getitem__(self, item):
+    def __getitem__(self, namespace):
         """Container behavior"""
-        return self._root[item]
+        return self._root[namespace]
 
     def register(self, *instances):
         """Register new instances to appropriate namespaces"""
         for instance in instances:
-            namespace = instance.__class__.__name__
+            namespace = instance.namespace
             if namespace not in self._root:
                 self._root[namespace] = OOBTree.BTree()
-            key = instance.get_key()
-            if key not in self._root[namespace]:
-                self._root[namespace][key] = instance
+            if instance.key not in self._root[namespace]:
+                self._root[namespace][instance.key] = instance
 
     def delete(self, *instances):
         """Delete instances from appropriate namespaces"""
@@ -180,42 +179,41 @@ class Entity(Persistent):
     """Master class to inherit from. Used to implement ORM"""
     _representation = u'{title}'
     _key_pattern = u'{title}'
-
-    def to_dict(self):
-        """Return map representation"""
-        return self.__dict__
+    namespace = None
 
     def __repr__(self):
         """Unique representational string"""
-        return self._representation.format(**self.to_dict())
+        return self._representation.format(**self.__dict__)
 
     @property
     def __name__(self):
-        return self.get_key()
+        """For compatibility with pyramid traversal"""
+        return self.key
 
     def __resource_url__(self, request, info):
         """For compatibility with pyramid traversal"""
         parts = {
             'app_url': info['app_url'],
-            'type': self.__class__.__name__,
-            'key': urllib.quote(self.__name__.encode('utf-8'), safe='')
+            'collection': self.namespace,
+            'key': urllib.quote(self.key.encode('utf-8'), safe='')
         }
-        return u'{app_url}/{type}/{key}/'.format(**parts)
+        return u'{app_url}/{collection}/{key}/'.format(**parts)
 
-    def get_key(self):
-        """Return unique key based on `_key_template`"""
-        raw_key = self._key_pattern.format(**self.to_dict())
+    @property
+    def key(self):
+        """Return unique key based on `_key_pattern`"""
+        raw_key = self._key_pattern.format(**self.__dict__)
         return raw_key.replace('/', '-')
 
     @classmethod
     def fetch(cls, key, storage_manager):
         """Fetch instance from storage"""
-        return storage_manager.get(cls.__name__, key)
+        return storage_manager.get(cls.namespace, key)
 
     @classmethod
     def fetch_all(cls, storage_manager, objects_only=True):
         """Fetch all instances from storage"""
-        return storage_manager.get_all(cls.__name__, objects_only)
+        return storage_manager.get_all(cls.namespace, objects_only)
 
     @classmethod
     def acquire(cls, key, storage_manager, return_tuple=False):
@@ -245,6 +243,7 @@ class PriceReport(Entity):
     """Price report model, the working horse"""
     _representation = u'{price_value}-{product}-{merchant}-{reporter}'
     _key_pattern = '{uuid}'
+    namespace = 'reports'
 
     def __init__(self, price_value, product, reporter, merchant,
                  url=None, date_time=None):
@@ -267,12 +266,11 @@ class PriceReport(Entity):
 
     def delete_from(self, storage_manager):
         """Delete the report from product and storage"""
-        key = self.get_key()
         try:
-            del self.product.reports[key]
+            del self.product.reports[self.key]
         except AttributeError:
             pass
-        storage_manager.delete_key(self.__class__.__name__, key)
+        storage_manager.delete_key(self.__class__.__name__, self.key)
 
     @classmethod
     def acquire(cls, key, storage_manager, return_tuple=False):
@@ -300,13 +298,13 @@ class PriceReport(Entity):
             product = Product(product_title)
             prod_is_new = True
 
-            #category
+            # category
             category_key = product.get_category_key()
             category, cat_is_new = ProductCategory.acquire(category_key,
                                                            storage_manager, True)
             category.add_product(product)
 
-            #package
+            # package
             package_key = product.get_package_key()
             package, pack_is_new = ProductPackage.acquire(package_key,
                                                           storage_manager, True)
@@ -315,13 +313,13 @@ class PriceReport(Entity):
             category.add_package(package)
             product.package_ratio = package.get_ratio(category)
 
-            #merchant
+            # merchant
             product.add_merchant(merchant)
             merchant.add_product(product)
 
             storage_manager.register(product)
 
-        #report
+        # report
         report = cls(price_value=price_value, product=product,
                      reporter=reporter, merchant=merchant, url=url,
                      date_time=date_time)
@@ -342,6 +340,7 @@ class PriceReport(Entity):
 class Merchant(Entity):
     """Merchant model"""
     _representation = u'{title}-{location}'
+    namespace = 'merchants'
 
     def __init__(self, title, location=None):
         self.title = title
@@ -350,13 +349,13 @@ class Merchant(Entity):
 
     def add_product(self, product):
         """Add product to products dict"""
-        product_key = product.get_key()
-        if product_key not in self.products:
-            self.products[product_key] = product
+        if product.key not in self.products:
+            self.products[product.key] = product
 
 
 class ProductPackage(Entity):
     """Product package model"""
+    namespace = 'packages'
 
     def __init__(self, title):
         self.title = title
@@ -364,9 +363,8 @@ class ProductPackage(Entity):
 
     def add_category(self, category):
         """Add category to package"""
-        category_key = category.get_key()
-        if category_key not in self.categories:
-            self.categories[category_key] = category
+        if category.key not in self.categories:
+            self.categories[category.key] = category
 
     def get_variants(self):
         """Get package title variants as list from `data_map.yaml`"""
@@ -405,6 +403,7 @@ class ProductPackage(Entity):
 
 class ProductCategory(Entity):
     """Product category model"""
+    namespace = 'categories'
 
     def __init__(self, title):
         self.title = title
@@ -426,7 +425,7 @@ class ProductCategory(Entity):
 
     def get_parent(self):
         """Get parent category using `find_parent`"""
-        #TODO decide if this should be taken from storage by default
+        # TODO decide if this should be taken from storage by default
         data_map = load_data_map(self.__class__.__name__)
         parent_category_dict = traverse(self.title, data_map,
                                         return_parent=True)
@@ -439,10 +438,9 @@ class ProductCategory(Entity):
         """Add product(s) to the category and set category to the products"""
 
         for product in products:
-            product_key = product.get_key()
             product.category = self
-            if product_key not in self.products:
-                self.products[product_key] = product
+            if product.key not in self.products:
+                self.products[product.key] = product
 
     def remove_product(self, product):
         """
@@ -450,18 +448,16 @@ class ProductCategory(Entity):
         attribute to None
         """
         product.category = None
-        key = product.get_key()
-        if key in self.products:
-                del self.products[key]
+        if product.key in self.products:
+                del self.products[product.key]
 
     def add_package(self, package):
         """Add package to the category"""
 
         if not hasattr(self, 'packages'):
             self.packages = OOBTree.BTree()
-        package_key = package.get_key()
-        if package_key not in self.packages:
-            self.packages[package_key] = package
+        if package.key not in self.packages:
+            self.packages[package.key] = package
 
     def get_reports(self, date_time=None):
         """Get price reports for the category by datetime"""
@@ -508,6 +504,7 @@ class ProductCategory(Entity):
 
 class Product(Entity):
     """Product model"""
+    namespace = 'products'
 
     def __init__(self, title, category=None, manufacturer=None, package=None,
                  package_ratio=None):
@@ -522,15 +519,13 @@ class Product(Entity):
     def add_report(self, report):
         """Add report"""
 
-        report_key = report.get_key()
-        if report_key not in self.reports:
-            self.reports[report_key] = report
+        if report.key not in self.reports:
+            self.reports[report.key] = report
 
     def add_merchant(self, merchant):
         """Add merchant"""
-        merchant_key = merchant.get_key()
-        if merchant_key not in self.merchants:
-            self.merchants[merchant_key] = merchant
+        if merchant.key not in self.merchants:
+            self.merchants[merchant.key] = merchant
 
     def get_prices(self, date_time=None, normalized=True):
         """Get prices from reports for a given date"""
@@ -629,7 +624,7 @@ class Product(Entity):
 
     def delete_from(self, storage_manager):
         """Delete the product from all referenced objects"""
-        key = self.get_key()
+        key = self.key
         try:
             del self.category.products[key]
             for merchant in self.merchants.values():
@@ -645,6 +640,7 @@ class Reporter(Entity):
     """Reporter model"""
     _representation = u'{name}'
     _key_pattern = u'{name}'
+    namespace = 'reporters'
 
     def __init__(self, name):
         self.name = name
@@ -652,6 +648,5 @@ class Reporter(Entity):
 
     def add_report(self, report):
         """Add report"""
-        report_key = report.get_key()
-        if report_key not in self.reports:
-            self.reports[report_key] = report
+        if report.key not in self.reports:
+            self.reports[report.key] = report

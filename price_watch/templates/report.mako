@@ -1,6 +1,6 @@
 <%inherit file="base.mako"/>
       <div>
-        <h1><%block name="title">${req.context.get_key()}</%block>:
+        <h1><%block name="title">${req.context.key}</%block>:
         </h1>
       </div>
 

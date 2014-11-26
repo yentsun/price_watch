@@ -2,13 +2,15 @@
 
 import datetime
 import json
+import transaction
 from itertools import tee, islice, chain, izip
 from babel.core import Locale
 from babel.numbers import format_currency
 from pyramid.view import view_config, view_defaults
-from pyramid.httpexceptions import HTTPMethodNotAllowed, HTTPAccepted
+from pyramid.httpexceptions import (HTTPMethodNotAllowed, HTTPAccepted,
+                                    HTTPBadRequest)
 from dogpile.cache import make_region
-from price_watch.models import (ProductCategory, Product, PriceReport)
+from price_watch.models import *
 
 MULTIPLIER = 1
 category_region = make_region().configure(
@@ -69,6 +71,39 @@ class PriceReportView(EntityView):
     def get(self):
         return {}
 
+    def post(self):
+        # TODO Implement validation
+        if 'json_data' in self.request.POST:
+            json_data = json.loads(self.request.POST.getone('json_data'))
+            try:
+                reporter = Reporter.acquire(json_data['reporter'], self.root)
+                merchant = Merchant.acquire(json_data['merchant'], self.root)
+                date_time = datetime.datetime.strptime(json_data['date_time'],
+                                                       '%Y-%m-%d %H:%M:%S')
+                report, stats_ = PriceReport.assemble(
+                    price_value=float(json_data['price_value']),
+                    product_title=json_data['product_title'],
+                    url=json_data['url'],
+                    merchant=merchant,
+                    reporter=reporter,
+                    date_time=date_time,
+                    storage_manager=self.root
+                )
+                transaction.commit()
+                return {
+                    'new_report': report.key,
+                    'stats': stats_
+                }
+            except (KeyError, PackageLookupError, CategoryLookupError), e:
+                transaction.abort()
+                raise HTTPBadRequest(e.message)
+        raise HTTPBadRequest('No data sent')
+
+    @view_config(request_method='DELETE', renderer='json')
+    def delete(self):
+        self.context.delete_from(self.root)
+        return {'deleted_report_key': self.context.key()}
+
 
 @view_defaults(context=ProductCategory)
 class CategoryView(EntityView):
@@ -117,25 +152,24 @@ class RootView(EntityView):
 
     @view_config(request_method='GET', renderer='templates/index.mako')
     def get(self):
-        if self.context is self.root['ProductCategory']:
+        if self.context is self.root[ProductCategory.namespace]:
             raise HTTPMethodNotAllowed
-        if self.context is self.root['PriceReport']:
-            raise HTTPMethodNotAllowed
-        if self.context is self.root['Product']:
+        if self.context is self.root[PriceReport.namespace]:
+            raise HTTPMethodNotAllowed(allow=['POST'])
+        if self.context is self.root[Product.namespace]:
             raise HTTPMethodNotAllowed
         return {}
 
     @view_config(request_method='POST', renderer='json')
     def post(self):
-        if self.context is self.root['PriceReport']:
-            # receive a new report
-            return {'status': 'post PriceReport'}
+        if self.context is self.root['reports']:
+            return PriceReportView(self.request).post()
         raise HTTPMethodNotAllowed
 
     @view_config(request_method='GET', name='refresh')
     def refresh(self):
         """Temporary cache cleaning. Breaks RESTfulness"""
-        if self.context is self.root['ProductCategory']:
+        if self.context is self.root[ProductCategory.namespace]:
             category_region.invalidate()
             raise HTTPAccepted
 

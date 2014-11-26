@@ -18,7 +18,7 @@
                   </tr>
                   </thead>
                   <tbody>
-                  % for category in req.context['ProductCategory'].values():
+                  % for category in req.context['categories'].values():
                       % if len(category.products):
                     <tr>
                         <td>

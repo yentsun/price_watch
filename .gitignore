@@ -1,5 +1,6 @@
 .idea/*
 *.pyc
-storage.*
+*.log
+storage/*
 price_watch.egg-info/*
 cache/*

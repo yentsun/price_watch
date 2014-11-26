@@ -38,7 +38,7 @@ def output_data(days=14):
              for count in range(0, int(days))]
     result = dict()
     for category in categories:
-        result[category.get_key()] = OrderedDict()
+        result[category.key()] = OrderedDict()
         for date in dates:
             data_dict = dict()
             prices = category.get_prices(date)
@@ -92,42 +92,29 @@ def set_package_ratio():
 
 
 @task
-def add(merchant_str, title, price_value, url, date_string=None):
+def add(merchant_str, title, price_value, url, date_time=None):
     """Add price report"""
-    storage = StorageManager(FileStorage('storage.fs'))
-    reporter = Reporter.fetch('MilkBot cmd line', storage)
-    if not reporter:
-        reporter = Reporter('MilkBot cmd line')
-        storage.register(reporter)
-    merchant = Merchant.fetch(merchant_str.decode('utf-8'), storage)
-    if not merchant:
-        merchant = Merchant(merchant_str.decode('utf-8'))
-        storage.register(merchant)
-    category_key = ProductCategory.get_key_from_str(title.decode('utf-8'))
-    if category_key:
-        category = ProductCategory.fetch(category_key, storage)
-        if not category:
-            category = ProductCategory(category_key)
-            storage.register(category)
-        product = Product.fetch(title.decode('utf-8'), storage)
-        if not product:
-            product = Product(title.decode('utf-8'), category=category)
-            storage.register(product)
-        if date_string:
-            date = datetime.datetime.strptime(date_string, '%d.%m.%Y')
-        else:
-            date = None
-        try:
-            report = PriceReport(date_time=date, product=product,
-                                 merchant=merchant,
-                                 price_value=float(price_value),
-                                 reporter=reporter, url=url)
-            storage.register(report)
-            transaction.commit()
-            print(green('Report added'))
-        except PackageLookupError, e:
-            print(e.message)
-    storage.close()
+    keeper = StorageManager(FileStorage('storage/storage.fs'))
+    merchant = Merchant.acquire(merchant_str.decode('utf-8'), keeper)
+    reporter = Reporter.acquire('Price Watch', keeper)
+    if date_time:
+        date_time = datetime.datetime.strptime(date_time, '%d.%m.%Y')
+    try:
+        report, stats_ = PriceReport.assemble(
+            price_value=float(price_value),
+            product_title=title.decode('utf-8'),
+            url=url,
+            merchant=merchant,
+            reporter=reporter,
+            date_time=date_time,
+            storage_manager=keeper
+        )
+        transaction.commit()
+        print(green(u'Report {} added'.format(report)))
+    except (PackageLookupError, CategoryLookupError), e:
+        transaction.abort()
+        print(red(e.message))
+    keeper.close()
 
 
 @task
@@ -188,7 +175,7 @@ def cleanup():
     print('Products check...')
     for key, product in products.iteritems():
         # key check
-        if key != product.get_key():
+        if key != product.key():
             print(yellow(u'Fixing {}...'.format(key)))
             keeper.register(product)
             keeper.delete_key(product.__class__.__name__, key)
@@ -198,7 +185,7 @@ def cleanup():
                 del merchant.products[key]
                 merchant.add_product(product)
 
-        #reports check
+        # reports check
         if len(product.reports) == 0:
             print(yellow(u'Deleting "{}"...'.format(product)))
             product.delete_from(keeper)

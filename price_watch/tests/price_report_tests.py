@@ -16,7 +16,8 @@ class TestPriceReport(unittest.TestCase):
         self.zodb_storage = MappingStorage('test')
         self.keeper = StorageManager(zodb_storage=self.zodb_storage)
 
-        # fixture
+        # fixtures
+        # TODO make them through `PriceReport.assemble`
         merchant = Merchant.acquire("Howie's grocery", self.keeper)
         category = ProductCategory.acquire('milk', self.keeper)
         product1 = Product.acquire(u'Молоко Веселый молочник 1л', self.keeper)
@@ -40,8 +41,11 @@ class TestPriceReport(unittest.TestCase):
                               product=product3, reporter=reporter,
                               url='http://howies.com/products/milk/3')
         product1.add_report(report1)
+        reporter.add_report(report1)
         product2.add_report(report2)
+        reporter.add_report(report2)
         product3.add_report(report3)
+        reporter.add_report(report3)
         self.keeper.register(report1, report2, report3)
         transaction.commit()
         self.keeper.connection.close()
@@ -61,8 +65,11 @@ class TestPriceReport(unittest.TestCase):
         self.assertEqual("Howie's grocery", report1.merchant.title)
         self.assertEqual('Jack', report1.reporter.name)
 
-        # test category __getitem__
+        # test container behaviour
         self.assertIs(milk[u'Молоко Веселый молочник 1л'], report1.product)
+        self.assertIn(u'Молоко Веселый молочник 1л', milk)
+        self.assertIs(report1.product[self.report1_key], report1)
+        self.assertIn(self.report1_key, report1.reporter)
 
     def test_package_lookup(self):
 
@@ -372,6 +379,16 @@ class TestPriceReport(unittest.TestCase):
         product = Product(title)
         self.assertEqual(u'Молоко Красная Цена у-паст. 3.2% 1000г',
                          product.key)
+
+    def test_delete_report(self):
+        victim = PriceReport.fetch(self.report1_key, self.keeper)
+        reporter = victim.reporter
+        product = victim.product
+        victim.delete_from(self.keeper)
+        transaction.commit()
+        self.assertNotIn(victim.key, reporter)
+        self.assertNotIn(victim.key, product)
+        self.assertNotIn(victim.key, PriceReport.fetch_all(self.keeper))
 
     def tearDown(self):
         self.keeper.close()

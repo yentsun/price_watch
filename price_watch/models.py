@@ -190,6 +190,27 @@ class Entity(Persistent):
         """For compatibility with pyramid traversal"""
         return self.key
 
+    def _get_inner_container(self):
+        """
+        Return the inner container if the instance has it
+        """
+        if hasattr(self, '_container_attr'):
+            container_name = getattr(self, '_container_attr')
+            container = getattr(self, container_name)
+            return container
+        else:
+            raise NotImplementedError
+
+    def __getitem__(self, key):
+        """Container behaviour"""
+        inner_container = self._get_inner_container()
+        return inner_container[key]
+
+    def __contains__(self, key):
+        """Container behaviour"""
+        inner_container = self._get_inner_container()
+        return key in inner_container
+
     def __resource_url__(self, request, info):
         """For compatibility with pyramid traversal"""
         parts = {
@@ -268,9 +289,10 @@ class PriceReport(Entity):
         """Delete the report from product and storage"""
         try:
             del self.product.reports[self.key]
-        except AttributeError:
+            del self.reporter.reports[self.key]
+        except (KeyError, AttributeError):
             pass
-        storage_manager.delete_key(self.__class__.__name__, self.key)
+        storage_manager.delete_key(self.namespace, self.key)
 
     @classmethod
     def acquire(cls, key, storage_manager, return_tuple=False):
@@ -403,15 +425,12 @@ class ProductPackage(Entity):
 
 class ProductCategory(Entity):
     """Product category model"""
+    _container_attr = 'products'
     namespace = 'categories'
 
     def __init__(self, title):
         self.title = title
         self.products = OOBTree.BTree()
-
-    def __getitem__(self, key):
-        """Make category `containerish`"""
-        return self.products[key]
 
     def get_data(self, attribute):
         """Get category data from `data_map.yaml`"""
@@ -504,6 +523,7 @@ class ProductCategory(Entity):
 
 class Product(Entity):
     """Product model"""
+    _container_attr = 'reports'
     namespace = 'products'
 
     def __init__(self, title, category=None, manufacturer=None, package=None,
@@ -640,6 +660,7 @@ class Reporter(Entity):
     """Reporter model"""
     _representation = u'{name}'
     _key_pattern = u'{name}'
+    _container_attr = 'reports'
     namespace = 'reporters'
 
     def __init__(self, name):

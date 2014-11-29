@@ -66,43 +66,48 @@ class ProductView(EntityView):
 @view_defaults(context=PriceReport)
 class PriceReportView(EntityView):
 
-    @view_config(renderer='templates/report.mako',
-                 request_method='GET')
+    @view_config(renderer='templates/report.mako', request_method='GET')
     def get(self):
         return {}
 
     def post(self):
         # TODO Implement validation
-        if 'json_data' in self.request.POST:
-            json_data = json.loads(self.request.POST.getone('json_data'))
-            try:
-                reporter = Reporter.acquire(json_data['reporter'], self.root)
-                merchant = Merchant.acquire(json_data['merchant'], self.root)
-                date_time = datetime.datetime.strptime(json_data['date_time'],
+        post_data = self.request.POST
+        date_time = None
+
+        if 'date_time' in post_data:
+                date_time = datetime.datetime.strptime(post_data['date_time'],
                                                        '%Y-%m-%d %H:%M:%S')
-                report, stats_ = PriceReport.assemble(
-                    price_value=float(json_data['price_value']),
-                    product_title=json_data['product_title'],
-                    url=json_data['url'],
-                    merchant=merchant,
-                    reporter=reporter,
-                    date_time=date_time,
-                    storage_manager=self.root
-                )
-                transaction.commit()
-                return {
-                    'new_report': report.key,
-                    'stats': stats_
-                }
-            except (KeyError, PackageLookupError, CategoryLookupError), e:
-                transaction.abort()
-                raise HTTPBadRequest(e.message)
-        raise HTTPBadRequest('No data sent')
+
+        try:
+            reporter = Reporter.acquire(post_data['reporter'], self.root)
+            merchant = Merchant.acquire(post_data['merchant'], self.root)
+
+            # TODO accept string data instead of objects
+            report, stats_ = PriceReport.assemble(
+                price_value=float(post_data['price_value']),
+                product_title=post_data['product_title'],
+                url=post_data['url'],
+                merchant=merchant,
+                reporter=reporter,
+                date_time=date_time,
+                storage_manager=self.root
+            )
+            transaction.commit()
+            return {
+                'new_report': report.key,
+                'stats': stats_
+            }
+        except (KeyError, PackageLookupError, CategoryLookupError), e:
+            transaction.abort()
+            raise HTTPBadRequest(e.message)
 
     @view_config(request_method='DELETE', renderer='json')
     def delete(self):
+
         self.context.delete_from(self.root)
-        return {'deleted_report_key': self.context.key()}
+        transaction.commit()
+        return {'deleted_report_key': self.context.key}
 
 
 @view_defaults(context=ProductCategory)

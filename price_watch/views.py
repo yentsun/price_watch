@@ -10,12 +10,22 @@ from pyramid.view import view_config, view_defaults
 from pyramid.httpexceptions import (HTTPMethodNotAllowed, HTTPAccepted,
                                     HTTPBadRequest)
 from dogpile.cache import make_region
-from price_watch.models import *
+from price_watch.models import (Page, PriceReport, PackageLookupError,
+                                CategoryLookupError, ProductCategory, Product,
+                                Reporter, Merchant)
 
 MULTIPLIER = 1
 category_region = make_region().configure(
     'dogpile.cache.memory'
 )
+
+
+def namespace_predicate(class_):
+    """Custom predicate to check context for being a namespace"""
+    def check_namespace(context, request):
+        return context is request.root[class_.namespace] or \
+               type(context) == class_
+    return check_namespace
 
 
 def previous_and_next(some_iterable):
@@ -56,6 +66,12 @@ class EntityView(object):
         return format_currency(value, symbol, locale=self.locale)
 
 
+@view_defaults(context=Page)
+class PageView(EntityView):
+    # @view_config(request_method='')
+    pass
+
+
 @view_defaults(context=Product)
 class ProductView(EntityView):
     @view_config(renderer='templates/product.mako', request_method='GET')
@@ -63,13 +79,14 @@ class ProductView(EntityView):
         return {}
 
 
-@view_defaults(context=PriceReport)
+@view_defaults(custom_predicates=(namespace_predicate(PriceReport),))
 class PriceReportView(EntityView):
 
-    @view_config(renderer='templates/report.mako', request_method='GET')
+    @view_config(request_method='GET', renderer='templates/report.mako')
     def get(self):
         return {}
 
+    @view_config(request_method='POST', renderer='json')
     def post(self):
         # TODO Implement validation
         post_data = self.request.POST
@@ -164,12 +181,6 @@ class RootView(EntityView):
         if self.context is self.root[Product.namespace]:
             raise HTTPMethodNotAllowed
         return {}
-
-    @view_config(request_method='POST', renderer='json')
-    def post(self):
-        if self.context is self.root['reports']:
-            return PriceReportView(self.request).post()
-        raise HTTPMethodNotAllowed
 
     @view_config(request_method='GET', name='refresh')
     def refresh(self):

@@ -653,7 +653,7 @@ class Product(Entity):
             pass
         for report in self.reports.values():
             report.delete_from(storage_manager)
-        storage_manager.delete_key(self.__class__.__name__, key)
+        storage_manager.delete_key(self.namespace, key)
 
 
 class Reporter(Entity):
@@ -671,3 +671,17 @@ class Reporter(Entity):
         """Add report"""
         if report.key not in self.reports:
             self.reports[report.key] = report
+
+
+class Page(Entity):
+    """Page model (static text)"""
+    _representation = u'{slug}'
+    _key_pattern = u'{slug}'
+    namespace = 'pages'
+
+    def __init__(self, slug):
+        self.slug = slug
+
+    def delete_from(self, storage_manager):
+        """Delete the page instance from storage"""
+        storage_manager.delete_key(self.namespace, self.key)

@@ -21,7 +21,16 @@ class TestPriceReport(unittest.TestCase):
         self.report1_key = result['reports'][0].key
         self.report2_key = result['reports'][1].key
 
-    def test_presense_in_storage(self):
+    def test_basic_presense_in_storage(self):
+        category = ProductCategory.fetch('milk', self.keeper)
+        self.assertEqual('milk', category.key)
+
+        product = Product.fetch(u'Молоко Красная Цена у-паст. 3.2% 1л',
+                                self.keeper)
+        self.assertEqual(u'Молоко Красная Цена у/паст. 3.2% 1л',
+                         product.title)
+
+    def test_presense_in_references(self):
 
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(3, len(milk.products))
@@ -34,8 +43,7 @@ class TestPriceReport(unittest.TestCase):
         self.assertEqual('Jack', report1.reporter.name)
 
         # test container behaviour
-        self.assertIs(milk[u'Молоко Веселый молочник 1л'], report1.product)
-        self.assertIn(u'Молоко Веселый молочник 1л', milk)
+        self.assertIs(milk[report1.product.key], report1.product)
         self.assertIs(report1.product[self.report1_key], report1)
         self.assertIn(self.report1_key, report1.reporter)
 
@@ -205,12 +213,14 @@ class TestPriceReport(unittest.TestCase):
 
     def test_representation(self):
         milk = ProductCategory.fetch('milk', self.keeper)
-        self.assertIn(u"55.6-Молоко Веселый молочник 1л-Howie's grocery-"
+        self.assertIn(u"55.6-Молоко Красная Цена у/паст. 3.2% 1л"
+                      u"-Howie's grocery-"
                       u"None-Jack",
                       [unicode(r) for r in milk.get_reports()])
 
     def test_product_prices(self):
-        product = Product.fetch(u'Молоко Веселый молочник 1л', self.keeper)
+        product = Product.fetch(u'Молоко Красная Цена у-паст. 3.2% 1л',
+                                self.keeper)
         self.assertEqual(55.6, product.get_price())
 
     def test_fetch_all(self):

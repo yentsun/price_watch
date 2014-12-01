@@ -17,6 +17,10 @@ MULTIPLIER = 1
 logging.basicConfig(filename='debug.log', level=logging.DEBUG)
 
 
+def get_storage():
+    return StorageManager(FileStorage('storage/storage.fs'))
+
+
 def get_datetimes(days):
     """Return list with days back range"""
 

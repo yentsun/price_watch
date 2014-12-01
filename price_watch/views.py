@@ -110,6 +110,7 @@ class ProductView(EntityView):
 
 @view_defaults(custom_predicates=(namespace_predicate(PriceReport),))
 class PriceReportView(EntityView):
+    """/reports views"""
 
     @view_config(request_method='GET', renderer='templates/report.mako')
     def get(self):
@@ -160,21 +161,24 @@ class CategoryView(EntityView):
         sorted_products = sorted(category.get_qualified_products(),
                                  key=lambda pr: pr.get_price())
         for num, product in enumerate(sorted_products):
-            price = product.get_price()
-            middle_num = int(len(sorted_products) / 2)
-            median = (num == middle_num)
-            if len(sorted_products) % 2 == 0:
-                median = (num == middle_num or num == middle_num-1)
+            try:
+                price = product.get_price()
+                middle_num = int(len(sorted_products) / 2)
+                median = (num == middle_num)
+                if len(sorted_products) % 2 == 0:
+                    median = (num == middle_num or num == middle_num-1)
 
-            # construct data row as tuple
-            products.append((
-                num+1,
-                product,
-                self.request.resource_url(product),
-                self.currency(price),
-                int(product.get_price_delta(self.delta_period)*100),
-                median
-            ))
+                # construct data row as tuple
+                products.append((
+                    num+1,
+                    product,
+                    self.request.resource_url(product),
+                    self.currency(price),
+                    int(product.get_price_delta(self.delta_period)*100),
+                    median
+                ))
+            except TypeError:
+                pass
         return {'price_data': json.dumps(price_data),
                 'products': products,
                 'cat_title': category.get_data('keyword'),

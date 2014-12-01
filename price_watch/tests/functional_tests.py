@@ -26,8 +26,10 @@ class FunctionalTests(unittest.TestCase):
 
     def test_product(self):
         res = self.testapp.get(
-            u'/products/Молоко Deli Milk 1L'.encode('utf-8'), status=200)
-        self.assertIn(u'Молоко Deli Milk 1L', res.body.decode('utf-8'))
+            u'/products/Молоко Красная Цена у-паст. 3.2% 1л'.encode('utf-8'),
+            status=200)
+        self.assertIn(u'Молоко Красная Цена у/паст. 3.2% 1л',
+                      res.body.decode('utf-8'))
 
     def test_report_get(self):
         res = self.testapp.get('/reports/{}'.format(self.report_key),
@@ -38,14 +40,12 @@ class FunctionalTests(unittest.TestCase):
         res = self.testapp.get('/rubbishness', status=404)
         self.assertIn('404', res.body)
 
-    def test_report_post(self):
-
-        # bad request
+    def test_report_post_bad_request(self):
         bad_data = [('rubbish_field', 'say wha?')]
         res = self.testapp.post('/reports', bad_data, status=400)
         self.assertIn('400', res.body)
 
-        # bad category
+    def test_report_post_bad_category(self):
         data = [
             ('price_value', 55.6),
             ('url', 'http://howies.com/products/milk/4'),
@@ -56,7 +56,7 @@ class FunctionalTests(unittest.TestCase):
         res = self.testapp.post('/reports', data, status=400)
         self.assertIn('Category lookup failed', res.body)
 
-        # bad package
+    def test_report_post_bad_package(self):
         data = [
             ('price_value', 55.6),
             ('url', 'http://howies.com/products/milk/4'),
@@ -68,16 +68,19 @@ class FunctionalTests(unittest.TestCase):
         res = self.testapp.post('/reports', data, status=400)
         self.assertIn('Package lookup failed', res.body)
 
-        # good request
+    def test_report_post_existent_product(self):
         data = [
             ('price_value', 55.6),
             ('url', 'http://howies.com/products/milk/4'),
-            ('product_title', u'Молоко Веселый молочник 950г'.encode('utf-8')),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
             ('merchant_title', "Howie's grocery"),
             ('reporter_name', 'Jack')
         ]
         res = self.testapp.post('/reports', data, status=200)
-        self.assertIn('new_report', res.body)
+        self.assertFalse(res.json_body['stats']['new_product'])
+        new_report_key = res.json_body['new_report']
+        self.testapp.get('/reports/{}'.format(new_report_key), status=200)
 
     def test_report_delete(self):
         res = self.testapp.delete('/reports/{}'.format(self.report_key),

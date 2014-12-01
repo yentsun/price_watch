@@ -253,16 +253,17 @@ class Entity(Persistent):
         return storage_manager.get_all(cls.namespace, objects_only)
 
     @classmethod
-    def acquire(cls, key, storage_manager, return_tuple=False):
+    def acquire(cls, key_attr, storage_manager, return_tuple=False):
         """
         Fetch or register new instance and return it in tuple
         with status
         """
         created_new = False
+        key = cls(key_attr).key
         stored_instance = cls.fetch(key, storage_manager)
 
         if not stored_instance:
-            new_instance = cls(key)
+            new_instance = cls(key_attr)
             storage_manager.register(new_instance)
             stored_instance = new_instance
             created_new = True
@@ -339,8 +340,10 @@ class PriceReport(Entity):
         """
 
         prod_is_new = cat_is_new = pack_is_new = False
-        product = Product.fetch(product_title, storage_manager)
-        merchant = Merchant.acquire(merchant_title, storage_manager)
+        product_key = Product(product_title).key
+        merchant_key = Merchant(merchant_title).key
+        product = Product.fetch(product_key, storage_manager)
+        merchant = Merchant.acquire(merchant_key, storage_manager)
         if not product:
             product = Product(product_title)
             prod_is_new = True

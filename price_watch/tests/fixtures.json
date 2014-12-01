@@ -1,0 +1,23 @@
+[
+  {
+    "price_value": 55.6,
+    "url": "http://howies.com/products/milk/1",
+    "product_title": "Молоко Веселый молочник 1л",
+    "merchant_title": "Howie's grocery",
+    "reporter_name": "Jack"
+  },
+  {
+    "price_value": 41.7,
+    "url": "http://howies.com/products/milk/2",
+    "product_title": "Молоко Farmers Milk 1L",
+    "merchant_title": "Howie's grocery",
+    "reporter_name": "Jack"
+  },
+  {
+    "price_value": 64.3,
+    "url": "http://howies.com/products/milk/3",
+    "product_title": "Молоко Deli Milk 1L",
+    "merchant_title": "Howie's grocery",
+    "reporter_name": "Jack"
+  }
+]

@@ -1,5 +1,6 @@
 import datetime
 import yaml
+import json
 import os
 import numpy
 import urllib
@@ -174,6 +175,17 @@ class StorageManager(object):
         self.connection.close()
         self._zodb_storage.close()
 
+    def load_fixtures(self, path):
+        """Load fixtures from JSON file in path. Mostly for testing"""
+        report_keys = list()
+        with open(path) as f:
+            fixture_list = json.load(f)
+            for fixture in fixture_list:
+                report, stats = PriceReport.assemble(storage_manager=self,
+                                                     **fixture)
+                report_keys.append(report.key)
+        return report_keys
+
 
 class Entity(Persistent):
     """Master class to inherit from. Used to implement ORM"""
@@ -301,8 +313,8 @@ class PriceReport(Entity):
         raise NotImplementedError
 
     @classmethod
-    def assemble(cls, price_value, product_title, url, merchant,
-                 reporter, storage_manager, date_time=None):
+    def assemble(cls, price_value, product_title, merchant_title,
+                 reporter_name, url, storage_manager, date_time=None):
         """
         The only encouraged factory method for price reports and all the
         referenced instances:
@@ -314,8 +326,9 @@ class PriceReport(Entity):
         New report is registered in storage
         """
 
+        prod_is_new = cat_is_new = pack_is_new = False
         product = Product.fetch(product_title, storage_manager)
-        prod_is_new, cat_is_new, pack_is_new = False, False, False
+        merchant = Merchant.acquire(merchant_title, storage_manager)
         if not product:
             product = Product(product_title)
             prod_is_new = True
@@ -323,13 +336,15 @@ class PriceReport(Entity):
             # category
             category_key = product.get_category_key()
             category, cat_is_new = ProductCategory.acquire(category_key,
-                                                           storage_manager, True)
+                                                           storage_manager,
+                                                           True)
             category.add_product(product)
 
             # package
             package_key = product.get_package_key()
             package, pack_is_new = ProductPackage.acquire(package_key,
-                                                          storage_manager, True)
+                                                          storage_manager,
+                                                          True)
             package.add_category(category)
             product.package = package
             category.add_package(package)
@@ -342,7 +357,8 @@ class PriceReport(Entity):
             storage_manager.register(product)
 
         # report
-        report = cls(price_value=price_value, product=product,
+        reporter = Reporter.acquire(reporter_name, storage_manager)
+        report = cls(price_value=float(price_value), product=product,
                      reporter=reporter, merchant=merchant, url=url,
                      date_time=date_time)
         reporter.add_report(report)

@@ -15,45 +15,13 @@ class TestPriceReport(unittest.TestCase):
     def setUp(self):
         self.zodb_storage = MappingStorage('test')
         self.keeper = StorageManager(zodb_storage=self.zodb_storage)
-
-        # fixtures
-        # TODO make them through `PriceReport.assemble`
-        merchant = Merchant.acquire("Howie's grocery", self.keeper)
-        category = ProductCategory.acquire('milk', self.keeper)
-        product1 = Product.acquire(u'Молоко Веселый молочник 1л', self.keeper)
-        product2 = Product.acquire(u'Молоко Farmers Milk 1L', self.keeper)
-        product3 = Product.acquire(u'Молоко Deli Milk 1L', self.keeper)
-        product1.package = product1.get_package()
-        product2.package = product2.get_package()
-        product3.package = product3.get_package()
-        product1.package_ratio = product1.package.get_ratio(category)
-        product2.package_ratio = product2.package.get_ratio(category)
-        product3.package_ratio = product3.package.get_ratio(category)
-        category.add_product(product1, product2, product3)
-        reporter = Reporter.acquire('Jack', self.keeper)
-        report1 = PriceReport(price_value=55.6, merchant=merchant,
-                              product=product1, reporter=reporter,
-                              url='http://howies.com/products/milk/1')
-        report2 = PriceReport(price_value=41.7, merchant=merchant,
-                              product=product2, reporter=reporter,
-                              url='http://howies.com/products/milk/2')
-        report3 = PriceReport(price_value=64.3, merchant=merchant,
-                              product=product3, reporter=reporter,
-                              url='http://howies.com/products/milk/3')
-        product1.add_report(report1)
-        reporter.add_report(report1)
-        product2.add_report(report2)
-        reporter.add_report(report2)
-        product3.add_report(report3)
-        reporter.add_report(report3)
-        self.keeper.register(report1, report2, report3)
+        report_keys = self.keeper.load_fixtures('fixtures.json')
         transaction.commit()
         self.keeper.connection.close()
+        self.report1_key = report_keys[0]
+        self.report2_key = report_keys[1]
 
-        self.report1_key = report1.key
-        self.report2_key = report2.key
-
-    def test_presense_in_db(self):
+    def test_presense_in_storage(self):
 
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(3, len(milk.products))
@@ -132,15 +100,13 @@ class TestPriceReport(unittest.TestCase):
         self.assertEqual(55.6, milk.get_price())
 
         # add irrelevant product report
-        reporter = Reporter.acquire('Jill', self.keeper)
-        merchant = Merchant.acquire("Scotty's grocery", self.keeper)
         raw_data1 = {
             'product_title': u'Молоко Great Milk 0,5л',
             'price_value': 32.6,
             'url': 'http://scottys.com/products/milk/10',
-            'merchant': merchant,
+            'merchant_title': "Scotty's grocery",
             'date_time': None,
-            'reporter': reporter
+            'reporter_name': 'Jill'
         }
         PriceReport.assemble(storage_manager=self.keeper, **raw_data1)
         transaction.commit()
@@ -149,39 +115,37 @@ class TestPriceReport(unittest.TestCase):
 
     def test_report_assembly(self):
 
-        reporter = Reporter.acquire('Jill', self.keeper)
-        merchant = Merchant.acquire("Scotty's grocery", self.keeper)
         raw_data1 = {
             'product_title': u'Молоко Great Milk 1L',
             'price_value': 42.6,
             'url': 'http://scottys.com/products/milk/1',
-            'merchant': merchant,
+            'merchant_title': "Scotty's grocery",
             'date_time': None,
-            'reporter': reporter
+            'reporter_name': 'Jill'
         }
         raw_data2 = {
             'product_title': u'Молоко Great Milk 0.93 L',
             'price_value': 50,
             'url': 'http://scottys.com/products/milk/5',
-            'merchant': merchant,
+            'merchant_title': "Scotty's grocery",
             'date_time': None,
-            'reporter': reporter
+            'reporter_name': 'Jill'
         }
         raw_data3 = {
             'product_title': u'Сметана Great Sour Cream 450g',
             'price_value': 60.4,
             'url': 'http://scottys.com/products/sc/6',
-            'merchant': merchant,
+            'merchant_title': "Scotty's grocery",
             'date_time': datetime.datetime(2014, 10, 5),
-            'reporter': reporter
+            'reporter_name': 'Jill'
         }
         raw_data4 = {
             'product_title': u'Сметана Great Sour Cream 987987g',
             'price_value': 60.4,
             'url': 'http://scottys.com/products/sc/8978',
-            'merchant': merchant,
+            'merchant_title': "Scotty's grocery",
             'date_time': datetime.datetime(2014, 10, 5),
-            'reporter': reporter
+            'reporter_name': 'Jill'
         }
         report1, stats1 = PriceReport.assemble(storage_manager=self.keeper,
                                                **raw_data1)
@@ -296,26 +260,24 @@ class TestPriceReport(unittest.TestCase):
         even_more_past_date = datetime.datetime(2014, 7, 22)
         milk = ProductCategory.fetch('milk', self.keeper)
         cheapest_milk_title = u'Молоко The Cheapest Milk!!! 1л'
-        reporter = Reporter('John')
-        merchant = Merchant.fetch("Howie's grocery", self.keeper)
         PriceReport.assemble(price_value=30.10,
                              product_title=cheapest_milk_title,
-                             reporter=reporter,
-                             merchant=merchant,
+                             reporter_name='John',
+                             merchant_title="Howie's grocery",
                              url='http://someshop.com/item/344',
                              date_time=past_date,
                              storage_manager=self.keeper)
         PriceReport.assemble(price_value=29.10,
                              product_title=cheapest_milk_title,
-                             reporter=reporter,
-                             merchant=merchant,
+                             reporter_name='John',
+                             merchant_title="Howie's grocery",
                              url='http://someshop.com/item/344',
                              date_time=past_past_date,
                              storage_manager=self.keeper)
         PriceReport.assemble(price_value=25.22,
                              product_title=cheapest_milk_title,
-                             reporter=reporter,
-                             merchant=merchant,
+                             reporter_name='John',
+                             merchant_title="Howie's grocery",
                              url='http://someshop.com/item/344',
                              date_time=even_more_past_date,
                              storage_manager=self.keeper)
@@ -346,10 +308,11 @@ class TestPriceReport(unittest.TestCase):
     def test_qualified_products(self):
         milk = ProductCategory.fetch('milk', self.keeper)
         fancy_milk_title = u'Молоко The Luxury Milk!!! 0,5л'
-        reporter = Reporter('John')
-        merchant = Merchant.fetch("Howie's grocery", self.keeper)
-        PriceReport.assemble(40, fancy_milk_title, 'http"//blah', merchant,
-                             reporter, self.keeper)
+        PriceReport.assemble(price_value=40, product_title=fancy_milk_title,
+                             url='http"//blah',
+                             merchant_title="Howie's grocery",
+                             reporter_name='John',
+                             storage_manager=self.keeper)
         transaction.commit()
 
         fancy_milk = Product.fetch(u'Молоко The Luxury Milk!!! 0,5л',

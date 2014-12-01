@@ -21,10 +21,15 @@ category_region = make_region().configure(
 
 
 def namespace_predicate(class_):
-    """Custom predicate to check context for being a namespace"""
+    """
+    Custom predicate to check context for being an instance or a namespace
+    """
     def check_namespace(context, request):
-        return context is request.root[class_.namespace] or \
-               type(context) == class_
+        try:
+            return (context == request.root[class_.namespace] or
+                    type(context) == class_)
+        except KeyError:
+            return False
     return check_namespace
 
 
@@ -90,32 +95,21 @@ class PriceReportView(EntityView):
     def post(self):
         # TODO Implement validation
         post_data = self.request.POST
-        date_time = None
 
         if 'date_time' in post_data:
-                date_time = datetime.datetime.strptime(post_data['date_time'],
-                                                       '%Y-%m-%d %H:%M:%S')
+            post_data['date_time'] = datetime.datetime.strptime(
+                post_data['date_time'],
+                '%Y-%m-%d %H:%M:%S')
 
         try:
-            reporter = Reporter.acquire(post_data['reporter'], self.root)
-            merchant = Merchant.acquire(post_data['merchant'], self.root)
-
-            # TODO accept string data instead of objects
-            report, stats_ = PriceReport.assemble(
-                price_value=float(post_data['price_value']),
-                product_title=post_data['product_title'],
-                url=post_data['url'],
-                merchant=merchant,
-                reporter=reporter,
-                date_time=date_time,
-                storage_manager=self.root
-            )
+            report, stats_ = PriceReport.assemble(storage_manager=self.root,
+                                                  **post_data)
             transaction.commit()
             return {
                 'new_report': report.key,
                 'stats': stats_
             }
-        except (KeyError, PackageLookupError, CategoryLookupError), e:
+        except (TypeError, PackageLookupError, CategoryLookupError), e:
             transaction.abort()
             raise HTTPBadRequest(e.message)
 
@@ -174,12 +168,6 @@ class RootView(EntityView):
 
     @view_config(request_method='GET', renderer='templates/index.mako')
     def get(self):
-        if self.context is self.root[ProductCategory.namespace]:
-            raise HTTPMethodNotAllowed
-        if self.context is self.root[PriceReport.namespace]:
-            raise HTTPMethodNotAllowed(allow=['POST'])
-        if self.context is self.root[Product.namespace]:
-            raise HTTPMethodNotAllowed
         return {}
 
     @view_config(request_method='GET', name='refresh')

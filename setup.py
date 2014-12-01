@@ -21,7 +21,8 @@ requires = [
     'fabric',
     'dogpile',
     'numpy',
-    'dogpile.cache'
+    'dogpile.cache',
+    'webtest'
 ]
 
 setup(name='price_watch',

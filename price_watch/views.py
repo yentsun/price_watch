@@ -6,9 +6,11 @@ import transaction
 from itertools import tee, islice, chain, izip
 from babel.core import Locale
 from babel.numbers import format_currency
+from mako.exceptions import TopLevelLookupException
 from pyramid.view import view_config, view_defaults
+from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import (HTTPMethodNotAllowed, HTTPAccepted,
-                                    HTTPBadRequest)
+                                    HTTPBadRequest, HTTPNotFound)
 from dogpile.cache import make_region
 from price_watch.models import (Page, PriceReport, PackageLookupError,
                                 CategoryLookupError, ProductCategory, Product,
@@ -71,14 +73,36 @@ class EntityView(object):
         return format_currency(value, symbol, locale=self.locale)
 
 
-@view_defaults(context=Page)
+@view_defaults(custom_predicates=(namespace_predicate(Page),))
 class PageView(EntityView):
-    # @view_config(request_method='')
-    pass
+
+    @view_config(request_method='GET')
+    def get(self):
+        try:
+            return render_to_response(
+                'templates/pages/{slug}.mako'.format(**self.context.__dict__),
+                {},
+                request=self.request
+            )
+        except TopLevelLookupException:
+            raise HTTPNotFound
+
+    @view_config(request_method='POST', renderer='json')
+    def post(self):
+        post_data = self.request.POST
+        try:
+            new_page = Page.assemble(storage_manager=self.root, **post_data)
+            transaction.commit()
+            return {
+                'new_page': new_page.slug
+            }
+        except TypeError as e:
+            raise HTTPBadRequest(e.message)
 
 
 @view_defaults(context=Product)
 class ProductView(EntityView):
+
     @view_config(renderer='templates/product.mako', request_method='GET')
     def get(self):
         return {}

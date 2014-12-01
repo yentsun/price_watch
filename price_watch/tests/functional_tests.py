@@ -10,10 +10,10 @@ class FunctionalTests(unittest.TestCase):
 
     def setUp(self):
         boot = bootstrap('testing.ini')
-        report_keys = boot['root'].load_fixtures('fixtures.json')
+        result = boot['root'].load_fixtures('fixtures.json')
         transaction.commit()
         self.testapp = TestApp(boot['app'])
-        self.report_key = report_keys[0]
+        self.report_key = result['reports'][0].key
 
     def test_root(self):
         res = self.testapp.get('/', status=200)
@@ -60,7 +60,8 @@ class FunctionalTests(unittest.TestCase):
         data = [
             ('price_value', 55.6),
             ('url', 'http://howies.com/products/milk/4'),
-            ('product_title', u'Молоко Веселый молочник 3950г'.encode('utf-8')),
+            ('product_title',
+             u'Молоко Веселый молочник 3950г'.encode('utf-8')),
             ('merchant_title', "Howie's grocery"),
             ('reporter_name', 'Jack')
         ]
@@ -77,3 +78,19 @@ class FunctionalTests(unittest.TestCase):
         ]
         res = self.testapp.post('/reports', data, status=200)
         self.assertIn('new_report', res.body)
+
+    def test_report_delete(self):
+        res = self.testapp.delete('/reports/{}'.format(self.report_key),
+                                  status=200)
+        self.assertIn('deleted_report_key', res.body)
+        self.testapp.get('/reports/{}'.format(self.report_key), status=404)
+
+    def test_page_get(self):
+        res = self.testapp.get('/pages/about', status=200)
+        self.assertIn(u'О проекте', res.body.decode('utf-8'))
+
+    def test_page_post(self):
+        res = self.testapp.post('/pages', [('slug', 'test')], status=200)
+        self.assertIn('new_page', res.body)
+
+        self.testapp.get('/pages/test', status=404)

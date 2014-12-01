@@ -177,14 +177,18 @@ class StorageManager(object):
 
     def load_fixtures(self, path):
         """Load fixtures from JSON file in path. Mostly for testing"""
-        report_keys = list()
+        result = dict(reports=[], pages=[])
         with open(path) as f:
             fixture_list = json.load(f)
             for fixture in fixture_list:
-                report, stats = PriceReport.assemble(storage_manager=self,
-                                                     **fixture)
-                report_keys.append(report.key)
-        return report_keys
+                try:
+                    report, stats = PriceReport.assemble(storage_manager=self,
+                                                         **fixture)
+                    result['reports'].append(report)
+                except TypeError:
+                    page = Page.assemble(storage_manager=self, **fixture)
+                    result['pages'].append(page)
+        return result
 
 
 class Entity(Persistent):
@@ -267,6 +271,14 @@ class Entity(Persistent):
         else:
             return stored_instance
 
+    @classmethod
+    def assemble(cls, **kwargs):
+        """
+        Minimal data instance factory. Encouraged to be the only way of
+        initializing entities.
+        """
+        raise NotImplementedError
+
     def delete_from(self, storage_manager):
         """Properly delete class instance from the storage_manager"""
         raise NotImplementedError
@@ -313,8 +325,8 @@ class PriceReport(Entity):
         raise NotImplementedError
 
     @classmethod
-    def assemble(cls, price_value, product_title, merchant_title,
-                 reporter_name, url, storage_manager, date_time=None):
+    def assemble(cls, storage_manager, price_value, product_title, merchant_title,
+                 reporter_name, url, date_time=None):
         """
         The only encouraged factory method for price reports and all the
         referenced instances:
@@ -697,6 +709,12 @@ class Page(Entity):
 
     def __init__(self, slug):
         self.slug = slug
+
+    @classmethod
+    def assemble(cls, storage_manager, slug):
+        new_page = cls(slug)
+        storage_manager.register(new_page)
+        return new_page
 
     def delete_from(self, storage_manager):
         """Delete the page instance from storage"""

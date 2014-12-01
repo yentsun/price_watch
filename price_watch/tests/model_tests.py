@@ -15,11 +15,11 @@ class TestPriceReport(unittest.TestCase):
     def setUp(self):
         self.zodb_storage = MappingStorage('test')
         self.keeper = StorageManager(zodb_storage=self.zodb_storage)
-        report_keys = self.keeper.load_fixtures('fixtures.json')
+        result = self.keeper.load_fixtures('fixtures.json')
         transaction.commit()
         self.keeper.connection.close()
-        self.report1_key = report_keys[0]
-        self.report2_key = report_keys[1]
+        self.report1_key = result['reports'][0].key
+        self.report2_key = result['reports'][1].key
 
     def test_presense_in_storage(self):
 

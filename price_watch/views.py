@@ -68,6 +68,18 @@ class EntityView(object):
         self.delta_period = (datetime.datetime.now() -
                              datetime.timedelta(days=30))
 
+    def menu(self):
+        """Generate simple menu"""
+        items = [
+            (u'главная', '/'),
+            (u'о проекте', '/pages/about')
+        ]
+        menu = list()
+        for item in items:
+            title, path = item
+            menu.append((title, path, self.request.path == path))
+        return menu
+
     def currency(self, value, symbol=''):
         """Format currency value with Babel"""
         return format_currency(value, symbol, locale=self.locale)
@@ -81,7 +93,7 @@ class PageView(EntityView):
         try:
             return render_to_response(
                 'templates/pages/{slug}.mako'.format(**self.context.__dict__),
-                {},
+                {'view': self},
                 request=self.request
             )
         except TopLevelLookupException:

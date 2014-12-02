@@ -30,20 +30,31 @@
 <div class="container-narrow">
 
     <div class="masthead">
+
         <ul class="nav nav-pills pull-right">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
+            % for title, path, active in view.menu():
+            % if active:
+            <li class="active">
+            % else:
+            <li>
+                % endif
+                <a href="${path}">${title}</a>
+            </li>
+
+            % endfor
         </ul>
         <img src="${request.static_url('price_watch:static/img/logo.png')}"
              alt="Логотип" width="230"/>
     </div>
 
     <hr>
-    ${self.body()}
+    ${next.body()}
     <hr>
 
     <div class="footer">
+        <p class="pull-right">
+            email: <a href="mailto:info@food-price.net">info@food-price.net</a>
+        </p>
         <p>&copy; ${project_title()} 2014</p>
     </div>
 

@@ -518,14 +518,19 @@ class ProductCategory(Entity):
         return result
 
     def get_qualified_products(self):
-        """Return products list filtered by min_package_ratio"""
+        """Return products list filtered by qualification conditions"""
         min_package_ratio = self.get_data('min_package_ratio')
         products = self.products.values()
-        if min_package_ratio:
-            products = [product for product in products
-                        if product.package_ratio >=
-                        float(min_package_ratio)]
-        return products
+        filtered_products = list()
+        for product in products:
+            conditions_met = list()
+            conditions_met.append(len(product.reports))
+            if min_package_ratio:
+                conditions_met.append(product.package_ratio >=
+                                      float(min_package_ratio))
+            if all(conditions_met):
+                filtered_products.append(product)
+        return filtered_products
 
     def get_prices(self, date_time=None):
         """

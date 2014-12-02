@@ -121,6 +121,12 @@ class TestPriceReport(unittest.TestCase):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(55.6, milk.get_price())
 
+        # removing all reports from a product
+        report1 = PriceReport.fetch(self.report1_key, self.keeper)
+        report1.delete_from(self.keeper)
+        transaction.commit()
+        self.assertEqual(53, milk.get_price())
+
     def test_report_assembly(self):
 
         raw_data1 = {
@@ -328,24 +334,16 @@ class TestPriceReport(unittest.TestCase):
         fancy_milk = Product.fetch(u'Молоко The Luxury Milk!!! 0,5л',
                                    self.keeper)
         self.assertNotIn(fancy_milk, milk.get_qualified_products())
+        self.assertEqual(3, len(milk.get_qualified_products()))
 
-    def test_traversal(self):
-        milk = ProductCategory.fetch('milk', self.keeper)
-        product = Product.fetch(u'Молоко Веселый молочник 1л', self.keeper)
-
-        # self.assertIs(ProductCategory, milk.__parent__)
-        # self.assertEqual('ProductCategory', milk.__parent__.__name__)
-        # self.assertEqual('ProductCategory',
-        #                  getattr(milk, '__parent__').__name__)
-
-        # self.assertEqual(u'Молоко Веселый молочник 1л', product.__name__)
-        # self.assertIs(milk, product.__parent__)
-        # self.assertIs(product, milk[product.__name__])
-
+        # removing reports from product 1
         report1 = PriceReport.fetch(self.report1_key, self.keeper)
-        # self.assertEqual(self.report1_key, report1.__name__)
-        # self.assertIs(product, report1.__parent__)
-        # self.assertIs(report1, product[report1.__name__])
+        product1 = report1.product
+        report1.delete_from(self.keeper)
+        transaction.commit()
+
+        self.assertNotIn(product1, milk.get_qualified_products())
+        self.assertEqual(2, len(milk.get_qualified_products()))
 
     def test_key_sanitizing(self):
         title = u'Молоко Красная Цена у/паст. 3.2% 1000г'

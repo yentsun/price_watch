@@ -132,12 +132,6 @@ class PriceReportView(EntityView):
     def post(self):
         # TODO Implement validation
         post_data = self.request.POST
-
-        if 'date_time' in post_data:
-            post_data['date_time'] = datetime.datetime.strptime(
-                post_data['date_time'],
-                '%Y-%m-%d %H:%M:%S')
-
         try:
             report, stats_ = PriceReport.assemble(storage_manager=self.root,
                                                   **post_data)

@@ -309,6 +309,8 @@ class TestPriceReport(unittest.TestCase):
                                                                          2)))
         self.assertEqual(30.10, min(milk.get_prices()))
         self.assertEqual(48.65, milk.get_price())
+        self.assertEqual(0.6718213058419242,
+                         milk.get_price_delta(datetime.datetime(2014, 9, 2)))
 
     def test_remove_from_category(self):
         product = Product.fetch(u'Молоко Farmers Milk 1L', self.keeper)

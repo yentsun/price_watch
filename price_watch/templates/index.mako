@@ -26,7 +26,19 @@
                                 ${category.get_data('keyword')}
                             </a>
                         </td>
-                        <td>${view.currency(category.get_price())}</td>
+                        <td>
+                            ${view.currency(category.get_price())}
+                            <% delta = category.get_price_delta(view.delta_period)*100 %>
+                             % if delta > 0:
+                            <span title="+${delta}%"
+                                  class="glyphicon glyphicon-arrow-up"
+                                  style="color:red"></span>
+                            % elif delta < 0:
+                                <span title="${delta}%"
+                                      class="glyphicon glyphicon-arrow-down"
+                                      style="color:green"></span>
+                            % endif
+                        </td>
                         <td>${len(category.get_qualified_products())}</td>
                         <td>${len(category.get_reports())}</td>
                     </tr>

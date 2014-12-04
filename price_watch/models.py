@@ -11,6 +11,18 @@ from operator import attrgetter
 from BTrees import OOBTree
 
 
+def get_delta(base_price, current_price, relative=True):
+    """Return delta relative or absolute"""
+    try:
+        abs_delta = current_price - base_price
+        if relative:
+            return abs_delta / base_price
+        else:
+            return abs_delta
+    except TypeError:
+        return 0
+
+
 def load_data_map(node):
     """Return parsed `data_map.yaml`"""
 
@@ -326,8 +338,8 @@ class PriceReport(Entity):
         raise NotImplementedError
 
     @classmethod
-    def assemble(cls, storage_manager, price_value, product_title, merchant_title,
-                 reporter_name, url, date_time=None):
+    def assemble(cls, storage_manager, price_value, product_title,
+                 merchant_title, reporter_name, url, date_time=None):
         """
         The only encouraged factory method for price reports and all the
         referenced instances:
@@ -336,14 +348,21 @@ class PriceReport(Entity):
           - package
           - merchant
           - reporter
-        New report is registered in storage
+        `date_time` is expected to be str in `%Y-%m-%d %H:%M:%S` format.
+        New report is registered in storage.
         """
-
+        try:
+            date_time = datetime.datetime.strptime(date_time,
+                                                   '%Y-%m-%d %H:%M:%S')
+        except TypeError:
+            pass
         prod_is_new = cat_is_new = pack_is_new = False
         product_key = Product(product_title).key
         merchant_key = Merchant(merchant_title).key
         product = Product.fetch(product_key, storage_manager)
         merchant = Merchant.acquire(merchant_key, storage_manager)
+        reporter = Reporter.acquire(reporter_name, storage_manager)
+
         if not product:
             product = Product(product_title)
             prod_is_new = True
@@ -372,7 +391,6 @@ class PriceReport(Entity):
             storage_manager.register(product)
 
         # report
-        reporter = Reporter.acquire(reporter_name, storage_manager)
         report = cls(price_value=float(price_value), product=product,
                      reporter=reporter, merchant=merchant, url=url,
                      date_time=date_time)
@@ -519,6 +537,7 @@ class ProductCategory(Entity):
 
     def get_qualified_products(self):
         """Return products list filtered by qualification conditions"""
+
         min_package_ratio = self.get_data('min_package_ratio')
         products = self.products.values()
         filtered_products = list()
@@ -546,6 +565,7 @@ class ProductCategory(Entity):
 
     def get_price(self, date_time=None, prices=None, cheap=False):
         """Get median or minimum price for the date"""
+
         prices = prices or self.get_prices(date_time)
         if cheap:
             try:
@@ -556,9 +576,16 @@ class ProductCategory(Entity):
             prices = numpy.array(prices)
             return round(numpy.median(prices), 2)
 
+    def get_price_delta(self, date_time, relative=True):
+
+        base_price = self.get_price(date_time)
+        current_price = self.get_price()
+        return get_delta(base_price, current_price, relative)
+
 
 class Product(Entity):
     """Product model"""
+
     _container_attr = 'reports'
     namespace = 'products'
 
@@ -580,6 +607,7 @@ class Product(Entity):
 
     def add_merchant(self, merchant):
         """Add merchant"""
+
         if merchant.key not in self.merchants:
             self.merchants[merchant.key] = merchant
 
@@ -603,20 +631,10 @@ class Product(Entity):
         return self.get_last_reported_price(date_time, normalized)
 
     def get_price_delta(self, date_time, relative=True):
-        """
-        Return price delta compared to price on date_time, relative or
-        absolute
-        """
+
         base_price = self.get_last_reported_price(date_time)
         current_price = self.get_last_reported_price()
-        try:
-            abs_delta = current_price - base_price
-            if relative:
-                return abs_delta / base_price
-            else:
-                return abs_delta
-        except TypeError:
-            return 0
+        return get_delta(base_price, current_price, relative)
 
     def get_reports(self, date_time=None):
         """Get reports to the given date/time"""

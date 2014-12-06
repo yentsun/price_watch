@@ -212,7 +212,7 @@ class CategoryView(EntityView):
                 pass
         return {'price_data': json.dumps(price_data),
                 'products': products,
-                'cat_title': category.get_data('keyword'),
+                'cat_title': category.get_data('keyword').split(', ')[0],
                 'median_price': self.currency(category.get_price(), u'р.')}
 
     @view_config(request_method='GET',

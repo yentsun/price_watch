@@ -6,6 +6,7 @@ import transaction
 from itertools import tee, islice, chain, izip
 from babel.core import Locale
 from babel.numbers import format_currency
+from babel.dates import format_datetime
 from mako.exceptions import TopLevelLookupException
 from pyramid.view import view_config, view_defaults
 from pyramid.renderers import render_to_response
@@ -13,8 +14,7 @@ from pyramid.httpexceptions import (HTTPMethodNotAllowed, HTTPAccepted,
                                     HTTPBadRequest, HTTPNotFound)
 from dogpile.cache import make_region
 from price_watch.models import (Page, PriceReport, PackageLookupError,
-                                CategoryLookupError, ProductCategory, Product,
-                                Reporter, Merchant)
+                                CategoryLookupError, ProductCategory, Product)
 
 MULTIPLIER = 1
 category_region = make_region().configure(
@@ -67,6 +67,7 @@ class EntityView(object):
         self.locale = Locale(request.locale_name)
         self.delta_period = (datetime.datetime.now() -
                              datetime.timedelta(days=30))
+        self.fd = format_datetime
 
     def menu(self):
         """Generate simple menu"""

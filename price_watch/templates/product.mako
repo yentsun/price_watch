@@ -5,8 +5,6 @@
         </h1>
       </div>
 
-      <hr>
-
       <div class="row-fluid marketing">
           <div class="span12">
               <table class="table">

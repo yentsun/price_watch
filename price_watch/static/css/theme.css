@@ -58,3 +58,26 @@ h3{
     margin: 2em 0 1em 0;
 }
 /*.masthead img{margin-left: -20px}*/
+#report_card{
+    padding: 2em;
+    color: #1e347b;
+    font-family: 'Courier New', monospace;
+    background: #f7f7f9;
+}
+#report_card .barcode{
+    background:url(/static/img/barcode.png) 9px 0 no-repeat;
+    padding-top: 30px;
+    color: black;
+}
+#report_card .id td{
+    border: none;
+}
+#report_card .price_value{
+    font-size: larger;
+}
+#report_card .price_value td{
+    border: none;
+}
+#report_card .product td{
+    border-top: none;
+}

@@ -20,6 +20,9 @@ MULTIPLIER = 1
 category_region = make_region().configure(
     'dogpile.cache.memory'
 )
+product_region = make_region().configure(
+    'dogpile.cache.memory'
+)
 
 
 def namespace_predicate(class_):
@@ -116,9 +119,30 @@ class PageView(EntityView):
 @view_defaults(context=Product)
 class ProductView(EntityView):
 
+    @product_region.cache_on_arguments(to_str=unicode)
+    def served_data(self, product):
+        data = dict()
+        data['current_price'] = self.currency(product.get_price())
+        data['chart_data'] = list()
+        datetimes = get_datetimes(30)
+        for date in datetimes:
+            data['chart_data'].append([date.strftime('%d.%m'),
+                                      product.get_price(date)])
+        data['chart_data'] = json.dumps(data['chart_data'])
+        data['reports'] = list()
+        for report in sorted(product.reports.values(), reverse=True,
+                             key=lambda rep: rep.date_time):
+            url = self.request.resource_url(report)
+            date = format_datetime(report.date_time, format='short',
+                                   locale=self.request.locale_name)
+            merchant = report.merchant.title
+            price = self.currency(report.normalized_price_value)
+            data['reports'].append((url, date, merchant, price))
+        return data
+
     @view_config(renderer='templates/product.mako', request_method='GET')
     def get(self):
-        return {}
+        return self.served_data(self.context)
 
 
 @view_defaults(custom_predicates=(namespace_predicate(PriceReport),))
@@ -157,8 +181,8 @@ class PriceReportView(EntityView):
 class CategoryView(EntityView):
 
     @category_region.cache_on_arguments()
-    def cached_data(self, category):
-        """Return cached category data"""
+    def served_data(self, category):
+        """Return prepared category data"""
         price_data = list()
         datetimes = get_datetimes(30)
         for date in datetimes:
@@ -195,7 +219,7 @@ class CategoryView(EntityView):
                  renderer='templates/product_category.mako')
     def get(self):
         category = self.request.context
-        return self.cached_data(category)
+        return self.served_data(category)
 
 
 class RootView(EntityView):

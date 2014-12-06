@@ -60,14 +60,19 @@ h3{
 /*.masthead img{margin-left: -20px}*/
 #report_card{
     padding: 2em;
+    background: #f7f7f9;
+}
+#report_card strong{
     color: #1e347b;
     font-family: 'Courier New', monospace;
-    background: #f7f7f9;
+    font-size: larger;
+    font-weight: normal;
 }
 #report_card .barcode{
     background:url(/static/img/barcode.png) 9px 0 no-repeat;
     padding-top: 30px;
     color: black;
+    font-family: monospace;
 }
 #report_card .id td{
     border: none;
@@ -80,4 +85,7 @@ h3{
 }
 #report_card .product td{
     border-top: none;
+}
+#product_heading{
+    width: 75%;
 }

@@ -1,10 +1,8 @@
 <%inherit file="base.mako"/>
       <div>
-        <h1><%block name="title">Категории</%block>:
-        </h1>
+            <%def name="title()">Категории</%def>
+##        <h1>${self.title()}</h1>
       </div>
-
-      <hr>
 
       <div class="row-fluid marketing">
           <div class="span12">

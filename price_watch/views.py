@@ -17,10 +17,7 @@ from price_watch.models import (Page, PriceReport, PackageLookupError,
                                 CategoryLookupError, ProductCategory, Product)
 
 MULTIPLIER = 1
-category_region = make_region().configure(
-    'dogpile.cache.memory'
-)
-product_region = make_region().configure(
+general_region = make_region().configure(
     'dogpile.cache.memory'
 )
 
@@ -119,7 +116,7 @@ class PageView(EntityView):
 @view_defaults(context=Product)
 class ProductView(EntityView):
 
-    @product_region.cache_on_arguments(to_str=unicode)
+    @general_region.cache_on_arguments('product', to_str=unicode)
     def served_data(self, product):
         data = dict()
         data['current_price'] = self.currency(product.get_price())
@@ -180,7 +177,7 @@ class PriceReportView(EntityView):
 @view_defaults(context=ProductCategory)
 class CategoryView(EntityView):
 
-    @category_region.cache_on_arguments()
+    @general_region.cache_on_arguments('category')
     def served_data(self, category):
         """Return prepared category data"""
         price_data = list()
@@ -225,15 +222,46 @@ class CategoryView(EntityView):
 class RootView(EntityView):
     """General root views"""
 
+    @general_region.cache_on_arguments('index')
+    def served_data(self):
+        EXCLUDE_LIST = ['sour cream', 'salt', 'sugar', 'chicken egg', 'bread']
+        categories = self.context['categories'].values()
+        datetimes = get_datetimes(30)
+        chart_rows = list()
+        for date in datetimes:
+            row = [date.strftime('%d.%m')]
+            for category in categories:
+                if category.title not in EXCLUDE_LIST:
+                    row.append(category.get_price(date))
+            chart_rows.append(row)
+        category_tuples = list()
+        chart_titles = list()
+        for category in categories:
+            if len(category.products):
+                url = self.request.resource_url(category)
+                title = category.get_data('keyword').split(', ')[0]
+                price = self.currency(category.get_price())
+                delta = category.get_price_delta(self.delta_period)*100
+                product_count = len(category.get_qualified_products())
+                report_count = len(category.get_reports())
+                category_tuples.append((url, title, price, delta,
+                                        product_count, report_count))
+                if category.title not in EXCLUDE_LIST:
+                    chart_titles.append(title)
+
+        return {'categories': category_tuples,
+                'chart_titles': json.dumps(chart_titles),
+                'chart_rows': json.dumps(chart_rows)}
+
     @view_config(request_method='GET', renderer='templates/index.mako')
     def get(self):
-        return {}
+        return self.served_data()
 
     @view_config(request_method='GET', name='refresh')
     def refresh(self):
         """Temporary cache cleaning. Breaks RESTfulness"""
         if self.context is self.root[ProductCategory.namespace]:
-            category_region.invalidate()
+            general_region.invalidate()
             raise HTTPAccepted
 
         raise HTTPMethodNotAllowed

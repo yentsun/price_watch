@@ -1,11 +1,11 @@
 <%inherit file="base.mako"/>
       <div>
-            <%def name="title()">Категории</%def>
-##        <h1>${self.title()}</h1>
+            <%def name="title()">Главная</%def>
       </div>
 
       <div class="row-fluid marketing">
           <div class="span12">
+              <div id="chart_div" style="width: 700px; height: 400px;"></div>
               <table class="table">
                   <thead>
                   <tr>
@@ -16,17 +16,14 @@
                   </tr>
                   </thead>
                   <tbody>
-                  % for category in req.context['categories'].values():
-                      % if len(category.products):
+                  % for url, title, price, delta, \
+                         product_count, report_count in categories:
                     <tr>
                         <td>
-                            <a href="${req.resource_url(category)}">
-                                ${category.get_data('keyword')}
-                            </a>
+                            <a href="${url}">${title}</a>
                         </td>
                         <td>
-                            ${view.currency(category.get_price())}
-                            <% delta = category.get_price_delta(view.delta_period)*100 %>
+                            ${price}
                              % if delta > 0:
                             <span title="+${delta}%"
                                   class="glyphicon glyphicon-arrow-up"
@@ -37,12 +34,36 @@
                                       style="color:green"></span>
                             % endif
                         </td>
-                        <td>${len(category.get_qualified_products())}</td>
-                        <td>${len(category.get_reports())}</td>
+                        <td>${product_count}</td>
+                        <td>${report_count}</td>
                     </tr>
-                        % endif
                   % endfor
                   </tbody>
               </table>
         </div>
       </div>
+<%def name="js()">
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["corechart"]});
+        google.setOnLoadCallback(drawChart);
+        function drawChart() {
+            var headers = [['Дата'].concat(${chart_titles|n})];
+            var data = google.visualization.arrayToDataTable(
+                headers.concat(${chart_rows|n})
+            );
+            var options = {
+                title: 'Категории продуктов',
+                curveType: 'function',
+                legend: {position: 'top'},
+                hAxis: {showTextEvery: 4},
+                chartArea:{left:50, top:50, width:'90%', height:'75%'}
+            };
+
+            var chart = new google.visualization.LineChart(
+                    document.getElementById('chart_div'));
+
+            chart.draw(data, options);
+        }
+    </script>
+</%def>

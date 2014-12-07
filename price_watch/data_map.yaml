@@ -224,6 +224,7 @@ ProductCategory:
             sour cream:
               title: sour cream
               keyword: сметана
+              ru_accu_case: сметану
               normal_package: 0.4 kg
             chicken egg:
               title: chicken egg
@@ -270,6 +271,7 @@ ProductCategory:
                 buckwheat:
                   title: buckwheat
                   keyword: гречка, крупа гречневая, греча
+                  ru_accu_case: гречку
                   normal_package: 1 kg
                   min_package_ratio: 0.8
         bakery:

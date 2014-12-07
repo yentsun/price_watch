@@ -99,16 +99,6 @@ def keyword_lookup(string_, data_map):
                     return match
 
 
-class DuplicateReportError(Exception):
-    """Exception raised when trying to add same report"""
-    # TODO deprecate this
-    def __init__(self, report):
-        message = 'Trying to add duplicate report {0}'.format(report)
-
-        Exception.__init__(self, message)
-        self.report = report
-
-
 class PackageLookupError(Exception):
     """Exception for package not found in `data_map.yaml`"""
     def __init__(self, product):
@@ -208,6 +198,9 @@ class Entity(Persistent):
     _representation = u'{title}'
     _key_pattern = u'{title}'
     namespace = None
+
+    def __str__(self):
+        return str(self.__repr__().encode('utf-8'))
 
     def __repr__(self):
         """Unique representational string"""
@@ -437,11 +430,14 @@ class ProductPackage(Entity):
         if category.key not in self.categories:
             self.categories[category.key] = category
 
-    def get_variants(self):
-        """Get package title variants as list from `data_map.yaml`"""
-
-        package_data = load_data_map(self.__class__.__name__)
-        return package_data[self.title]
+    def get_data(self, attribute, default=None):
+        """Get category data from `data_map.yaml`"""
+        data_map = load_data_map(self.__class__.__name__)
+        try:
+            data = data_map[self.title][attribute]
+            return data
+        except KeyError:
+            return default
 
     def is_normal(self, category):
         """Check if the package is `normal` for a product's category"""

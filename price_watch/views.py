@@ -3,7 +3,7 @@
 import datetime
 import json
 import transaction
-from itertools import tee, islice, chain, izip
+
 from babel.core import Locale
 from babel.numbers import format_currency
 from babel.dates import format_datetime
@@ -13,12 +13,17 @@ from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import (HTTPMethodNotAllowed, HTTPAccepted,
                                     HTTPBadRequest, HTTPNotFound)
 from dogpile.cache import make_region
+
 from price_watch.models import (Page, PriceReport, PackageLookupError,
-                                CategoryLookupError, ProductCategory, Product)
+                                CategoryLookupError, ProductCategory, Product,
+                                ProductPackage)
 
 MULTIPLIER = 1
 general_region = make_region().configure(
-    'dogpile.cache.memory'
+    'dogpile.cache.dbm',
+    arguments={
+        "filename": "cache/general.dbm"
+    }
 )
 
 
@@ -33,17 +38,6 @@ def namespace_predicate(class_):
         except KeyError:
             return False
     return check_namespace
-
-
-def previous_and_next(some_iterable):
-    """
-    Previous and next values inside a loop
-    credit: http://stackoverflow.com/a/1012089/216042
-    """
-    prevs, items, nexts = tee(some_iterable, 3)
-    prevs = chain([None], prevs)
-    nexts = chain(islice(nexts, 1, None), [None])
-    return izip(prevs, items, nexts)
 
 
 def get_datetimes(days):
@@ -116,8 +110,9 @@ class PageView(EntityView):
 @view_defaults(context=Product)
 class ProductView(EntityView):
 
-    @general_region.cache_on_arguments('product', to_str=unicode)
+    @general_region.cache_on_arguments('product')
     def served_data(self, product):
+        """Return prepared product data"""
         data = dict()
         data['current_price'] = self.currency(product.get_price())
         data['chart_data'] = list()
@@ -177,14 +172,23 @@ class PriceReportView(EntityView):
 @view_defaults(context=ProductCategory)
 class CategoryView(EntityView):
 
-    @general_region.cache_on_arguments('category')
+    # @general_region.cache_on_arguments('category')
     def served_data(self, category):
         """Return prepared category data"""
-        price_data = list()
+
+        cat_title = category.get_data('ru_accu_case')
+        if not cat_title:
+            cat_title = category.get_data('keyword').split(', ')[0]
+
+        package_key = category.get_data('normal_package')
+        package_title = ProductPackage(package_key).get_data('synonyms')[0]
+
+        chart_data = list()
         datetimes = get_datetimes(30)
         for date in datetimes:
-            price_data.append([date.strftime('%d.%m'),
+            chart_data.append([date.strftime('%d.%m'),
                                category.get_price(date)])
+
         products = list()
         sorted_products = sorted(category.get_qualified_products(),
                                  key=lambda pr: pr.get_price())
@@ -207,9 +211,10 @@ class CategoryView(EntityView):
                 ))
             except TypeError:
                 pass
-        return {'price_data': json.dumps(price_data),
+        return {'price_data': json.dumps(chart_data),
                 'products': products,
-                'cat_title': category.get_data('keyword').split(', ')[0],
+                'cat_title': cat_title,
+                'package_title': package_title,
                 'median_price': self.currency(category.get_price(), u'р.')}
 
     @view_config(request_method='GET',
@@ -221,17 +226,18 @@ class CategoryView(EntityView):
 
 class RootView(EntityView):
     """General root views"""
+    EXCLUDE_LIST = ['sour cream', 'salt', 'sugar', 'chicken egg', 'bread']
 
     @general_region.cache_on_arguments('index')
-    def served_data(self):
-        EXCLUDE_LIST = ['sour cream', 'salt', 'sugar', 'chicken egg', 'bread']
+    @view_config(request_method='GET', renderer='templates/index.mako')
+    def get(self):
         categories = self.context['categories'].values()
         datetimes = get_datetimes(30)
         chart_rows = list()
         for date in datetimes:
             row = [date.strftime('%d.%m')]
             for category in categories:
-                if category.title not in EXCLUDE_LIST:
+                if category.title not in self.EXCLUDE_LIST:
                     row.append(category.get_price(date))
             chart_rows.append(row)
         category_tuples = list()
@@ -246,22 +252,9 @@ class RootView(EntityView):
                 report_count = len(category.get_reports())
                 category_tuples.append((url, title, price, delta,
                                         product_count, report_count))
-                if category.title not in EXCLUDE_LIST:
+                if category.title not in self.EXCLUDE_LIST:
                     chart_titles.append(title)
 
         return {'categories': category_tuples,
                 'chart_titles': json.dumps(chart_titles),
                 'chart_rows': json.dumps(chart_rows)}
-
-    @view_config(request_method='GET', renderer='templates/index.mako')
-    def get(self):
-        return self.served_data()
-
-    @view_config(request_method='GET', name='refresh')
-    def refresh(self):
-        """Temporary cache cleaning. Breaks RESTfulness"""
-        if self.context is self.root[ProductCategory.namespace]:
-            general_region.invalidate()
-            raise HTTPAccepted
-
-        raise HTTPMethodNotAllowed

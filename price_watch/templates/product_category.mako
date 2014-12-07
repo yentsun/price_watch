@@ -3,7 +3,8 @@
     ${median_price}
 </div>
 <h1>
-    <%block name="title">${cat_title}</%block>
+    <%block name="title">Цены на ${cat_title}</%block><br>
+    <small>${package_title}</small>
 </h1>
 <div class="row-fluid marketing">
     <div class="span12">
@@ -17,7 +18,7 @@
             <tr>
                 <th>№</th>
                 <th>Продукт</th>
-                <th class="price">Цена</th>
+                <th class="price">Цена за ${package_title}</th>
             </tr>
             </thead>
             <tbody>
@@ -63,7 +64,7 @@
                 headers.concat(${price_data|n})
             );
             var options = {
-                title: 'Динамика цены за неделю ',
+                title: 'Динамика за месяц',
                 curveType: 'function',
                 legend: {position: 'top'},
                 hAxis: {showTextEvery: 4},

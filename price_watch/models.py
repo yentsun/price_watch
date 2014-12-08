@@ -102,7 +102,8 @@ def keyword_lookup(string_, data_map):
 class PackageLookupError(Exception):
     """Exception for package not found in `data_map.yaml`"""
     def __init__(self, product):
-        message = u'Package lookup failed for product "{0}"'.format(product)
+        message = u'Package lookup failed ' \
+                  u'for product "{0}"'.format(product.title)
 
         Exception.__init__(self, message)
         self.product = product
@@ -111,7 +112,8 @@ class PackageLookupError(Exception):
 class CategoryLookupError(Exception):
     """Exception for category not found in `data_map.yaml`"""
     def __init__(self, product):
-        message = u'Category lookup failed for product "{0}"'.format(product)
+        message = u'Category lookup failed for ' \
+                  u'product "{}"'.format(product.title)
         Exception.__init__(self, message)
         self.product = product
 
@@ -201,6 +203,9 @@ class Entity(Persistent):
 
     def __str__(self):
         return str(self.__repr__().encode('utf-8'))
+
+    def __unicode__(self):
+        return self.__repr__()
 
     def __repr__(self):
         """Unique representational string"""

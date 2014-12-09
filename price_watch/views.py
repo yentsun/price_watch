@@ -10,21 +10,16 @@ from babel.dates import format_datetime
 from mako.exceptions import TopLevelLookupException
 from pyramid.view import view_config, view_defaults
 from pyramid.renderers import render_to_response
-from pyramid.httpexceptions import (HTTPMethodNotAllowed, HTTPAccepted,
-                                    HTTPBadRequest, HTTPNotFound)
-from dogpile.cache import make_region
+from pyramid.httpexceptions import (HTTPBadRequest, HTTPNotFound)
+from pyramid_dogpile_cache import get_region
 
 from price_watch.models import (Page, PriceReport, PackageLookupError,
                                 CategoryLookupError, ProductCategory, Product,
                                 ProductPackage)
+from utilities import multidict_to_list
 
 MULTIPLIER = 1
-general_region = make_region().configure(
-    'dogpile.cache.dbm',
-    arguments={
-        "filename": "cache/general.dbm"
-    }
-)
+general_region = get_region('general')
 
 
 def namespace_predicate(class_):
@@ -148,18 +143,34 @@ class PriceReportView(EntityView):
     @view_config(request_method='POST', renderer='json')
     def post(self):
         # TODO Implement validation
-        post_data = self.request.POST
-        try:
-            report, stats_ = PriceReport.assemble(storage_manager=self.root,
-                                                  **post_data)
+        dict_list = multidict_to_list(self.request.params)
+        counts = {'product': 0,
+                  'category': 0,
+                  'package': 0}
+        new_report_keys = list()
+        for dict_ in dict_list:
+            try:
+                report, new_items = PriceReport.assemble(
+                    storage_manager=self.root, **dict_)
+                new_report_keys.append(report.key)
+                prod_is_new, cat_is_new, pack_is_new = new_items
+                counts['product'] += int(prod_is_new)
+                counts['category'] += int(cat_is_new)
+                counts['package'] += int(pack_is_new)
+            except (PackageLookupError, CategoryLookupError):
+                pass
+            except TypeError as e:
+                raise HTTPBadRequest(e.message)
+        if len(new_report_keys):
             transaction.commit()
+            general_region.invalidate()
             return {
-                'new_report': report.key,
-                'stats': stats_
+                'new_report_keys': new_report_keys,
+                'counts': counts
             }
-        except (TypeError, PackageLookupError, CategoryLookupError), e:
+        else:
             transaction.abort()
-            raise HTTPBadRequest(e.message)
+            raise HTTPBadRequest('No new reports')
 
     @view_config(request_method='DELETE', renderer='json')
     def delete(self):

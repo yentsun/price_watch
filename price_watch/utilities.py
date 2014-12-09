@@ -31,3 +31,16 @@ def async_creation_runner(cache, somekey, creator, mutex):
 
     thread = threading.Thread(target=runner)
     thread.start()
+
+
+def multidict_to_list(multidict):
+    """Convert Multidict object to a list of dicts"""
+    dict_list = list()
+    keys = multidict.dict_of_lists().keys()
+    value_count = len(multidict.getall(keys[0]))
+    for index in range(0, value_count):
+        new_dict = dict()
+        for key in keys:
+            new_dict[key] = multidict.getall(key)[index]
+        dict_list.append(new_dict)
+    return dict_list

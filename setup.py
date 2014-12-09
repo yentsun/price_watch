@@ -22,7 +22,8 @@ requires = [
     'dogpile',
     'numpy',
     'dogpile.cache',
-    'webtest'
+    'webtest',
+    'pyramid_dogpile_cache'
 ]
 
 setup(name='price_watch',

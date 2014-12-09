@@ -54,7 +54,7 @@ class FunctionalTests(unittest.TestCase):
             ('reporter_name', 'Jack')
         ]
         res = self.testapp.post('/reports', data, status=400)
-        self.assertIn('Category lookup failed', res.body)
+        self.assertIn('No new reports', res.body)
 
     def test_report_post_bad_package(self):
         data = [
@@ -66,7 +66,7 @@ class FunctionalTests(unittest.TestCase):
             ('reporter_name', 'Jack')
         ]
         res = self.testapp.post('/reports', data, status=400)
-        self.assertIn('Package lookup failed', res.body)
+        self.assertIn('No new reports', res.body)
 
     def test_report_post_existent_product(self):
         data = [
@@ -78,9 +78,46 @@ class FunctionalTests(unittest.TestCase):
             ('reporter_name', 'Jack')
         ]
         res = self.testapp.post('/reports', data, status=200)
-        self.assertFalse(res.json_body['stats']['new_product'])
-        new_report_key = res.json_body['new_report']
+        self.assertEqual(0, res.json_body['counts']['product'])
+        new_report_key = res.json_body['new_report_keys'][0]
         self.testapp.get('/reports/{}'.format(new_report_key), status=200)
+
+    def test_post_multiple_reports(self):
+
+        data = [
+            ('price_value', 55.6),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+
+            ('price_value', 45.3),
+            ('url', 'http://howies.com/products/milk/5'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+
+            ('price_value', 67.1),
+            ('url', 'http://howies.com/products/milk/6'),
+            ('product_title',
+             u'Волшебный Элексир Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+        ]
+        res = self.testapp.post('/reports', data, status=200)
+        self.assertEqual(2, len(res.json_body['new_report_keys']))
+        self.assertEqual(1, res.json_body['counts']['product'])
+        self.assertEqual(0, res.json_body['counts']['category'])
+        self.assertEqual(0, res.json_body['counts']['package'])
+        new_report_keys = res.json_body['new_report_keys']
+        for key in new_report_keys:
+            self.testapp.get('/reports/{}'.format(key), status=200)
+
+        milk_page = self.testapp.get('/categories/milk', status=200)
+        self.assertIn(u'45.30', milk_page.html.find('tr', 'info').text)
+        self.assertIn(u'50.45', milk_page.html.find('div', 'cat-price').text)
 
     def test_report_delete(self):
         res = self.testapp.delete('/reports/{}'.format(self.report_key),
@@ -90,7 +127,7 @@ class FunctionalTests(unittest.TestCase):
 
     def test_page_get(self):
         res = self.testapp.get('/pages/about', status=200)
-        self.assertIn(u'О проекте', res.body.decode('utf-8'))
+        self.assertIn(u'О проекте', res.text)
 
     def test_page_post(self):
         res = self.testapp.post('/pages', [('slug', 'test')], status=200)

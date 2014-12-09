@@ -397,11 +397,7 @@ class PriceReport(Entity):
 
         storage_manager.register(report)
 
-        stats = {
-            'new_product': prod_is_new,
-            'new_category': cat_is_new,
-            'new_package': pack_is_new
-        }
+        stats = prod_is_new, cat_is_new, pack_is_new
 
         return report, stats
 

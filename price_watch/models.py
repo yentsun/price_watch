@@ -11,6 +11,12 @@ from operator import attrgetter
 from BTrees import OOBTree
 
 
+HOUR_AGO = datetime.datetime.now() - datetime.timedelta(hours=1)
+DAY_AGO = datetime.datetime.now() - datetime.timedelta(days=1)
+WEEK_AGO = datetime.datetime.now() - datetime.timedelta(weeks=1)
+MONTH_AGO = datetime.datetime.now() - datetime.timedelta(days=30)
+
+
 def get_delta(base_price, current_price, relative=True):
     """Return delta relative or absolute"""
     try:
@@ -553,13 +559,17 @@ class ProductCategory(Entity):
         products = self.products.values()
         filtered_products = list()
         for product in products:
-            conditions_met = list()
-            conditions_met.append(len(product.reports))
+
+            package_fit = True
             if min_package_ratio:
-                conditions_met.append(product.package_ratio >=
-                                      float(min_package_ratio))
-            if all(conditions_met):
+                package_fit = product.package_ratio >= float(min_package_ratio)
+            if (
+                package_fit
+                and len(product.reports)
+                and product.get_last_report().date_time > WEEK_AGO
+            ):
                 filtered_products.append(product)
+
         return filtered_products
 
     def get_prices(self, date_time=None):
@@ -687,8 +697,9 @@ class Product(Entity):
             return category_data['title']
         raise CategoryLookupError(self)
 
-    def get_last_reported_price(self, date_time=None, normalized=True):
-        """Get product price last known to the date"""
+    def get_last_report(self, date_time=None):
+        """Get last (to `date_time`) report of the product"""
+
         date_time = date_time or datetime.datetime.now()
         # TODO decide which one to do first sorting or filtering
         reports = self.reports.values()
@@ -698,14 +709,21 @@ class Product(Entity):
             filtered_reports = [report for report in sorted_reports
                                 if report.date_time < date_time]
             try:
-                if normalized:
-                    return filtered_reports[-1].normalized_price_value
-                else:
-                    return filtered_reports[-1].price_value
+                return filtered_reports[-1]
             except IndexError:
                 return None
         else:
             return None
+
+    def get_last_reported_price(self, date_time=None, normalized=True):
+        """Get product price last known to the date"""
+
+        last_report = self.get_last_report(date_time)
+        if last_report:
+            if normalized:
+                return last_report.normalized_price_value
+            return last_report.price_value
+        return None
 
     def delete_from(self, storage_manager):
         """Delete the product from all referenced objects"""

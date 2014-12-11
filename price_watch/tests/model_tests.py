@@ -7,7 +7,8 @@ from ZODB.MappingStorage import MappingStorage
 from price_watch.models import (PriceReport, Merchant, Product,
                                 ProductCategory, Reporter,
                                 PackageLookupError, CategoryLookupError,
-                                StorageManager)
+                                StorageManager, HOUR_AGO, MONTH_AGO, DAY_AGO,
+                                WEEK_AGO)
 
 
 class TestPriceReport(unittest.TestCase):
@@ -271,9 +272,6 @@ class TestPriceReport(unittest.TestCase):
         self.assertEqual('pasta', Product(spaghetti).get_category_key())
 
     def test_price_from_past_date(self):
-        past_date = datetime.datetime(2014, 9, 4)
-        past_past_date = datetime.datetime(2014, 9, 1)
-        even_more_past_date = datetime.datetime(2014, 7, 22)
         milk = ProductCategory.fetch('milk', self.keeper)
         cheapest_milk_title = u'Молоко The Cheapest Milk!!! 1л'
         PriceReport.assemble(price_value=30.10,
@@ -281,36 +279,59 @@ class TestPriceReport(unittest.TestCase):
                              reporter_name='John',
                              merchant_title="Howie's grocery",
                              url='http://someshop.com/item/344',
-                             date_time=past_date,
+                             date_time=HOUR_AGO,
                              storage_manager=self.keeper)
         PriceReport.assemble(price_value=29.10,
                              product_title=cheapest_milk_title,
                              reporter_name='John',
                              merchant_title="Howie's grocery",
                              url='http://someshop.com/item/344',
-                             date_time=past_past_date,
+                             date_time=WEEK_AGO,
                              storage_manager=self.keeper)
         PriceReport.assemble(price_value=25.22,
                              product_title=cheapest_milk_title,
                              reporter_name='John',
                              merchant_title="Howie's grocery",
                              url='http://someshop.com/item/344',
-                             date_time=even_more_past_date,
+                             date_time=MONTH_AGO,
                              storage_manager=self.keeper)
+
         transaction.commit()
         cheapest_milk = Product.fetch(cheapest_milk_title, self.keeper)
 
         self.assertEqual(30.10, cheapest_milk.get_price())
-        self.assertEqual(1, cheapest_milk.get_price_delta(
-            datetime.datetime(2014, 9, 2), relative=False))
+        self.assertEqual(1, cheapest_milk.get_price_delta(DAY_AGO,
+                                                          relative=False))
         self.assertEqual(0.034364261168384876,
-                         cheapest_milk.get_price_delta(datetime.datetime(2014,
-                                                                         9,
-                                                                         2)))
+                         cheapest_milk.get_price_delta(DAY_AGO))
         self.assertEqual(30.10, min(milk.get_prices()))
         self.assertEqual(48.65, milk.get_price())
-        self.assertEqual(0.6718213058419242,
-                         milk.get_price_delta(datetime.datetime(2014, 9, 2)))
+        self.assertEqual(0.6718213058419242, milk.get_price_delta(DAY_AGO))
+
+    def test_price_report_lifetime(self):
+        milk = ProductCategory.fetch('milk', self.keeper)
+
+        # add an outdated report
+        PriceReport.assemble(price_value=10.22,
+                             product_title=u'Молоко Минувших дней 1л',
+                             reporter_name='John',
+                             merchant_title="Howie's grocery",
+                             url='http://someshop.com/item/345',
+                             date_time=MONTH_AGO,
+                             storage_manager=self.keeper)
+        transaction.commit()
+        self.assertEqual(55.6, milk.get_price())
+
+        # add a valid report
+        PriceReport.assemble(price_value=10.22,
+                             product_title=u'Молоко Минувших дней 1л',
+                             reporter_name='John',
+                             merchant_title="Howie's grocery",
+                             url='http://someshop.com/item/349',
+                             date_time=HOUR_AGO,
+                             storage_manager=self.keeper)
+        transaction.commit()
+        self.assertEqual(48.65, milk.get_price())
 
     def test_remove_from_category(self):
         product = Product.fetch(u'Молоко Farmers Milk 1L', self.keeper)

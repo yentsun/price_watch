@@ -280,7 +280,7 @@ class RootView(EntityView):
     """General root views"""
     EXCLUDE_LIST = ['sour cream', 'salt', 'sugar', 'chicken egg', 'bread']
 
-    @general_region.cache_on_arguments('index')
+    # @general_region.cache_on_arguments('index')
     @view_config(request_method='GET', renderer='templates/index.mako')
     def get(self):
         categories = self.context['categories'].values()

@@ -1,7 +1,7 @@
+import os
 import datetime
 import yaml
 import json
-import os
 import numpy
 import urllib
 from uuid import uuid4
@@ -411,6 +411,20 @@ class Merchant(Entity):
         self.title = title
         self.location = location
         self.products = OOBTree.BTree()
+
+    def update(self, data, storage_manager):
+        """Update merchant from dict. Return `True` if new key created"""
+        old_key = self.key
+        self.title = data['title']
+        if old_key != self.key:
+            storage_manager.register(self)
+            try:
+                storage_manager.delete_key(self.namespace, old_key)
+                for product in self.products.values():
+                    del product.merchants[old_key]
+                    product.add_merchant(self)
+            except KeyError:
+                pass
 
     def add_product(self, product):
         """Add product to products dict"""

@@ -12,7 +12,7 @@
                   <table class="table">
                   <tbody>
                   <tr class="id">
-                      <td>ID</td>
+                      <td style="width:20%">ID</td>
                       <td class="barcode">${req.context.key}</td>
                   </tr>
                   <tr class="product">

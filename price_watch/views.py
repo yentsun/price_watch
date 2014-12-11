@@ -15,7 +15,7 @@ from pyramid_dogpile_cache import get_region
 
 from price_watch.models import (Page, PriceReport, PackageLookupError,
                                 CategoryLookupError, ProductCategory, Product,
-                                ProductPackage)
+                                ProductPackage, Merchant)
 from utilities import multidict_to_list
 
 MULTIPLIER = 1
@@ -24,12 +24,11 @@ general_region = get_region('general')
 
 def namespace_predicate(class_):
     """
-    Custom predicate to check context for being an instance or a namespace
+    Custom predicate to check context for being a namespace
     """
     def check_namespace(context, request):
         try:
-            return (context == request.root[class_.namespace] or
-                    type(context) == class_)
+            return context == request.root[class_.namespace]
         except KeyError:
             return False
     return check_namespace
@@ -75,8 +74,40 @@ class EntityView(object):
         return format_currency(value, symbol, locale=self.locale)
 
 
-@view_defaults(custom_predicates=(namespace_predicate(Page),))
+@view_defaults(custom_predicates=(namespace_predicate(Merchant),))
+class MerchantsView(EntityView):
+    """Merchant collection views"""
+
+    @view_config(request_method='GET', renderer='json')
+    def get(self):
+        return list(self.context)
+
+
+@view_defaults(context=Merchant)
+class MerchantView(EntityView):
+    """Merchant instance view"""
+
+    @view_config(request_method='GET', renderer='json')
+    def get(self):
+        return {'key': self.context.key,
+                'title': self.context.title}
+
+    @view_config(request_method='PATCH', renderer='json')
+    def patch(self):
+        data = self.request.params
+        try:
+            self.context.update(data, self.root)
+            transaction.commit()
+            return {'key': self.context.key,
+                    'title': self.context.title}
+        except TypeError as e:
+            transaction.abort()
+            return HTTPBadRequest(e.message)
+
+
+@view_defaults(context=Page)
 class PageView(EntityView):
+    """Page instance views"""
 
     @view_config(request_method='GET')
     def get(self):
@@ -86,8 +117,13 @@ class PageView(EntityView):
                 {'view': self},
                 request=self.request
             )
-        except TopLevelLookupException:
+        except TopLevelLookupException:  # Mako can't find the template
             raise HTTPNotFound
+
+
+@view_defaults(custom_predicates=(namespace_predicate(Page),))
+class PagesView(EntityView):
+    """Pages collection views"""
 
     @view_config(request_method='POST', renderer='json')
     def post(self):
@@ -105,7 +141,7 @@ class PageView(EntityView):
 @view_defaults(context=Product)
 class ProductView(EntityView):
 
-    @general_region.cache_on_arguments('product')
+    # @general_region.cache_on_arguments('product')
     def served_data(self, product):
         """Return prepared product data"""
         data = dict()
@@ -133,12 +169,8 @@ class ProductView(EntityView):
 
 
 @view_defaults(custom_predicates=(namespace_predicate(PriceReport),))
-class PriceReportView(EntityView):
-    """/reports views"""
-
-    @view_config(request_method='GET', renderer='templates/report.mako')
-    def get(self):
-        return {}
+class PriceReportsView(EntityView):
+    """PriceReports collection views"""
 
     @view_config(request_method='POST', renderer='json')
     def post(self):
@@ -171,6 +203,15 @@ class PriceReportView(EntityView):
         else:
             transaction.abort()
             raise HTTPBadRequest('No new reports')
+
+
+@view_defaults(context=PriceReport)
+class PriceReportView(EntityView):
+    """PriceReport instance views"""
+
+    @view_config(request_method='GET', renderer='templates/report.mako')
+    def get(self):
+        return {}
 
     @view_config(request_method='DELETE', renderer='json')
     def delete(self):

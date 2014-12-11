@@ -134,3 +134,15 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn('new_page', res.body)
 
         self.testapp.get('/pages/test', status=404)
+
+    def test_merchant_patch(self):
+        res = self.testapp.patch("/merchants/Howie's grocery",
+                                 [('title', 'Fred & Co.')], status=200)
+        self.assertEqual('Fred & Co.', res.json_body['title'])
+        self.testapp.get("/merchants/Howie's grocery", status=404)
+        res = self.testapp.get("/merchants/Fred & Co.", status=200)
+        self.assertEqual('Fred & Co.', res.json_body['title'])
+
+    def test_merchants_get(self):
+        res = self.testapp.get('/merchants', status=200)
+        self.assertIn("Howie's grocery", res.json_body)

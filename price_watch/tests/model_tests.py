@@ -312,7 +312,7 @@ class TestPriceReport(unittest.TestCase):
         milk = ProductCategory.fetch('milk', self.keeper)
 
         # add an outdated report
-        PriceReport.assemble(price_value=10.22,
+        PriceReport.assemble(price_value=15.40,
                              product_title=u'Молоко Минувших дней 1л',
                              reporter_name='John',
                              merchant_title="Howie's grocery",
@@ -332,6 +332,10 @@ class TestPriceReport(unittest.TestCase):
                              storage_manager=self.keeper)
         transaction.commit()
         self.assertEqual(48.65, milk.get_price())
+        self.assertEqual(15.40, milk.get_price(datetime.datetime.now() -
+                                               datetime.timedelta(days=25)))
+        self.assertIsNone(milk.get_price(datetime.datetime.now() -
+                                         datetime.timedelta(days=45)))
 
     def test_remove_from_category(self):
         product = Product.fetch(u'Молоко Farmers Milk 1L', self.keeper)

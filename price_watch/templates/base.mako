@@ -49,7 +49,7 @@
 
     <hr>
     ${next.body()}
-    <hr>
+    <hr class="footer_separator clearfix">
 
     <div class="footer">
         <p class="pull-right">

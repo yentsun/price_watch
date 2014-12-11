@@ -588,14 +588,16 @@ class ProductCategory(Entity):
         """Get median or minimum price for the date"""
 
         prices = prices or self.get_prices(date_time)
-        if cheap:
-            try:
-                return min(prices)
-            except ValueError:
-                return None
-        else:
-            prices = numpy.array(prices)
-            return round(numpy.median(prices), 2)
+        if len(prices):
+            if cheap:
+                try:
+                    return min(prices)
+                except ValueError:
+                    return None
+            else:
+                prices = numpy.array(prices)
+                return round(numpy.median(prices), 2)
+        return None
 
     def get_price_delta(self, date_time, relative=True):
 

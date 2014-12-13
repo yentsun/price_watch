@@ -10,11 +10,9 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
 
 requires = [
     'pyramid',
-    'pyramid_chameleon',
     'pyramid_debugtoolbar',
     'pyramid_tm',
     'pyramid_zodbconn',
-    'transaction',
     'ZODB3',
     'waitress',
     'babel',
@@ -23,7 +21,8 @@ requires = [
     'numpy',
     'dogpile.cache',
     'webtest',
-    'pyramid_dogpile_cache'
+    'pyramid_dogpile_cache',
+    'celery'
 ]
 
 setup(name='price_watch',

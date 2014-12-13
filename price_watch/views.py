@@ -10,7 +10,7 @@ from babel.dates import format_datetime
 from mako.exceptions import TopLevelLookupException
 from pyramid.view import view_config, view_defaults
 from pyramid.renderers import render_to_response
-from pyramid.httpexceptions import (HTTPBadRequest, HTTPNotFound)
+from pyramid.httpexceptions import (HTTPBadRequest, HTTPNotFound, HTTPAccepted)
 from pyramid_dogpile_cache import get_region
 
 from price_watch.models import (Page, PriceReport, PackageLookupError,
@@ -280,7 +280,7 @@ class RootView(EntityView):
     """General root views"""
     EXCLUDE_LIST = ['sour cream', 'salt', 'sugar', 'chicken egg', 'bread']
 
-    # @general_region.cache_on_arguments('index')
+    @general_region.cache_on_arguments('index')
     @view_config(request_method='GET', renderer='templates/index.mako')
     def get(self):
         categories = self.context['categories'].values()
@@ -310,3 +310,10 @@ class RootView(EntityView):
         return {'categories': category_tuples,
                 'chart_titles': json.dumps(chart_titles),
                 'chart_rows': json.dumps(chart_rows)}
+
+    @view_config(request_method='GET', name='refresh')
+    def refresh(self):
+        """Refresh cache"""
+        from celery_tasks import cache_refresh
+        cache_refresh.delay(self.get, self)
+        raise HTTPAccepted

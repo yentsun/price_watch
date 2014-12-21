@@ -6,6 +6,7 @@
       <div class="row-fluid marketing">
           <div class="span12">
               <div id="chart_div" style="width: 700px; height: 400px;"></div>
+
               <table class="table">
                   <thead>
                   <tr>
@@ -40,6 +41,12 @@
                   % endfor
                   </tbody>
               </table>
+              <span title="Время последнего обновления"
+                    class="label label-default"
+                    style="margin-bottom: 3em">
+                  <i class="glyphicon glyphicon-time"></i>
+                  ${time}
+              </span>
         </div>
       </div>
 <%def name="js()">

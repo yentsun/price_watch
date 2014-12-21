@@ -141,7 +141,7 @@ class PagesView(EntityView):
 @view_defaults(context=Product)
 class ProductView(EntityView):
 
-    # @general_region.cache_on_arguments('product')
+    @general_region.cache_on_arguments('product')
     def served_data(self, product):
         """Return prepared product data"""
         data = dict()
@@ -195,7 +195,7 @@ class PriceReportsView(EntityView):
                 raise HTTPBadRequest(e.message)
         if len(new_report_keys):
             transaction.commit()
-            general_region.invalidate()
+            general_region.invalidate(hard=False)
             return {
                 'new_report_keys': new_report_keys,
                 'counts': counts
@@ -224,7 +224,7 @@ class PriceReportView(EntityView):
 @view_defaults(context=ProductCategory)
 class CategoryView(EntityView):
 
-    # @general_region.cache_on_arguments('category')
+    @general_region.cache_on_arguments('category')
     def served_data(self, category):
         """Return prepared category data"""
 
@@ -283,7 +283,8 @@ class RootView(EntityView):
     @general_region.cache_on_arguments('index')
     @view_config(request_method='GET', renderer='templates/index.mako')
     def get(self):
-        categories = self.context['categories'].values()
+        root = self.root
+        categories = root['categories'].values()
         datetimes = get_datetimes(30)
         chart_rows = list()
         for date in datetimes:
@@ -294,6 +295,7 @@ class RootView(EntityView):
             chart_rows.append(row)
         category_tuples = list()
         chart_titles = list()
+        # TODO optimize this
         for category in categories:
             if len(category.products):
                 url = self.request.resource_url(category)
@@ -306,14 +308,10 @@ class RootView(EntityView):
                                         product_count, report_count))
                 if category.title not in self.EXCLUDE_LIST:
                     chart_titles.append(title)
+        time = format_datetime(datetime.datetime.now(), format='long',
+                               locale=self.request.locale_name)
 
         return {'categories': category_tuples,
+                'time': time,
                 'chart_titles': json.dumps(chart_titles),
                 'chart_rows': json.dumps(chart_rows)}
-
-    @view_config(request_method='GET', name='refresh')
-    def refresh(self):
-        """Refresh cache"""
-        from celery_tasks import cache_refresh
-        cache_refresh.delay(self.get, self)
-        raise HTTPAccepted

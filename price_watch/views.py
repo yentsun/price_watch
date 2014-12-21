@@ -301,7 +301,7 @@ class RootView(EntityView):
                 url = self.request.resource_url(category)
                 title = category.get_data('keyword').split(', ')[0]
                 price = self.currency(category.get_price())
-                delta = category.get_price_delta(self.delta_period)*100
+                delta = int(category.get_price_delta(self.delta_period)*100)
                 product_count = len(category.get_qualified_products())
                 report_count = len(category.get_reports())
                 category_tuples.append((url, title, price, delta,

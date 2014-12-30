@@ -16,6 +16,8 @@ DAY_AGO = datetime.datetime.now() - datetime.timedelta(days=1)
 WEEK_AGO = datetime.datetime.now() - datetime.timedelta(weeks=1)
 MONTH_AGO = datetime.datetime.now() - datetime.timedelta(days=30)
 
+REPORT_LIFETIME_END = WEEK_AGO  # time, during which report's price matters
+
 
 def get_delta(base_price, current_price, relative=True):
     """Return delta relative or absolute"""
@@ -368,8 +370,8 @@ class PriceReport(Entity):
         reporter = Reporter.acquire(reporter_name, storage_manager)
 
         if not product:
-            product = Product(product_title)
             prod_is_new = True
+            product = Product(product_title)
 
             # category
             category_key = product.get_category_key()
@@ -388,11 +390,11 @@ class PriceReport(Entity):
             category.add_package(package)
             product.package_ratio = package.get_ratio(category)
 
-            # merchant
-            product.add_merchant(merchant)
-            merchant.add_product(product)
-
             storage_manager.register(product)
+
+        # merchant
+        product.add_merchant(merchant)
+        merchant.add_product(product)
 
         # report
         report = cls(price_value=float(price_value), product=product,
@@ -559,17 +561,12 @@ class ProductCategory(Entity):
         products = self.products.values()
         filtered_products = list()
         for product in products:
-
             package_fit = True
             if min_package_ratio:
                 package_fit = product.package_ratio >= float(min_package_ratio)
-            if (
-                package_fit
-                and len(product.reports)
-                and product.get_last_report().date_time > WEEK_AGO
-            ):
+            # Actual qualification
+            if package_fit and product.get_price():
                 filtered_products.append(product)
-
         return filtered_products
 
     def get_prices(self, date_time=None):
@@ -648,10 +645,22 @@ class Product(Entity):
                 result.append(price_value)
         return result
 
-    def get_price(self, date_time=None, normalized=True):
+    def get_price(self, normalized=True):
         """Get price for the product"""
 
-        return self.get_last_reported_price(date_time, normalized)
+        known_prices = list()
+        for merchant in self.merchants.values():
+            report = self.get_last_report(merchant=merchant)
+            if report.date_time > REPORT_LIFETIME_END:
+                if normalized:
+                    price = report.normalized_price_value
+                else:
+                    price = report.price_value
+                known_prices.append(price)
+        if len(known_prices):
+            return numpy.median(known_prices)
+        else:
+            return None
 
     def get_price_delta(self, date_time, relative=True):
 
@@ -664,6 +673,7 @@ class Product(Entity):
 
         date_time = date_time or datetime.datetime.now()
         result = list()
+
         for report in self.reports.values():
             if report.date_time < date_time:
                 result.append(report)
@@ -699,17 +709,25 @@ class Product(Entity):
             return category_data['title']
         raise CategoryLookupError(self)
 
-    def get_last_report(self, date_time=None):
+    def get_last_report(self, date_time=None, merchant=None):
         """Get last (to `date_time`) report of the product"""
 
         date_time = date_time or datetime.datetime.now()
+
+        def qualify(report):
+            qualified = True
+            if report.date_time > date_time:
+                qualified = False
+            if merchant and report.merchant is not merchant:
+                qualified = False
+            return qualified
+
         # TODO decide which one to do first sorting or filtering
         reports = self.reports.values()
         if len(reports) > 0:
             sorted_reports = sorted(reports,
                                     key=attrgetter('date_time'))
-            filtered_reports = [report for report in sorted_reports
-                                if report.date_time < date_time]
+            filtered_reports = filter(qualify, sorted_reports)
             try:
                 return filtered_reports[-1]
             except IndexError:

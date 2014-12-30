@@ -222,17 +222,27 @@ def cleanup():
 
 
 @task
-def fix_categories():
-    """Reconnect products to categories"""
-    keeper = StorageManager(FileStorage('storage.fs'))
+def find_merchants():
+    """Find all merchants in reports"""
+    keeper = get_storage()
+    reports = PriceReport.fetch_all(keeper)
     products = Product.fetch_all(keeper)
+    merchants = list()
+    # for report in reports:
+    #     if report.merchant not in merchants:
+    #         merchants.append(report.merchant)
+    #         print(green(u'Merchant {} {} added...'
+    #                     .format(report.merchant,
+    #                             len(report.merchant.products))))
     for product in products:
-        try:
-            product.get_category_key()
-        except CategoryLookupError:
-            if product.category:
-                category = product.category
-                category.remove_product(product)
-                transaction.commit()
-                print(yellow(u'"{}" removed from "{}"'.format(product,
-                                                              category)))
+        if len(product.merchants.values()) and product.merchants.values()[0] not in merchants:
+            merchants.append(product.merchants[0])
+            print(green(u'Merchant {} {} added...'.format(product.merchants[0],
+            len(product.merchants[0].products))))
+
+
+@task
+def pack():
+    """Pack the storage"""
+    keeper = get_storage()
+    keeper._db.pack()

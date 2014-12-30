@@ -103,7 +103,7 @@ class TestPriceReport(unittest.TestCase):
         root = ProductCategory('product_categories')
         self.assertIsNone(root.get_parent())
 
-    def test_get_median(self):
+    def test_get_category_median(self):
 
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(55.6, milk.get_price())
@@ -121,12 +121,6 @@ class TestPriceReport(unittest.TestCase):
         transaction.commit()
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(55.6, milk.get_price())
-
-        # removing all reports from a product
-        report1 = PriceReport.fetch(self.report1_key, self.keeper)
-        report1.delete_from(self.keeper)
-        transaction.commit()
-        self.assertEqual(53, milk.get_price())
 
     def test_report_assembly(self):
 
@@ -225,10 +219,44 @@ class TestPriceReport(unittest.TestCase):
                       u"None-Jack",
                       [unicode(r) for r in milk.get_reports()])
 
-    def test_product_prices(self):
+    def test_strait_product_price(self):
         product = Product.fetch(u'Молоко Красная Цена у-паст. 3.2% 1л',
                                 self.keeper)
         self.assertEqual(55.6, product.get_price())
+
+    def test_merchant_added_to_product(self):
+        raw_data = {
+            "price_value": 50.4,
+            "url": "http://eddies.com/products/milk/1",
+            "product_title": u"Молоко Красная Цена у/паст. 3.2% 1л",
+            "merchant_title": "Eddie's grocery",
+            "reporter_name": "Jack",
+            'date_time': DAY_AGO,
+        }
+        PriceReport.assemble(storage_manager=self.keeper, **raw_data)
+        transaction.commit()
+        product = Product.fetch(u'Молоко Красная Цена у-паст. 3.2% 1л',
+                                self.keeper)
+        merchants = list(product.merchants)
+        self.assertEqual(2, len(merchants))
+
+    def test_product_price_with_two_merchants(self):
+
+        raw_data = {
+            "price_value": 50.4,
+            "url": "http://eddies.com/products/milk/1",
+            "product_title": u"Молоко Красная Цена у/паст. 3.2% 1л",
+            "merchant_title": "Eddie's grocery",
+            "reporter_name": "Jack",
+            'date_time': DAY_AGO,
+        }
+        PriceReport.assemble(storage_manager=self.keeper, **raw_data)
+        transaction.commit()
+
+        product = Product.fetch(u'Молоко Красная Цена у-паст. 3.2% 1л',
+                                self.keeper)
+
+        self.assertEqual(53, product.get_price())
 
     def test_fetch_all(self):
         products = Product.fetch_all(self.keeper)
@@ -351,7 +379,8 @@ class TestPriceReport(unittest.TestCase):
     def test_qualified_products(self):
         milk = ProductCategory.fetch('milk', self.keeper)
         fancy_milk_title = u'Молоко The Luxury Milk!!! 0,5л'
-        PriceReport.assemble(price_value=40, product_title=fancy_milk_title,
+        PriceReport.assemble(price_value=40,
+                             product_title=fancy_milk_title,
                              url='http"//blah',
                              merchant_title="Howie's grocery",
                              reporter_name='John',
@@ -360,17 +389,9 @@ class TestPriceReport(unittest.TestCase):
 
         fancy_milk = Product.fetch(u'Молоко The Luxury Milk!!! 0,5л',
                                    self.keeper)
-        self.assertNotIn(fancy_milk, milk.get_qualified_products())
-        self.assertEqual(3, len(milk.get_qualified_products()))
-
-        # removing reports from product 1
-        report1 = PriceReport.fetch(self.report1_key, self.keeper)
-        product1 = report1.product
-        report1.delete_from(self.keeper)
-        transaction.commit()
-
-        self.assertNotIn(product1, milk.get_qualified_products())
-        self.assertEqual(2, len(milk.get_qualified_products()))
+        qual_products = milk.get_qualified_products()
+        self.assertNotIn(fancy_milk, qual_products)
+        self.assertEqual(3, len(qual_products))
 
     def test_key_sanitizing(self):
         title = u'Молоко Красная Цена у/паст. 3.2% 1000г'

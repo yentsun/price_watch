@@ -4,6 +4,8 @@ import unittest
 import transaction
 from webtest import TestApp
 from pyramid.paster import bootstrap
+from datetime import datetime
+from price_watch.models import TWO_WEEKS_AGO
 
 
 class FunctionalTests(unittest.TestCase):
@@ -116,8 +118,8 @@ class FunctionalTests(unittest.TestCase):
             self.testapp.get('/reports/{}'.format(key), status=200)
 
         milk_page = self.testapp.get('/categories/milk', status=200)
-        self.assertIn(u'45.30', milk_page.html.find('tr', 'info').text)
-        self.assertIn(u'50.45', milk_page.html.find('div', 'cat-price').text)
+        self.assertIn(u'45,30', milk_page.html.find('tr', 'info').text)
+        self.assertIn(u'50,45', milk_page.html.find('div', 'cat-price').text)
 
     def test_report_delete(self):
         res = self.testapp.delete('/reports/{}'.format(self.report_key),
@@ -146,3 +148,39 @@ class FunctionalTests(unittest.TestCase):
     def test_merchants_get(self):
         res = self.testapp.get('/merchants', status=200)
         self.assertIn("Howie's grocery", res.json_body)
+
+    def test_product_chart_data(self):
+        data = [
+            ('price_value', 55.6),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Deli Milk 1L'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+            ('date_time', TWO_WEEKS_AGO),
+
+            ('price_value', 54.8),
+            ('url', 'http://eddies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Deli Milk 1L'.encode('utf-8')),
+            ('merchant_title', "Eddie's grocery"),
+            ('reporter_name', 'Jack'),
+            ('date_time', TWO_WEEKS_AGO),
+
+            ('price_value', 62.1),
+            ('url', 'http://eddies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Deli Milk 1L'.encode('utf-8')),
+            ('merchant_title', "Eddie's grocery"),
+            ('reporter_name', 'Jack'),
+        ]
+        self.testapp.post('/reports', data, status=200)
+
+        res = self.testapp.get(u'/products/Молоко Deli Milk 1L'.encode('utf-8'),
+                               status=200)
+        today_str = datetime.today().strftime('%d.%m')
+        weeks_ago_str = TWO_WEEKS_AGO.strftime('%d.%m')
+        self.assertIn('["{}", 64.299999999999997]'.format(today_str),
+                      res.body)
+        self.assertIn('["{}", 55.200000000000003]'.format(weeks_ago_str),
+                      res.body)

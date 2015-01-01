@@ -222,26 +222,6 @@ def cleanup():
 
 
 @task
-def find_merchants():
-    """Find all merchants in reports"""
-    keeper = get_storage()
-    reports = PriceReport.fetch_all(keeper)
-    products = Product.fetch_all(keeper)
-    merchants = list()
-    # for report in reports:
-    #     if report.merchant not in merchants:
-    #         merchants.append(report.merchant)
-    #         print(green(u'Merchant {} {} added...'
-    #                     .format(report.merchant,
-    #                             len(report.merchant.products))))
-    for product in products:
-        if len(product.merchants.values()) and product.merchants.values()[0] not in merchants:
-            merchants.append(product.merchants[0])
-            print(green(u'Merchant {} {} added...'.format(product.merchants[0],
-            len(product.merchants[0].products))))
-
-
-@task
 def pack():
     """Pack the storage"""
     keeper = get_storage()

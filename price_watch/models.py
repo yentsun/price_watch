@@ -14,9 +14,11 @@ from BTrees import OOBTree
 HOUR_AGO = datetime.datetime.now() - datetime.timedelta(hours=1)
 DAY_AGO = datetime.datetime.now() - datetime.timedelta(days=1)
 WEEK_AGO = datetime.datetime.now() - datetime.timedelta(weeks=1)
+TWO_WEEKS_AGO = datetime.datetime.now() - datetime.timedelta(weeks=2)
 MONTH_AGO = datetime.datetime.now() - datetime.timedelta(days=30)
 
-REPORT_LIFETIME_END = WEEK_AGO  # time, during which report's price matters
+# time, during which report's price matters
+REPORT_LIFETIME = datetime.timedelta(weeks=1)
 
 
 def get_delta(base_price, current_price, relative=True):
@@ -354,11 +356,16 @@ class PriceReport(Entity):
           - package
           - merchant
           - reporter
-        `date_time` is expected to be str in `%Y-%m-%d %H:%M:%S` format.
+        `date_time` is expected to be str in `%Y-%m-%d %H:%M:%S` format or
+        datetime object.
         New report is registered in storage.
         """
         try:
             date_time = datetime.datetime.strptime(date_time,
+                                                   '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            #  microseconds in string?
+            date_time = datetime.datetime.strptime(date_time.split('.')[0],
                                                    '%Y-%m-%d %H:%M:%S')
         except TypeError:
             pass
@@ -645,16 +652,18 @@ class Product(Entity):
                 result.append(price_value)
         return result
 
-    def get_price(self, normalized=True):
+    def get_price(self, date_time=None, normalized=True):
         """Get price for the product"""
-
+        date_time = date_time or datetime.datetime.now()
         known_prices = list()
         for merchant in self.merchants.values():
-            report = self.get_last_report(merchant=merchant)
-            if report.date_time > REPORT_LIFETIME_END:
+            report = self.get_last_report(date_time=date_time,
+                                          merchant=merchant)
+            if report and report.date_time > date_time - REPORT_LIFETIME:
                 if normalized:
                     price = report.normalized_price_value
                 else:
+
                     price = report.price_value
                 known_prices.append(price)
         if len(known_prices):

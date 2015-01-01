@@ -10,7 +10,7 @@ from babel.dates import format_datetime
 from mako.exceptions import TopLevelLookupException
 from pyramid.view import view_config, view_defaults
 from pyramid.renderers import render_to_response
-from pyramid.httpexceptions import (HTTPBadRequest, HTTPNotFound, HTTPAccepted)
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from pyramid_dogpile_cache import get_region
 
 from price_watch.models import (Page, PriceReport, PackageLookupError,

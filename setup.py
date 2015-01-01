@@ -22,11 +22,10 @@ requires = [
     'dogpile.cache',
     'webtest',
     'pyramid_dogpile_cache',
-    'celery'
 ]
 
 setup(name='price_watch',
-      version='0.0',
+      version='0.1',
       description='price_watch',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[

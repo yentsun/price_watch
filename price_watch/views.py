@@ -315,5 +315,6 @@ class RootView(EntityView):
 
         return {'categories': category_tuples,
                 'time': time,
+                'root': True,
                 'chart_titles': json.dumps(chart_titles),
                 'chart_rows': json.dumps(chart_rows)}

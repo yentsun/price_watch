@@ -43,8 +43,14 @@
 
             % endfor
         </ul>
+        % if req.context is not req.root:
+            <a href="/" title="На главную">
+        % endif
         <img src="${request.static_url('price_watch:static/img/logo.png')}"
              alt="Логотип" width="230"/>
+        % if req.context is not req.root:
+            </a>
+        % endif
     </div>
 
     <hr>
@@ -55,7 +61,7 @@
         <p class="pull-right">
             email: <a href="mailto:info@food-price.net">info@food-price.net</a>
         </p>
-        <p>&copy; ${project_title()} 2014</p>
+        <p>&copy; ${project_title()}</p>
     </div>
 
 </div> <!-- /container -->

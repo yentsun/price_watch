@@ -4,7 +4,7 @@ import unittest
 import transaction
 from webtest import TestApp
 from pyramid.paster import bootstrap
-from datetime import datetime
+from datetime import datetime, timedelta
 from price_watch.models import TWO_WEEKS_AGO
 
 
@@ -184,3 +184,18 @@ class FunctionalTests(unittest.TestCase):
                       res.body)
         self.assertIn('["{}", 55.200000000000003]'.format(weeks_ago_str),
                       res.body)
+
+    def test_display_days(self):
+        data = [
+            ('price_value', 59.3),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Deli Milk 1L'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+            ('date_time', datetime.now() - timedelta(weeks=7))
+        ]
+        self.testapp.post('/reports', data, status=200)
+        res = self.testapp.get(u'/products/Молоко Deli Milk 1L'.encode('utf-8'),
+                               status=200)
+        self.assertNotIn('59,30', res.body)

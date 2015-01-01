@@ -53,8 +53,9 @@ class EntityView(object):
         self.context = request.context
         self.root = request.root
         self.locale = Locale(request.locale_name)
+        self.display_days = int(request.registry.settings['display_days'])
         self.delta_period = (datetime.datetime.now() -
-                             datetime.timedelta(days=30))
+                             datetime.timedelta(days=self.display_days))
         self.fd = format_datetime
 
     def menu(self):
@@ -147,14 +148,15 @@ class ProductView(EntityView):
         data = dict()
         data['current_price'] = self.currency(product.get_price())
         data['chart_data'] = list()
-        datetimes = get_datetimes(30)
+        datetimes = get_datetimes(self.display_days)
         for date in datetimes:
             data['chart_data'].append([date.strftime('%d.%m'),
                                       product.get_price(date)])
         data['chart_data'] = json.dumps(data['chart_data'])
         data['reports'] = list()
-        for report in sorted(product.reports.values(), reverse=True,
-                             key=lambda rep: rep.date_time):
+        for report in sorted(product.get_reports(
+                from_date_time=self.delta_period),
+                reverse=True, key=lambda rep: rep.date_time):
             url = self.request.resource_url(report)
             date = format_datetime(report.date_time, format='short',
                                    locale=self.request.locale_name)
@@ -236,7 +238,7 @@ class CategoryView(EntityView):
         package_title = ProductPackage(package_key).get_data('synonyms')[0]
 
         chart_data = list()
-        datetimes = get_datetimes(30)
+        datetimes = get_datetimes(self.display_days)
         for date in datetimes:
             chart_data.append([date.strftime('%d.%m'),
                                category.get_price(date)])
@@ -285,7 +287,7 @@ class RootView(EntityView):
     def get(self):
         root = self.root
         categories = root['categories'].values()
-        datetimes = get_datetimes(30)
+        datetimes = get_datetimes(self.display_days)
         chart_rows = list()
         for date in datetimes:
             row = [date.strftime('%d.%m')]

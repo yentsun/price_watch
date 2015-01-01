@@ -677,14 +677,17 @@ class Product(Entity):
         current_price = self.get_last_reported_price()
         return get_delta(base_price, current_price, relative)
 
-    def get_reports(self, date_time=None):
+    def get_reports(self, to_date_time=None, from_date_time=None):
         """Get reports to the given date/time"""
 
-        date_time = date_time or datetime.datetime.now()
         result = list()
-
         for report in self.reports.values():
-            if report.date_time < date_time:
+            qualifies = True
+            if to_date_time and report.date_time > to_date_time:
+                qualifies = False
+            if from_date_time and report.date_time < from_date_time:
+                qualifies = False
+            if qualifies:
                 result.append(report)
         return result
 

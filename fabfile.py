@@ -14,8 +14,8 @@ from price_watch.models import (ProductCategory, StorageManager,
                                 Product, Merchant, CategoryLookupError)
 
 APP_NAME = 'food-price.net'
-env.hosts = ['ubuntu@alpha']
-env.key_filename = ['/home/yentsun/.ssh/yentsunkey.pem']
+env.hosts = ['ubuntu@alpha.korinets.name']
+env.key_filename = ['/home/yentsun/Dropbox/_Documents/AWS/yentsunkey.pem']
 
 MULTIPLIER = 1
 logging.basicConfig(filename='debug.log', level=logging.DEBUG)
@@ -241,19 +241,22 @@ def prepare():
 def deploy():
     prepare()
     dist = local('~/env2/bin/python setup.py --fullname', capture=True).strip()
-    put('dist/{dist}.tar.gz'.format(dist=dist),
-        '{dist}.tar.gz'.format(dist=dist))
-    run('tar xzf {dist}.tar.gz'.format(dist=dist))
-    run('rm -f {dist}.tar.gz'.format(dist=dist))
-    with cd('{dist}'.format(dist=dist)):
+    # upload distribution
+    local('scp dist/{dist}.tar.gz '
+          'ubuntu@alpha:www/{dist}.tar.gz'.format(dist=dist))
+    # unpack
+    with cd('www'):
+        run('tar xzf {}.tar.gz '.format(dist))
+        # remove distr
+        run('rm -f {}.tar.gz'.format(dist))
+    # install
+    with cd('www/{}'.format(dist)):
         run('~/env/bin/python setup.py install')
-    with cd('{dist}/price_watch/tests'.format(dist=dist)):
+    # run tests
+    with cd('www/{}/price_watch/tests'.format(dist)):
         run('~/env/bin/nosetests unit_tests.py')
         run('~/env/bin/nosetests functional_tests.py')
-    with cd(APP_NAME):
-        run('supervisorctl shutdown')
-    run('rm -rf {appname}'.format(appname=APP_NAME))
-    run('mv {dist} {appname}'.format(appname=APP_NAME, dist=dist))
-    with cd(APP_NAME):
-        run('supervisord')
-        run('supervisorctl status')
+    run('rm -rf ~/www/{}'.format(APP_NAME))
+    run('mv ~/www/{dist} ~/www/{appname}'.format(appname=APP_NAME, dist=dist))
+    with cd('www'):
+        run('~/env/bin/supervisorctl restart food-price.net:*')

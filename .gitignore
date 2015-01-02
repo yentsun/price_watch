@@ -1,7 +1,7 @@
-.idea/*
+.idea
 *.pyc
 *.log
-storage/*
-price_watch.egg-info/*
-cache/*
+storage
+price_watch.egg-info
+cache
 dist

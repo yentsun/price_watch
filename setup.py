@@ -22,10 +22,13 @@ requires = [
     'dogpile.cache',
     'webtest',
     'pyramid_dogpile_cache',
+    'nose',
+    'pyyaml',
+    'colander'
 ]
 
 setup(name='price_watch',
-      version='0.1',
+      version='0.1.2.3',
       description='price_watch',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[

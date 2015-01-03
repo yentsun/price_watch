@@ -56,7 +56,9 @@ class FunctionalTests(unittest.TestCase):
             ('reporter_name', 'Jack')
         ]
         res = self.testapp.post('/reports', data, status=400)
-        self.assertIn('No new reports', res.body)
+        self.assertIn(u'Category lookup failed for product '
+                      u'"Кефир Веселый молочник 950г"',
+                      res.body.decode('utf-8'))
 
     def test_report_post_bad_package(self):
         data = [
@@ -68,7 +70,9 @@ class FunctionalTests(unittest.TestCase):
             ('reporter_name', 'Jack')
         ]
         res = self.testapp.post('/reports', data, status=400)
-        self.assertIn('No new reports', res.body)
+        self.assertIn(u'Package lookup failed for product '
+                      u'"Молоко Веселый молочник 3950г"',
+                      res.body.decode('utf-8'))
 
     def test_report_post_existent_product(self):
         data = [
@@ -116,6 +120,11 @@ class FunctionalTests(unittest.TestCase):
         new_report_keys = res.json_body['new_report_keys']
         for key in new_report_keys:
             self.testapp.get('/reports/{}'.format(key), status=200)
+
+        errors = res.json_body['errors']
+        self.assertIn(u'Category lookup failed for product '
+                      u'"Волшебный Элексир Красная Цена у/паст. 1% 1л"',
+                      errors)
 
         milk_page = self.testapp.get('/categories/milk', status=200)
         self.assertIn(u'45,30', milk_page.html.find('tr', 'info').text)

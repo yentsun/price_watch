@@ -1,4 +1,4 @@
-0.0
----
+0.1.3
+-----
 
--  Initial version
+-  Added error reporting to `PriceReportsView.post`

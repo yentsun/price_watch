@@ -182,6 +182,7 @@ class PriceReportsView(EntityView):
                   'category': 0,
                   'package': 0}
         new_report_keys = list()
+        error_msgs = list()
         for dict_ in dict_list:
             try:
                 report, new_items = PriceReport.assemble(
@@ -191,8 +192,8 @@ class PriceReportsView(EntityView):
                 counts['product'] += int(prod_is_new)
                 counts['category'] += int(cat_is_new)
                 counts['package'] += int(pack_is_new)
-            except (PackageLookupError, CategoryLookupError):
-                pass
+            except (PackageLookupError, CategoryLookupError) as e:
+                error_msgs.append(e.message)
             except TypeError as e:
                 raise HTTPBadRequest(e.message)
         if len(new_report_keys):
@@ -200,11 +201,13 @@ class PriceReportsView(EntityView):
             general_region.invalidate(hard=False)
             return {
                 'new_report_keys': new_report_keys,
-                'counts': counts
+                'counts': counts,
+                'errors': error_msgs
             }
         else:
             transaction.abort()
-            raise HTTPBadRequest('No new reports')
+            raise HTTPBadRequest('No new reports<br>' +
+                                 '<br>'.join(error_msgs))
 
 
 @view_defaults(context=PriceReport)

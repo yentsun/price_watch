@@ -28,7 +28,7 @@ requires = [
 ]
 
 setup(name='price_watch',
-      version='0.1.2.3',
+      version='0.1.3',
       description='price_watch',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[

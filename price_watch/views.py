@@ -192,10 +192,9 @@ class PriceReportsView(EntityView):
                 counts['product'] += int(prod_is_new)
                 counts['category'] += int(cat_is_new)
                 counts['package'] += int(pack_is_new)
-            except (PackageLookupError, CategoryLookupError) as e:
+            except (PackageLookupError, CategoryLookupError, ValueError,
+                    TypeError) as e:
                 error_msgs.append(e.message)
-            except TypeError as e:
-                raise HTTPBadRequest(e.message)
         if len(new_report_keys):
             transaction.commit()
             general_region.invalidate(hard=False)
@@ -206,8 +205,8 @@ class PriceReportsView(EntityView):
             }
         else:
             transaction.abort()
-            raise HTTPBadRequest('No new reports<br>' +
-                                 '<br>'.join(error_msgs))
+            raise HTTPBadRequest('No new reports\n' +
+                                 '\n'.join(error_msgs))
 
 
 @view_defaults(context=PriceReport)

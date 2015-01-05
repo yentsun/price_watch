@@ -360,15 +360,16 @@ class PriceReport(Entity):
         datetime object.
         New report is registered in storage.
         """
-        try:
-            date_time = datetime.datetime.strptime(date_time,
-                                                   '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            #  microseconds in string?
-            date_time = datetime.datetime.strptime(date_time.split('.')[0],
-                                                   '%Y-%m-%d %H:%M:%S')
-        except TypeError:
-            pass
+
+        if type(date_time) is str:
+            try:
+                date_time = datetime.datetime.strptime(date_time,
+                                                       '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                #  microseconds in string?
+                date_time = datetime.datetime.strptime(date_time.split('.')[0],
+                                                       '%Y-%m-%d %H:%M:%S')
+
         prod_is_new = cat_is_new = pack_is_new = False
         product_key = Product(product_title).key
         merchant_key = Merchant(merchant_title).key

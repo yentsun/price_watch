@@ -79,6 +79,9 @@ ProductPackage:
   4 kg:
     synonyms:
       - 4кг
+  2.5 kg:
+    synonyms:
+      - 2,5 кг
   2.1 kg:
     synonyms:
       - 1,9-2,1кг

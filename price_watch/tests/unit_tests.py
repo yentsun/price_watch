@@ -103,7 +103,7 @@ class TestPriceReport(unittest.TestCase):
         root = ProductCategory('product_categories')
         self.assertIsNone(root.get_parent())
 
-    def test_get_category_median(self):
+    def test_category_median(self):
 
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(55.6, milk.get_price())
@@ -121,6 +121,10 @@ class TestPriceReport(unittest.TestCase):
         transaction.commit()
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(55.6, milk.get_price())
+
+    def test_category_get_locations(self):
+        milk = ProductCategory.fetch('milk', self.keeper)
+        self.assertIn(u'Москва', milk.get_locations())
 
     def test_report_assembly(self):
 
@@ -216,7 +220,7 @@ class TestPriceReport(unittest.TestCase):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertIn(u"55.6-Молоко Красная Цена у/паст. 3.2% 1л"
                       u"-Howie's grocery-"
-                      u"None-Jack",
+                      u"Москва-Jack",
                       [unicode(r) for r in milk.get_reports()])
 
     def test_strait_product_price(self):
@@ -408,6 +412,49 @@ class TestPriceReport(unittest.TestCase):
         self.assertNotIn(victim.key, reporter)
         self.assertNotIn(victim.key, product)
         self.assertNotIn(victim.key, PriceReport.fetch_all(self.keeper))
+
+    def test_multidict_to_list(self):
+        from price_watch.utilities import multidict_to_list
+        from webob.multidict import MultiDict
+        multidict = MultiDict((
+            ('price_value', 55.6),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+
+            ('price_value', 45.3),
+            ('url', 'http://howies.com/products/milk/5'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+        ))
+        dict_list = multidict_to_list(multidict)
+        self.assertEqual(2, len(dict_list))
+
+    def test_multidict_to_list_diff_valuecount(self):
+        from price_watch.utilities import multidict_to_list
+        from price_watch.exceptions import MultidictError
+        from webob.multidict import MultiDict
+        multidict = MultiDict((
+            ('price_value', 55.6),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+
+            ('price_value', 45.3),
+            ('url', 'http://howies.com/products/milk/5'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+            ('date_time', '2014.12.30 20:57'),
+        ))
+        self.assertRaises(MultidictError, multidict_to_list, multidict)
 
     def tearDown(self):
         self.keeper.close()

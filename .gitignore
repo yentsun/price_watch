@@ -5,3 +5,4 @@ storage
 price_watch.egg-info
 cache
 dist
+VERSION.txt

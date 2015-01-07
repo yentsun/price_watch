@@ -117,6 +117,7 @@ class FunctionalTests(unittest.TestCase):
         self.assertEqual(1, res.json_body['counts']['product'])
         self.assertEqual(0, res.json_body['counts']['category'])
         self.assertEqual(0, res.json_body['counts']['package'])
+
         new_report_keys = res.json_body['new_report_keys']
         for key in new_report_keys:
             self.testapp.get('/reports/{}'.format(key), status=200)
@@ -129,6 +130,47 @@ class FunctionalTests(unittest.TestCase):
         milk_page = self.testapp.get('/categories/milk', status=200)
         self.assertIn(u'45,30', milk_page.html.find('tr', 'info').text)
         self.assertIn(u'50,45', milk_page.html.find('div', 'cat-price').text)
+
+    def test_post_incorrect_date_format(self):
+        data = [
+            ('price_value', 55.6),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+            ('date_time', '2014.12.30 20:57')
+        ]
+        res = self.testapp.post('/reports', data, status=400)
+        self.assertIn("time data '2014' does not match "
+                      "format '%Y-%m-%d %H:%M:%S'", res.body)
+
+    def test_post_multiple_reports_bad_multidict(self):
+        data = [
+            ('price_value', 55.6),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+
+            ('price_value', 45.3),
+            ('url', 'http://howies.com/products/milk/5'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+
+            ('price_value', 67.1),
+            ('url', 'http://howies.com/products/milk/6'),
+            ('product_title',
+             u'Волшебный Элексир Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+            ('date_time', '2014-12-1')
+        ]
+        res = self.testapp.post('/reports', data, status=400)
+        self.assertIn('Bad multidict: value counts not equal', res.body)
 
     def test_report_delete(self):
         res = self.testapp.delete('/reports/{}'.format(self.report_key),
@@ -182,6 +224,7 @@ class FunctionalTests(unittest.TestCase):
              u'Молоко Deli Milk 1L'.encode('utf-8')),
             ('merchant_title', "Eddie's grocery"),
             ('reporter_name', 'Jack'),
+            ('date_time', ''),
         ]
         self.testapp.post('/reports', data, status=200)
 

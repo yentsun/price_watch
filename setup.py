@@ -7,6 +7,8 @@ with open(os.path.join(here, 'README.txt')) as f:
     README = f.read()
 with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
+with open(os.path.join(here, 'VERSION.txt')) as f:
+    VERSION = f.read()
 
 requires = [
     'pyramid',
@@ -28,7 +30,7 @@ requires = [
 ]
 
 setup(name='price_watch',
-      version='0.1.3',
+      version=VERSION,
       description='price_watch',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[

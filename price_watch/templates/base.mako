@@ -61,7 +61,9 @@
         <p class="pull-right">
             email: <a href="mailto:info@food-price.net">info@food-price.net</a>
         </p>
-        <p>&copy; ${project_title()}</p>
+        <p>&copy; ${project_title()}
+            <small>(${req.registry.settings['version']})</small>
+        </p>
     </div>
 
 </div> <!-- /container -->

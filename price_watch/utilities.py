@@ -1,17 +1,6 @@
 import threading
 
-from itertools import tee, islice, chain, izip
-
-
-def previous_and_next(some_iterable):
-    """
-    Previous and next values inside a loop
-    credit: http://stackoverflow.com/a/1012089/216042
-    """
-    prevs, items, nexts = tee(some_iterable, 3)
-    prevs = chain([None], prevs)
-    nexts = chain(islice(nexts, 1, None), [None])
-    return izip(prevs, items, nexts)
+from price_watch.exceptions import MultidictError
 
 
 def async_creation_runner(cache, somekey, creator, mutex):
@@ -34,10 +23,20 @@ def async_creation_runner(cache, somekey, creator, mutex):
 
 
 def multidict_to_list(multidict):
-    """Convert Multidict object to a list of dicts"""
+    """
+    Convert Multidict object to a list of dicts. Dict tuples must have equal
+    number of key/value pairs.
+    """
     dict_list = list()
     keys = multidict.dict_of_lists().keys()
-    value_count = len(multidict.getall(keys[0]))
+    value_count = None
+    for key in keys:
+        this_value_count = len(multidict.getall(key))
+        if value_count is None:
+            value_count = this_value_count
+        else:
+            if this_value_count != value_count:
+                raise MultidictError()
     for index in range(0, value_count):
         new_dict = dict()
         for key in keys:

@@ -1,13 +1,14 @@
 import os
 
 from setuptools import setup, find_packages
-from price_watch import get_version
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.txt')) as f:
     README = f.read()
 with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
+with open(os.path.join(here, 'VERSION.txt')) as f:
+    VERSION = f.read()
 
 requires = [
     'pyramid',
@@ -29,7 +30,7 @@ requires = [
 ]
 
 setup(name='price_watch',
-      version=get_version(),
+      version=VERSION,
       description='price_watch',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[

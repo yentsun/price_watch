@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import json
 import datetime
 import transaction
@@ -235,9 +236,13 @@ def pack():
 @task
 def prepare():
     res = local('git status', capture=True)
-    print(yellow(res))
-    local('git describe --tags > VERSION.txt')
-    # local('~/env2/bin/python setup.py sdist --formats=gztar', capture=False)
+    if 'nothing to commit, working directory clean' in res:
+        local('git describe --tags > VERSION.txt')
+        local('~/env2/bin/python setup.py sdist --formats=gztar',
+              capture=False)
+    else:
+        print(yellow('Git: directory not clean.'))
+        sys.exit()
 
 
 @task

@@ -1,2 +1,2 @@
-include *.txt *.ini *.cfg *.rst
-recursive-include price_watch *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml *.json *.yaml *.ini *.eot *.svg *.ttf *.woff
+include *.txt *.ini
+recursive-include price_watch *.png *.css *.gif *.jpg *.txt *.mako *.js *.html *.xml *.json *.yaml *.ini *.eot *.svg *.ttf *.woff

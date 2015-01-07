@@ -131,6 +131,20 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn(u'45,30', milk_page.html.find('tr', 'info').text)
         self.assertIn(u'50,45', milk_page.html.find('div', 'cat-price').text)
 
+    def test_post_incorrect_date_format(self):
+        data = [
+            ('price_value', 55.6),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+            ('date_time', '2014.12.30 20:57')
+        ]
+        res = self.testapp.post('/reports', data, status=400)
+        self.assertIn("time data '2014' does not match "
+                      "format '%Y-%m-%d %H:%M:%S'", res.body)
+
     def test_post_multiple_reports_bad_multidict(self):
         data = [
             ('price_value', 55.6),

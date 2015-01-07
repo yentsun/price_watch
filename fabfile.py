@@ -16,7 +16,7 @@ from price_watch.models import (ProductCategory, StorageManager,
 
 APP_NAME = 'food-price.net'
 env.hosts = ['ubuntu@alpha.korinets.name']
-env.key_filename = ['/home/yentsun/Dropbox/_Documents/AWS/yentsunkey.pem']
+env.key_filename = ['/home/yentsun/Dropbox/Documents/AWS/yentsunkey.pem']
 
 MULTIPLIER = 1
 logging.basicConfig(filename='debug.log', level=logging.DEBUG)

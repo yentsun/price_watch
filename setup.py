@@ -8,7 +8,7 @@ with open(os.path.join(here, 'README.txt')) as f:
 with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
 with open(os.path.join(here, 'VERSION.txt')) as f:
-    VERSION = f.read()
+    VERSION = f.read().strip()
 
 requires = [
     'pyramid',

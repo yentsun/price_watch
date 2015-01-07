@@ -191,17 +191,20 @@ class StorageManager(object):
 
     def load_fixtures(self, path):
         """Load fixtures from JSON file in path. Mostly for testing"""
-        result = dict(reports=[], pages=[])
+        result = dict()
+        expected_enities = [PriceReport, Page, Merchant]
         with open(path) as f:
             fixture_list = json.load(f)
             for fixture in fixture_list:
-                try:
-                    report, stats = PriceReport.assemble(storage_manager=self,
-                                                         **fixture)
-                    result['reports'].append(report)
-                except TypeError:
-                    page = Page.assemble(storage_manager=self, **fixture)
-                    result['pages'].append(page)
+                for entity in expected_enities:
+                    try:
+                        instance, stats = entity.assemble(
+                            storage_manager=self, **fixture)
+                        if entity.namespace not in result:
+                            result[entity.namespace] = list()
+                        result[entity.namespace].append(instance)
+                    except TypeError:
+                        pass
         return result
 
 
@@ -428,10 +431,13 @@ class Merchant(Entity):
         self.location = location
         self.products = OOBTree.BTree()
 
-    def update(self, data, storage_manager):
+    def patch(self, data, storage_manager):
         """Update merchant from dict. Return `True` if new key created"""
         old_key = self.key
-        self.title = data['title']
+        if 'title' in data:
+            self.title = data['title']
+        if 'location' in data:
+            self.location = data['location']
         if old_key != self.key:
             storage_manager.register(self)
             try:
@@ -446,6 +452,13 @@ class Merchant(Entity):
         """Add product to products dict"""
         if product.key not in self.products:
             self.products[product.key] = product
+
+    @classmethod
+    def assemble(cls, storage_manager, title, location=None):
+        merchant = cls.acquire(title, storage_manager)
+        merchant.location = location
+        storage_manager.register(merchant)
+        return merchant, None
 
 
 class ProductPackage(Entity):
@@ -610,6 +623,15 @@ class ProductCategory(Entity):
         current_price = self.get_price()
         return get_delta(base_price, current_price, relative)
 
+    def get_locations(self):
+        """Get category's merchant locations"""
+        locations = list()
+        for product in self.products.values():
+            for merchant in product.merchants.values():
+                if merchant.location not in locations:
+                    locations.append(merchant.location)
+        return locations
+
 
 class Product(Entity):
     """Product model"""
@@ -638,20 +660,6 @@ class Product(Entity):
 
         if merchant.key not in self.merchants:
             self.merchants[merchant.key] = merchant
-
-    def get_prices(self, date_time=None, normalized=True):
-        """Get prices from reports for a given date"""
-
-        result = list()
-        reports = self.get_reports(date_time=date_time)
-        if len(reports) > 0:
-            for report in reports:
-                if normalized:
-                    price_value = report.normalized_price_value
-                else:
-                    price_value = report.price_value
-                result.append(price_value)
-        return result
 
     def get_price(self, date_time=None, normalized=True):
         """Get price for the product"""
@@ -800,9 +808,9 @@ class Page(Entity):
 
     @classmethod
     def assemble(cls, storage_manager, slug):
-        new_page = cls(slug)
+        new_page = cls.acquire(slug, storage_manager)
         storage_manager.register(new_page)
-        return new_page
+        return new_page, None
 
     def delete_from(self, storage_manager):
         """Delete the page instance from storage"""

@@ -23,7 +23,9 @@
                   </tr>
                   <tr>
                       <td>Продавец</td>
-                      <td><strong>${req.context.merchant.title}</strong></td>
+                      <td><strong>${req.context.merchant.title}
+                          (${req.context.merchant.location})</strong>
+                          </td>
                   </tr>
                   <tr>
                       <td>URL / ID товара</td>

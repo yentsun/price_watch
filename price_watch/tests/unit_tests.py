@@ -103,7 +103,7 @@ class TestPriceReport(unittest.TestCase):
         root = ProductCategory('product_categories')
         self.assertIsNone(root.get_parent())
 
-    def test_get_category_median(self):
+    def test_category_median(self):
 
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(55.6, milk.get_price())
@@ -121,6 +121,10 @@ class TestPriceReport(unittest.TestCase):
         transaction.commit()
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(55.6, milk.get_price())
+
+    def test_category_get_locations(self):
+        milk = ProductCategory.fetch('milk', self.keeper)
+        self.assertIn(u'Москва', milk.get_locations())
 
     def test_report_assembly(self):
 
@@ -216,7 +220,7 @@ class TestPriceReport(unittest.TestCase):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertIn(u"55.6-Молоко Красная Цена у/паст. 3.2% 1л"
                       u"-Howie's grocery-"
-                      u"None-Jack",
+                      u"Москва-Jack",
                       [unicode(r) for r in milk.get_reports()])
 
     def test_strait_product_price(self):

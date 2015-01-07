@@ -2,7 +2,6 @@
 
 import datetime
 import json
-import transaction
 
 from babel.core import Locale
 from babel.numbers import format_currency
@@ -92,18 +91,18 @@ class MerchantView(EntityView):
     @view_config(request_method='GET', renderer='json')
     def get(self):
         return {'key': self.context.key,
-                'title': self.context.title}
+                'title': self.context.title,
+                'location': self.context.location}
 
     @view_config(request_method='PATCH', renderer='json')
     def patch(self):
         data = self.request.params
         try:
-            self.context.update(data, self.root)
-            transaction.commit()
+            self.context.patch(data, self.root)
             return {'key': self.context.key,
-                    'title': self.context.title}
+                    'title': self.context.title,
+                    'location': self.context.location}
         except TypeError as e:
-            transaction.abort()
             return HTTPBadRequest(e.message)
 
 
@@ -131,8 +130,8 @@ class PagesView(EntityView):
     def post(self):
         post_data = self.request.POST
         try:
-            new_page = Page.assemble(storage_manager=self.root, **post_data)
-            transaction.commit()
+            new_page, stats = Page.assemble(storage_manager=self.root,
+                                            **post_data)
             return {
                 'new_page': new_page.slug
             }
@@ -162,8 +161,9 @@ class ProductView(EntityView):
             date = format_datetime(report.date_time, format='short',
                                    locale=self.request.locale_name)
             merchant = report.merchant.title
+            location = report.merchant.location
             price = self.currency(report.normalized_price_value)
-            data['reports'].append((url, date, merchant, price))
+            data['reports'].append((url, date, merchant, location, price))
         return data
 
     @view_config(renderer='templates/product.mako', request_method='GET')
@@ -200,7 +200,6 @@ class PriceReportsView(EntityView):
                     TypeError) as e:
                 error_msgs.append(e.message)
         if len(new_report_keys):
-            transaction.commit()
             general_region.invalidate(hard=False)
             return {
                 'new_report_keys': new_report_keys,
@@ -208,7 +207,6 @@ class PriceReportsView(EntityView):
                 'errors': error_msgs
             }
         else:
-            transaction.abort()
             raise HTTPBadRequest('No new reports\n' +
                                  '\n'.join(error_msgs))
 
@@ -225,7 +223,6 @@ class PriceReportView(EntityView):
     def delete(self):
 
         self.context.delete_from(self.root)
-        transaction.commit()
         return {'deleted_report_key': self.context.key}
 
 
@@ -311,9 +308,9 @@ class RootView(EntityView):
                 price = self.currency(category.get_price())
                 delta = int(category.get_price_delta(self.delta_period)*100)
                 product_count = len(category.get_qualified_products())
-                report_count = len(category.get_reports())
+                locations = ', '.join(category.get_locations())
                 category_tuples.append((url, title, price, delta,
-                                        product_count, report_count))
+                                        product_count, locations))
                 if category.title not in self.EXCLUDE_LIST:
                     chart_titles.append(title)
         time = format_datetime(datetime.datetime.now(), format='long',

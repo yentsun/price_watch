@@ -21,12 +21,12 @@
                   </tr>
                   </thead>
                   <tbody>
-                  % for url, date, merchant, price in reports:
+                  % for url, date, merchant, location, price in reports:
                     <tr>
                         <td>
                             <a href="${url}">${date}</a>
                         </td>
-                        <td>${merchant}</td>
+                        <td>${merchant} (${location})</td>
                         <td>${price}</td>
                     </tr>
                   % endfor

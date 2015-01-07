@@ -234,7 +234,10 @@ def pack():
 
 @task
 def prepare():
-    local('~/env2/bin/python setup.py sdist --formats=gztar', capture=False)
+    res = local('git status', capture=True)
+    print(yellow(res))
+    local('git describe --tags > VERSION.txt')
+    # local('~/env2/bin/python setup.py sdist --formats=gztar', capture=False)
 
 
 @task

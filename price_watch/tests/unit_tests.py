@@ -409,5 +409,48 @@ class TestPriceReport(unittest.TestCase):
         self.assertNotIn(victim.key, product)
         self.assertNotIn(victim.key, PriceReport.fetch_all(self.keeper))
 
+    def test_multidict_to_list(self):
+        from price_watch.utilities import multidict_to_list
+        from webob.multidict import MultiDict
+        multidict = MultiDict((
+            ('price_value', 55.6),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+
+            ('price_value', 45.3),
+            ('url', 'http://howies.com/products/milk/5'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+        ))
+        dict_list = multidict_to_list(multidict)
+        self.assertEqual(2, len(dict_list))
+
+    def test_multidict_to_list_diff_valuecount(self):
+        from price_watch.utilities import multidict_to_list
+        from price_watch.exceptions import MultidictError
+        from webob.multidict import MultiDict
+        multidict = MultiDict((
+            ('price_value', 55.6),
+            ('url', 'http://howies.com/products/milk/4'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+
+            ('price_value', 45.3),
+            ('url', 'http://howies.com/products/milk/5'),
+            ('product_title',
+             u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('merchant_title', "Howie's grocery"),
+            ('reporter_name', 'Jack'),
+            ('date_time', '2014.12.30 20:57'),
+        ))
+        self.assertRaises(MultidictError, multidict_to_list, multidict)
+
     def tearDown(self):
         self.keeper.close()

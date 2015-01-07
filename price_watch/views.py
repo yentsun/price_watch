@@ -16,7 +16,8 @@ from pyramid_dogpile_cache import get_region
 from price_watch.models import (Page, PriceReport, PackageLookupError,
                                 CategoryLookupError, ProductCategory, Product,
                                 ProductPackage, Merchant)
-from utilities import multidict_to_list
+from price_watch.utilities import multidict_to_list
+from price_watch.exceptions import MultidictError
 
 MULTIPLIER = 1
 general_region = get_region('general')
@@ -177,7 +178,10 @@ class PriceReportsView(EntityView):
     @view_config(request_method='POST', renderer='json')
     def post(self):
         # TODO Implement validation
-        dict_list = multidict_to_list(self.request.params)
+        try:
+            dict_list = multidict_to_list(self.request.params)
+        except MultidictError as e:
+            raise HTTPBadRequest(e.message)
         counts = {'product': 0,
                   'category': 0,
                   'package': 0}

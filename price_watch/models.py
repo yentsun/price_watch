@@ -361,7 +361,7 @@ class PriceReport(Entity):
         New report is registered in storage.
         """
 
-        if type(date_time) is str:
+        if type(date_time) in (str, unicode):
             try:
                 date_time = datetime.datetime.strptime(date_time,
                                                        '%Y-%m-%d %H:%M:%S')

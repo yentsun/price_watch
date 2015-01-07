@@ -5,8 +5,7 @@ from price_watch.models import StorageManager
 
 
 def get_version():
-    here = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(here, '../VERSION.txt')) as f:
+    with open('VERSION.txt') as f:
         return f.read().strip()
 
 

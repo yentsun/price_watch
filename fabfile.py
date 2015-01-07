@@ -226,6 +226,13 @@ def cleanup():
 
 
 @task
+def backup():
+    """Backup the remote storage"""
+    local('scp ubuntu@alpha:www/storage/food-price.net/storage.fs '
+          '~/Dropbox/Vault/food-price.net')
+
+
+@task
 def pack():
     """Pack the storage"""
     keeper = get_storage()

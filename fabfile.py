@@ -254,6 +254,7 @@ def prepare():
 
 @task
 def deploy():
+    backup()
     prepare()
     dist = local('~/env2/bin/python setup.py --fullname', capture=True).strip()
     # upload distribution

@@ -456,5 +456,36 @@ class TestPriceReport(unittest.TestCase):
         ))
         self.assertRaises(MultidictError, multidict_to_list, multidict)
 
+    def test_product_title_similarity(self):
+        from difflib import get_close_matches
+        titles = [
+            u'Молоко Простоквашино пастеризованное 2,5% 930 мл',
+            u'Молоко Простоквашино пастеризованное 3,2% 930 мл',
+            u'Молоко Домик в деревне ультрапастеризованное 2,5%, 1450г',
+            u'Молоко М Лианозовское ультрапастеризованное 1,5%, 950г',
+            u'Молоко Новая деревня отборное пастеризованное 3,5%, 1л',
+            u'Молоко Тевье молочник Luxury пастеризованное 3,4-4%, 1л',
+            u'Молоко Рузское пастеризованное 2,5%, 1000г',
+            u'Молоко Ясный луг ультрапастеризованное 3,2%, 1л',
+            u'Молоко Parmalat ультрапастеризованное 3,5%, 1л'
+        ]
+
+        t1 = u'Молоко Простоквашино, пастеризованное, 2,5% 930 мл'
+        t1_1 = u'Молоко ПРОСТОКВАШИНО пастеризованное, 3,2% 930 мл'.lower()
+        t2 = u'МОЛОКО "ЯСНЫЙ ЛУГ" ПИТЬЕВОЕ УЛЬТРАПАСТЕРИЗОВАННОЕ 3,5% 1 Л'.lower()
+        t3 = u'Молоко М Лианозовское ультрапастеризованное 3,5%, 950г',
+        t4 = u'Каждыйдень пастеризованное 3,2% 1л'
+
+        cut_off = 0.7
+        cleared_titles = [t.replace(u'Молоко', '') for t in titles]
+        self.assertEqual(get_close_matches(t1, cleared_titles, 1, cut_off)[0], cleared_titles[0])
+        self.assertEqual(get_close_matches(t1_1, cleared_titles, 1, cut_off)[0], cleared_titles[1])
+
+        self.assertEqual(get_close_matches(t2, cleared_titles, 1, cut_off)[0], cleared_titles[7])
+
+        self.assertEqual(0, len(get_close_matches(t3, cleared_titles, 1, cut_off)))
+        res = get_close_matches(t4, cleared_titles, 1, cut_off)
+        self.assertEqual(0, len(res))
+
     def tearDown(self):
         self.keeper.close()

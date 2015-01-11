@@ -254,25 +254,29 @@ def prepare():
 
 @task
 def deploy():
-    backup()
+    print(cyan('Preparing package...'))
     prepare()
+    print(cyan('Backing up storage...'))
+    backup()
+    print(cyan('Uploading package...'))
     dist = local('~/env2/bin/python setup.py --fullname', capture=True).strip()
-    # upload distribution
     local('scp dist/{dist}.tar.gz '
           'ubuntu@alpha:www/{dist}.tar.gz'.format(dist=dist))
-    # unpack
+    print(cyan('Unpacking...'))
     with cd('www'):
         run('tar xzf {}.tar.gz '.format(dist))
         # remove distr
         run('rm -f {}.tar.gz'.format(dist))
-    # install
+    print(cyan('Installing dependencies...'))
     with cd('www/{}'.format(dist)):
         run('~/env/bin/python setup.py install')
-    # run tests
+    print(cyan('Running tests...'))
     with cd('www/{}/price_watch/tests'.format(dist)):
         run('~/env/bin/nosetests unit_tests.py')
         run('~/env/bin/nosetests functional_tests.py')
+    print(cyan('Swapping directories...'))
     run('rm -rf ~/www/{}'.format(APP_NAME))
     run('mv ~/www/{dist} ~/www/{appname}'.format(appname=APP_NAME, dist=dist))
+    print(cyan('Restarting processes...'))
     with cd('www'):
         run('~/env/bin/supervisorctl restart food-price.net:*')

@@ -1,4 +1,5 @@
 <h2>Всего отчетов: ${counts['total']}</h2>
+<p>Авторы: ${', '.join(reporters)}</p>
 <h3>Новые</h3>
 <table>
     <tbody>

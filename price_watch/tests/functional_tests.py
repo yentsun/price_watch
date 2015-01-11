@@ -110,7 +110,7 @@ class FunctionalTests(unittest.TestCase):
             ('product_title',
              u'Волшебный Элексир Красная Цена у/паст. 1% 1л'.encode('utf-8')),
             ('merchant_title', "Howie's grocery"),
-            ('reporter_name', 'Jack'),
+            ('reporter_name', 'Jill'),
         ]
         res = self.testapp.post('/reports', data, status=200)
         self.assertEqual(2, len(res.json_body['new_report_keys']))
@@ -141,6 +141,7 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn(u'Category lookup failed for product '
                       u'&#34;Волшебный Элексир Красная Цена у/паст. 1% 1л&#34;',
                       mailer.outbox[0].html)
+        self.assertIn(u'Jill, Jack', mailer.outbox[0].html)
 
     def test_post_incorrect_date_format(self):
         data = [

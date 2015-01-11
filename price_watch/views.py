@@ -204,8 +204,8 @@ class PriceReportsView(EntityView):
         counts['error'] = len(error_msgs)
         if len(new_report_keys):
             general_region.invalidate(hard=False)
-
-            # send email report
+            reporters = set(self.request.params.getall('reporter_name'))
+            # send email
             from pyramid_mailer import get_mailer
             from pyramid_mailer.message import Message
             mailer = get_mailer(self.request)
@@ -214,6 +214,7 @@ class PriceReportsView(EntityView):
                               recipients=["mkorinets@gmail.com"],
                               html=render('email/post_report_stats.mako',
                                           {'counts': counts,
+                                           'reporters': reporters,
                                            'error_msgs': error_msgs}))
             mailer.send(message)
 

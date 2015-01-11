@@ -8,7 +8,7 @@ from babel.numbers import format_currency
 from babel.dates import format_datetime
 from mako.exceptions import TopLevelLookupException
 from pyramid.view import view_config, view_defaults
-from pyramid.renderers import render_to_response
+from pyramid.renderers import render_to_response, render
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from pyramid_dogpile_cache import get_region
 
@@ -114,7 +114,7 @@ class PageView(EntityView):
     def get(self):
         try:
             return render_to_response(
-                'templates/pages/{slug}.mako'.format(**self.context.__dict__),
+                'pages/{slug}.mako'.format(**self.context.__dict__),
                 {'view': self},
                 request=self.request
             )
@@ -166,7 +166,7 @@ class ProductView(EntityView):
             data['reports'].append((url, date, merchant, location, price))
         return data
 
-    @view_config(renderer='templates/product.mako', request_method='GET')
+    @view_config(renderer='product.mako', request_method='GET')
     def get(self):
         return self.served_data(self.context)
 
@@ -199,8 +199,24 @@ class PriceReportsView(EntityView):
             except (PackageLookupError, CategoryLookupError, ValueError,
                     TypeError) as e:
                 error_msgs.append(e.message)
+        counts['total'] = len(dict_list)
+        counts['report'] = len(new_report_keys)
+        counts['error'] = len(error_msgs)
         if len(new_report_keys):
             general_region.invalidate(hard=False)
+
+            # send email report
+            from pyramid_mailer import get_mailer
+            from pyramid_mailer.message import Message
+            mailer = get_mailer(self.request)
+            message = Message(subject=u'Price Watch: новые данные',
+                              sender='no-reply@food-price.net',
+                              recipients=["mkorinets@gmail.com"],
+                              html=render('email/post_report_stats.mako',
+                                          {'counts': counts,
+                                           'error_msgs': error_msgs}))
+            mailer.send(message)
+
             return {
                 'new_report_keys': new_report_keys,
                 'counts': counts,
@@ -215,7 +231,7 @@ class PriceReportsView(EntityView):
 class PriceReportView(EntityView):
     """PriceReport instance views"""
 
-    @view_config(request_method='GET', renderer='templates/report.mako')
+    @view_config(request_method='GET', renderer='report.mako')
     def get(self):
         return {}
 
@@ -275,7 +291,7 @@ class CategoryView(EntityView):
                 'median_price': self.currency(category.get_price(), u'р.')}
 
     @view_config(request_method='GET',
-                 renderer='templates/product_category.mako')
+                 renderer='product_category.mako')
     def get(self):
         category = self.request.context
         return self.served_data(category)
@@ -286,7 +302,7 @@ class RootView(EntityView):
     EXCLUDE_LIST = ['sour cream', 'salt', 'sugar', 'chicken egg', 'bread']
 
     @general_region.cache_on_arguments('index')
-    @view_config(request_method='GET', renderer='templates/index.mako')
+    @view_config(request_method='GET', renderer='index.mako')
     def get(self):
         root = self.root
         categories = root['categories'].values()

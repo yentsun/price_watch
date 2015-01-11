@@ -26,7 +26,8 @@ requires = [
     'pyramid_dogpile_cache',
     'nose',
     'pyyaml',
-    'colander'
+    'colander',
+    'pyramid_mailer'
 ]
 
 setup(name='price_watch',

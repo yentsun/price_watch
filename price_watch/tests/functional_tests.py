@@ -131,6 +131,17 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn(u'45,30', milk_page.html.find('tr', 'info').text)
         self.assertIn(u'50,45', milk_page.html.find('div', 'cat-price').text)
 
+        from pyramid_mailer import get_mailer
+        registry = self.testapp.app.registry
+        mailer = get_mailer(registry)
+
+        self.assertEqual(len(mailer.outbox), 1)
+        self.assertEqual(mailer.outbox[0].subject,
+                         u'Price Watch: новые данные')
+        self.assertIn(u'Category lookup failed for product '
+                      u'&#34;Волшебный Элексир Красная Цена у/паст. 1% 1л&#34;',
+                      mailer.outbox[0].html)
+
     def test_post_incorrect_date_format(self):
         data = [
             ('price_value', 55.6),
@@ -228,7 +239,8 @@ class FunctionalTests(unittest.TestCase):
         ]
         self.testapp.post('/reports', data, status=200)
 
-        res = self.testapp.get(u'/products/Молоко Deli Milk 1L'.encode('utf-8'),
+        res = self.testapp.get(u'/products/Молоко Deli '
+                               u'Milk 1L'.encode('utf-8'),
                                status=200)
         today_str = datetime.today().strftime('%d.%m')
         weeks_ago_str = TWO_WEEKS_AGO.strftime('%d.%m')
@@ -248,6 +260,7 @@ class FunctionalTests(unittest.TestCase):
             ('date_time', datetime.now() - timedelta(weeks=7))
         ]
         self.testapp.post('/reports', data, status=200)
-        res = self.testapp.get(u'/products/Молоко Deli Milk 1L'.encode('utf-8'),
+        res = self.testapp.get(u'/products/Молоко Deli '
+                               u'Milk 1L'.encode('utf-8'),
                                status=200)
         self.assertNotIn('59,30', res.body)

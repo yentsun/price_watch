@@ -1,13 +1,13 @@
-<h2>Всего отчетов: ${counts['total']}</h2>
+<h2>Прислано отчетов: ${counts['total']}</h2>
 <p>Авторы: ${', '.join(reporters)}</p>
-<h3>Новые</h3>
+<h3>Добавлено в базу</h3>
 <table>
     <tbody>
         <tr>
-            <td>отчеты</td><td>${counts['report']}</td>
+            <td>отчетов</td><td>${counts['report']}</td>
         </tr>
         <tr>
-            <td>продукты</td><td>${counts['product']}</td>
+            <td>продуктов</td><td>${counts['product']}</td>
         </tr>
     </tbody>
 </table>

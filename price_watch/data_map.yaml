@@ -277,7 +277,7 @@ ProductCategory:
           sub:
             bread:
               title: bread
-              keyword: хлеб
+              keyword: хлеб, батон
               normal_package: 0.5 kg
               min_package_ratio: 0.8
         meat:

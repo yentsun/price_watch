@@ -277,6 +277,11 @@ class TestPriceReport(unittest.TestCase):
                          u'для детей с 8 месяцев 3,2%, 200г'
         self.assertEqual('milk', Product(product2_title).get_category_key())
 
+        product2_title = u'Молоко топленое МОЖАЙСКОЕ стерилизованное, ' \
+                         u'1,5% 0,45л'
+        self.assertRaises(CategoryLookupError,
+                          Product(product2_title).get_category_key)
+
         product3_title = u'Яйцо Окское куриное С0 белое десяток'
         self.assertEqual('chicken egg',
                          Product(product3_title).get_category_key())

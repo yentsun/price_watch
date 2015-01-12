@@ -211,16 +211,14 @@ ProductCategory:
   sub:
     food:
       title: food
-      keyword: пищевые продукты
       sub:
         diary: &diary
           title: diary
-          keyword: молочная продукция
           sub:
             milk:
               title: milk
               keyword: молоко
-              stopword: топленое, козье
+              stopword: топленое козье
               density: 1027
               normal_package: 1 l
               min_package_ratio: 0.8
@@ -235,7 +233,6 @@ ProductCategory:
               normal_package: 10 pcs
         grocery:
           title: grocery
-          keyword: бакалея
           sub:
             pasta:
               title: pasta
@@ -244,7 +241,6 @@ ProductCategory:
               min_package_ratio: 0.8
             oil:
               title: oil
-              keyword: масло растительное
               sub:
                 sunflower oil:
                   title: sunflower oil
@@ -264,7 +260,6 @@ ProductCategory:
               min_package_ratio: 0.5
             cereals:
               title: cereals
-              keyword: крупы
               sub:
                 rice:
                   title: rice
@@ -279,7 +274,6 @@ ProductCategory:
                   min_package_ratio: 0.8
         bakery:
           title: bakery
-          keyword: хлебобулочные изделия и выпечка
           sub:
             bread:
               title: bread
@@ -294,7 +288,6 @@ ProductCategory:
               title: tuna
         vegetables:
           title: vegetables
-          keyword: овощи
           sub:
             potato:
               title: potato

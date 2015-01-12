@@ -628,7 +628,8 @@ class ProductCategory(Entity):
         locations = list()
         for product in self.products.values():
             for merchant in product.merchants.values():
-                if merchant.location not in locations:
+                if (merchant.location is not None) and \
+                   (merchant.location not in locations):
                     locations.append(merchant.location)
         return locations
 

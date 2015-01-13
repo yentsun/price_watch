@@ -12,13 +12,13 @@
                   <tr>
                       <th>Категория</th>
                       <th>средняя цена</th>
-                      <th>кол-во продуктов</th>
+                      <th>упаковка</th>
                       <th>регионы</th>
                   </tr>
                   </thead>
                   <tbody>
                   % for url, title, price, delta, \
-                         product_count, locations in categories:
+                         package, locations in categories:
                     <tr>
                         <td>
                             <a href="${url}">${title}</a>
@@ -35,7 +35,7 @@
                                       style="color:green"></span>
                             % endif
                         </td>
-                        <td>${product_count}</td>
+                        <td>${package}</td>
                         <td>${locations}</td>
                     </tr>
                   % endfor

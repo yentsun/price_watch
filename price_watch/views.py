@@ -327,10 +327,12 @@ class RootView(EntityView):
                 url = self.request.resource_url(category)
                 title = category.get_data('keyword').split(', ')[0]
                 delta = int(category.get_price_delta(self.delta_period)*100)
-                product_count = len(category.get_qualified_products())
+                package_key = category.get_data('normal_package')
+                package_title = ProductPackage(
+                    package_key).get_data('synonyms')[0]
                 locations = ', '.join(category.get_locations())
                 category_tuples.append((url, title, price, delta,
-                                        product_count, locations))
+                                        package_title, locations))
                 if category.title not in self.EXCLUDE_LIST:
                     chart_titles.append(title)
         time = format_datetime(datetime.datetime.now(), format='long',

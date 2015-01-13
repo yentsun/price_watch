@@ -21,6 +21,14 @@
     "reporter_name": "Jack"
   },
   {
+    "price_value": 199.9,
+    "url": "http://howies.com/products/sunflower_oil/345",
+    "product_title": "Масло подсолнечное Sunny Oil 1л",
+    "merchant_title": "Howie's grocery",
+    "reporter_name": "Jack",
+    "date_time": "2014-09-14 00:00:00"
+  },
+  {
     "slug": "about"
   },
   {

@@ -240,6 +240,7 @@ class PriceReportView(EntityView):
     def delete(self):
 
         self.context.delete_from(self.root)
+        general_region.invalidate(hard=False)
         return {'deleted_report_key': self.context.key}
 
 
@@ -300,7 +301,7 @@ class CategoryView(EntityView):
 
 class RootView(EntityView):
     """General root views"""
-    EXCLUDE_LIST = ['sour cream', 'salt', 'sugar', 'chicken egg', 'bread']
+    EXCLUDE_LIST = ['sour cream', 'salt', 'chicken egg']
 
     @general_region.cache_on_arguments('index')
     @view_config(request_method='GET', renderer='index.mako')
@@ -312,17 +313,19 @@ class RootView(EntityView):
         for date in datetimes:
             row = [date.strftime('%d.%m')]
             for category in categories:
-                if category.title not in self.EXCLUDE_LIST:
-                    row.append(category.get_price(date))
+                price = category.get_price(date)
+                if category.title not in self.EXCLUDE_LIST and price:
+                    row.append(price)
             chart_rows.append(row)
         category_tuples = list()
         chart_titles = list()
         # TODO optimize this
         for category in categories:
-            if len(category.products):
+            price = category.get_price()
+            if price:
+                price = self.currency(price)
                 url = self.request.resource_url(category)
                 title = category.get_data('keyword').split(', ')[0]
-                price = self.currency(category.get_price())
                 delta = int(category.get_price_delta(self.delta_period)*100)
                 product_count = len(category.get_qualified_products())
                 locations = ', '.join(category.get_locations())

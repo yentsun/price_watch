@@ -224,7 +224,7 @@ ProductCategory:
             milk:
               title: milk
               keyword: молоко
-              stopword: топленое козье
+              stopword: топленое, козье
               density: 1027
               normal_package: 1 l
               min_package_ratio: 0.8

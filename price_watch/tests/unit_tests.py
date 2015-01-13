@@ -281,6 +281,10 @@ class TestPriceReport(unittest.TestCase):
                          u'1,5% 0,45л'
         self.assertRaises(CategoryLookupError,
                           Product(product2_title).get_category_key)
+        product2_1_title = u'Молоко козье МОЖАЙСКОЕ стерилизованное, ' \
+                           u'1,5% 0,45л'
+        self.assertRaises(CategoryLookupError,
+                          Product(product2_1_title).get_category_key)
 
         product3_title = u'Яйцо Окское куриное С0 белое десяток'
         self.assertEqual('chicken egg',

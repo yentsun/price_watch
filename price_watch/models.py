@@ -84,19 +84,25 @@ def keyword_lookup(string_, data_map):
     if 'keyword' not in data_map:
         requirements_met.append(False)
     else:
-        keyphrase_requirements_met = list()
+        keyphrases_in_string = list()
         key_phrases = data_map['keyword'].split(', ')
         for phrase in key_phrases:
-            phrase_requirements_met = list()
+            phrase_in_string = list()
             phrase_parts = phrase.split(' ')
             for phrase_part in phrase_parts:
-                phrase_requirements_met.append(phrase_part in string_)
-            keyphrase_requirements_met.append(all(phrase_requirements_met))
-        requirements_met.append(any(keyphrase_requirements_met))
+                phrase_in_string.append(phrase_part in string_)
+            keyphrases_in_string.append(all(phrase_in_string))
+        requirements_met.append(any(keyphrases_in_string))
     if 'stopword' in data_map:
-        stopword_parts = data_map['stopword'].split(' ')
-        for stopword_part in stopword_parts:
-            requirements_met.append(stopword_part not in string_)
+        stopword_phrases = data_map['stopword'].split(', ')
+        stopphrase_not_in_string = list()
+        for phrase in stopword_phrases:
+            part_not_in_string = list()
+            phrase_parts = phrase.split(' ')
+            for part in phrase_parts:
+                part_not_in_string.append(part not in string_)
+            stopphrase_not_in_string.append(all(part_not_in_string))
+        requirements_met.append(all(stopphrase_not_in_string))
     if all(requirements_met):
         return data_map
     if 'sub' in data_map:

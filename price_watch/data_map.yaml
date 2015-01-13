@@ -101,12 +101,18 @@ ProductPackage:
       - 950 г
       - 0.95 kg
       - 0.95kg
+  0.93 kg:
+    synonyms:
+      - 930г
   0.9 kg:
     synonyms:
       - 900г
   0.8 kg:
     synonyms:
       - 800г
+  0.7 kg:
+    synonyms:
+      - 700г
   0.75 kg:
     synonyms:
       - 750г
@@ -244,7 +250,7 @@ ProductCategory:
               sub:
                 sunflower oil:
                   title: sunflower oil
-                  keyword: масло подсолнечное
+                  keyword: масло подсолнечное, микс подсолнечного и оливкового масел
                   normal_package: 1 l
             sugar:
               title: sugar

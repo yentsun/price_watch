@@ -16,6 +16,7 @@ ProductPackage:
   1.8 l:
     synonyms:
       - 1,8л
+      - 1,8 л
   1.5 l:
     synonyms:
       - 1л + 0,5л
@@ -41,6 +42,9 @@ ProductPackage:
       - 0.93 L
       - 930мл
       - 930 мл
+  0.92 l:
+    synonyms:
+      - 920мл
   0.9 l:
     synonyms:
       - 900мл
@@ -49,6 +53,7 @@ ProductPackage:
   0.81 l:
     synonyms:
       - 810мл
+      - 0,81 л
   0.75 l:
     synonyms:
       - 0,75л
@@ -76,15 +81,24 @@ ProductPackage:
       - 5,0 кг
       - 4,8-5,0 кг
       - 4,8-5кг
+      - 5х1кг
   4 kg:
     synonyms:
       - 4кг
+  3 kg:
+    synonyms:
+      - 3кг
   2.5 kg:
     synonyms:
       - 2,5 кг
+      - 2,5кг
   2.1 kg:
     synonyms:
       - 1,9-2,1кг
+  2 kg:
+    synonyms:
+      - 2кг
+      - 2,0кг
   1.45 kg:
     synonyms:
       - 1450г
@@ -131,6 +145,7 @@ ProductPackage:
       - 500г
       - 500 г
       - 0,5кг
+      - 5*100г
   0.47 kg:
     synonyms:
       - 470г
@@ -143,6 +158,9 @@ ProductPackage:
     synonyms:
       - 400г
       - 5*80г
+  0.38 kg:
+    synonyms:
+      - 380г
   0.372 kg:
     synonyms:
       - 372г
@@ -223,19 +241,19 @@ ProductCategory:
           sub:
             milk:
               title: milk
-              keyword: молоко
+              keyword: молоко, mолоко
               stopword: топленое, козье
               density: 1027
               normal_package: 1 l
               min_package_ratio: 0.8
             sour cream:
               title: sour cream
-              keyword: сметана
+              keyword: сметана, сметанный продукт
               ru_accu_case: сметану
               normal_package: 0.4 kg
             chicken egg:
               title: chicken egg
-              keyword: яйцо куриное
+              keyword: яйцо куриное, яйца куриные
               normal_package: 10 pcs
         grocery:
           title: grocery
@@ -250,7 +268,7 @@ ProductCategory:
               sub:
                 sunflower oil:
                   title: sunflower oil
-                  keyword: масло подсолнечное, микс подсолнечного и оливкового масел
+                  keyword: масло подсолнечное, микс подсолнечного и оливкового, масло подcолнечное,
                   normal_package: 1 l
             sugar:
               title: sugar

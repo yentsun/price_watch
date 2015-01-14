@@ -86,7 +86,7 @@ class TestPriceReport(unittest.TestCase):
 
         milk = ProductCategory('milk')
 
-        self.assertEqual(u'молоко', milk.get_data('keyword'))
+        self.assertEqual(u'молоко', milk.get_data('keyword').split(', ')[0])
 
         diary = milk.get_parent()
         self.assertEqual('diary', diary.title)
@@ -125,6 +125,10 @@ class TestPriceReport(unittest.TestCase):
     def test_category_get_locations(self):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertIn(u'Москва', milk.get_locations())
+
+    def test_category_get_locations_root(self):
+        milk = ProductCategory.fetch('milk', self.keeper)
+        self.assertIn(u'Москва', milk.get_locations(root=self.keeper._root))
 
     def test_report_assembly(self):
 

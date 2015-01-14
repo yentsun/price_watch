@@ -629,14 +629,26 @@ class ProductCategory(Entity):
         current_price = self.get_price()
         return get_delta(base_price, current_price, relative)
 
-    def get_locations(self):
-        """Get category's merchant locations"""
+    def get_locations(self, root=None):
+        """
+        Get category's merchant locations. Load merchants from root if
+        provided. The root trick is needed for threaded cache as lazy-loading
+        of `product.merchants.values()` needs new connection.
+        """
         locations = list()
-        for product in self.products.values():
-            for merchant in product.merchants.values():
-                if (merchant.location is not None) and \
-                   (merchant.location not in locations):
-                    locations.append(merchant.location)
+        merchants = list()
+        if root:
+            for product in self.products.values():
+                for key in product.merchants.keys():
+                    merchants.append(root[Merchant.namespace][key])
+        else:
+            for product in self.products.values():
+                for merchant in product.merchants.values():
+                    merchants.append(merchant)
+        for merchant in merchants:
+            if (merchant.location is not None) and \
+                    (merchant.location not in locations):
+                locations.append(merchant.location)
         return locations
 
 

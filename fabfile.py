@@ -134,7 +134,7 @@ def display_category(category_key):
     table = PrettyTable(['product', 'N', 'O',
                          'pack.'])
     table.align = 'l'
-    keeper = StorageManager(FileStorage('storage.fs'))
+    keeper = get_storage()
     category = ProductCategory.fetch(category_key, keeper)
     min_package_ratio = category.get_data('min_package_ratio')
     products = category.products.values()
@@ -178,13 +178,13 @@ def stats(category_key, days=2):
 @task
 def cleanup():
     """Perform cleanup and fixing routines on stored instances"""
-    keeper = StorageManager(FileStorage('storage.fs'))
+    keeper = get_storage()
     products = Product.fetch_all(keeper, objects_only=False)
 
     print('Products check...')
     for key, product in products.iteritems():
         # key check
-        if key != product.key():
+        if key != product.key:
             print(yellow(u'Fixing {}...'.format(key)))
             keeper.register(product)
             keeper.delete_key(product.__class__.__name__, key)
@@ -194,8 +194,8 @@ def cleanup():
                 del merchant.products[key]
                 merchant.add_product(product)
 
-        # reports check
-        if len(product.reports) == 0:
+        # remove products with no reports or category
+        if len(product.reports) == 0 or product.category is None:
             print(yellow(u'Deleting "{}"...'.format(product)))
             product.delete_from(keeper)
 
@@ -207,8 +207,14 @@ def cleanup():
                 category = product.category
                 print(yellow(u'Deleting "{}" from "{}"'.format(product,
                                                                category)))
-                category.remove_product(product)
                 product.delete_from(keeper)
+
+        # reverse category reference
+        if product.category and product not in product.category.products.values():
+            print(yellow(u'Adding "{}" to "{}"'.format(product,
+                                                       product.category)))
+
+            product.category.add_product(product)
 
     print('Merchants check...')
     for merchant in Merchant.fetch_all(keeper):
@@ -230,7 +236,8 @@ def cleanup():
 def backup():
     """Backup the remote storage"""
     local('scp ubuntu@alpha:www/storage/food-price.net/storage.fs '
-          '~/Dropbox/Vault/food-price.net')
+          'storage')
+    local('cp storage/storage.fs ~/Dropbox/Vault/food-price.net')
 
 
 @task

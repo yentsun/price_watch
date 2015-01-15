@@ -53,11 +53,13 @@ ProductPackage:
   0.81 l:
     synonyms:
       - 810мл
+      - 810 мл
       - 0,81 л
   0.75 l:
     synonyms:
       - 0,75л
       - 750мл
+      - 750 мл
   0.5 l:
     synonyms:
       - 0,5л
@@ -75,9 +77,11 @@ ProductPackage:
       - 0,2л
       - 0,2 л
       - 200мл
+      - 200 мл
   5 kg:
     synonyms:
       - 5кг
+      - 5 кг
       - 5,0 кг
       - 4,8-5,0 кг
       - 4,8-5кг
@@ -85,9 +89,11 @@ ProductPackage:
   4 kg:
     synonyms:
       - 4кг
+      - 4 кг
   3 kg:
     synonyms:
       - 3кг
+      - 3 кг
   2.5 kg:
     synonyms:
       - 2,5 кг
@@ -146,6 +152,7 @@ ProductPackage:
       - 500 г
       - 0,5кг
       - 5*100г
+      - 100гх5
   0.47 kg:
     synonyms:
       - 470г
@@ -260,7 +267,7 @@ ProductCategory:
           sub:
             pasta:
               title: pasta
-              keyword: макароны, макаронные изделия, вермишель, спагетти, лапша
+              keyword: макароны, макаронные изделия, вермишель, спагетти, лапша, рожки
               normal_package: 0.5 kg
               min_package_ratio: 0.8
             oil:

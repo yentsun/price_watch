@@ -164,12 +164,21 @@ class TestPriceReport(unittest.TestCase):
             'date_time': datetime.datetime(2014, 10, 5),
             'reporter_name': 'Jill'
         }
+        raw_data5 = {
+            'product_title': u'Картофель Вегетория для варки 3кг',
+            'price_value': 80.5,
+            'url': 'http://scottys.com/products/pot/324',
+            'merchant_title': "Scotty's grocery",
+            'reporter_name': 'Jill'
+        }
         report1, stats1 = PriceReport.assemble(storage_manager=self.keeper,
                                                **raw_data1)
         report2, stats2 = PriceReport.assemble(storage_manager=self.keeper,
                                                **raw_data2)
         report3, stats3 = PriceReport.assemble(storage_manager=self.keeper,
                                                **raw_data3)
+        report5, stats5 = PriceReport.assemble(storage_manager=self.keeper,
+                                               **raw_data5)
         try:
             PriceReport.assemble(storage_manager=self.keeper, **raw_data4)
         except PackageLookupError:
@@ -178,6 +187,7 @@ class TestPriceReport(unittest.TestCase):
 
         # check category and products
         milk = ProductCategory.fetch('milk', self.keeper)
+        sc = ProductCategory.fetch('sour cream', self.keeper)
         self.assertEqual(5, len(milk.products))
         self.assertIn(42.6, milk.get_prices())
         product1 = Product.fetch(u'Молоко Great Milk 1L', self.keeper)
@@ -189,13 +199,24 @@ class TestPriceReport(unittest.TestCase):
         self.assertEqual(0.93, product2.package_ratio)
         self.assertIn(product1, milk.products.values())
         self.assertEqual('sour cream', report3.product.category.title)
+        self.assertIn(u'Сметана Great Sour Cream 450g',
+                      sc.products.keys())
+        self.assertNotIn(u'Сметана Great Sour Cream 987987g',
+                         sc.products.keys())
+
+        # check references
+        potato = ProductCategory.fetch('potato', self.keeper)
+        self.assertIn(report5, PriceReport.fetch_all(self.keeper))
+        self.assertIn(report5, potato.products.values()[0].reports.values())
+        self.assertIn(report5, Product.fetch(u'Картофель Вегетория для варки 3кг',
+                                             self.keeper).reports.values())
 
         # check reporter
         jill = Reporter.fetch('Jill', self.keeper)
         self.assertIs(jill, report1.reporter)
         self.assertIs(jill, report2.reporter)
         self.assertIs(jill, report3.reporter)
-        self.assertEqual(3, len(jill.reports))
+        self.assertEqual(4, len(jill.reports))
         self.assertIn(report1, jill.reports.values())
         self.assertIn(report2, jill.reports.values())
         self.assertIn(report3, jill.reports.values())

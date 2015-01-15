@@ -381,24 +381,23 @@ class PriceReport(Entity):
 
         prod_is_new = cat_is_new = pack_is_new = False
         product_key = Product(product_title).key
-        merchant_key = Merchant(merchant_title).key
         product = Product.fetch(product_key, storage_manager)
-        merchant = Merchant.acquire(merchant_key, storage_manager)
-        reporter = Reporter.acquire(reporter_name, storage_manager)
 
         if not product:
             prod_is_new = True
             product = Product(product_title)
 
-            # category
+            # early get critical info or raise exceptions
             category_key = product.get_category_key()
+            package_key = product.get_package_key()
+
+            # category
             category, cat_is_new = ProductCategory.acquire(category_key,
                                                            storage_manager,
                                                            True)
             category.add_product(product)
 
             # package
-            package_key = product.get_package_key()
             package, pack_is_new = ProductPackage.acquire(package_key,
                                                           storage_manager,
                                                           True)
@@ -410,10 +409,13 @@ class PriceReport(Entity):
             storage_manager.register(product)
 
         # merchant
+        merchant_key = Merchant(merchant_title).key
+        merchant = Merchant.acquire(merchant_key, storage_manager)
         product.add_merchant(merchant)
         merchant.add_product(product)
 
         # report
+        reporter = Reporter.acquire(reporter_name, storage_manager)
         report = cls(price_value=float(price_value), product=product,
                      reporter=reporter, merchant=merchant, url=url,
                      date_time=date_time)

@@ -29,10 +29,10 @@ def multidict_to_list(multidict):
     """
     dict_list = list()
     keys = multidict.dict_of_lists().keys()
-    value_count = None
+    value_count = 0
     for key in keys:
         this_value_count = len(multidict.getall(key))
-        if value_count is None:
+        if value_count is 0:
             value_count = this_value_count
         else:
             if this_value_count != value_count:

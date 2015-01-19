@@ -724,11 +724,12 @@ class Product(Entity):
     def get_package_key(self):
         """Resolve product's package key from known ones"""
 
-        package_data = load_data_map(ProductPackage.__name__)
+        package_data = load_data_map('ProductPackage')
         for pack_key in sorted(package_data,
                                key=lambda key: len(key), reverse=True):
             for synonym in package_data[pack_key]['synonyms']:
-                if u' {}'.format(synonym) in self.title:
+                if (u' {}'.format(synonym) in self.title or
+                        u',{}'.format(synonym) in self.title):
                     return pack_key
         raise PackageLookupError(self)
 

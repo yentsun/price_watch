@@ -81,6 +81,8 @@ class TestPriceReport(unittest.TestCase):
         product4_title = u'Яйцо динозавриное столовое, 20шт'
         self.assertEqual(2,
                          Product(product4_title).get_package().get_ratio(egg))
+        product6 = Product(u'Спагетти PASTA ZARA №4,500г')
+        self.assertEqual('0.5 kg', product6.get_package_key())
 
     def test_traverse_yaml(self):
 

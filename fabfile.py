@@ -263,8 +263,8 @@ def prepare():
 def deploy():
     print(cyan('Preparing package...'))
     prepare()
-    print(cyan('Backing up storage...'))
-    backup()
+    # print(cyan('Backing up storage...'))
+    # backup()
     print(cyan('Uploading package...'))
     dist = local('~/env2/bin/python setup.py --fullname', capture=True).strip()
     local('scp dist/{dist}.tar.gz '

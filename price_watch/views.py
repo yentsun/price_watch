@@ -324,7 +324,7 @@ class RootView(EntityView):
             price = category.get_price()
             if price:
                 price = self.currency(price)
-                url = self.request.resource_url(category)
+                url = self.request.resource_path(category)
                 title = category.get_data('keyword').split(', ')[0]
                 delta = int(category.get_price_delta(self.delta_period)*100)
                 package_key = category.get_data('normal_package')

@@ -583,8 +583,11 @@ class ProductCategory(Entity):
             result.extend(product.get_reports(date_time))
         return result
 
-    def get_qualified_products(self):
-        """Return products list filtered by qualification conditions"""
+    def get_qualified_products(self, date_time=None):
+        """
+        Return product and price list to datetime filtered by qualification
+        conditions
+        """
 
         min_package_ratio = self.get_data('min_package_ratio')
         products = self.products.values()
@@ -594,21 +597,17 @@ class ProductCategory(Entity):
             if min_package_ratio:
                 package_fit = product.package_ratio >= float(min_package_ratio)
             # Actual qualification
-            if package_fit and product.get_price():
-                filtered_products.append(product)
+            product_price = product.get_price(date_time)
+            if package_fit and product_price:
+                filtered_products.append((product, product_price))
         return filtered_products
 
     def get_prices(self, date_time=None):
         """
         Fetch last known to `date_time` prices filtering by `min_package_ratio`
         """
-        result = list()
-        products = self.get_qualified_products()
-        for product in products:
-            price = product.get_last_reported_price(date_time)
-            if price:
-                result.append(price)
-        return result
+        product_tuples = self.get_qualified_products(date_time)
+        return [t[1] for t in product_tuples]
 
     def get_price(self, date_time=None, prices=None, cheap=False):
         """Get median or minimum price for the date"""

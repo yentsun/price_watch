@@ -55,10 +55,24 @@
         google.load("visualization", "1", {packages:["corechart"]});
         google.setOnLoadCallback(drawChart);
         function drawChart() {
-            var headers = [['Дата'].concat(${chart_titles|n})];
-            var data = google.visualization.arrayToDataTable(
-                headers.concat(${chart_rows|n})
-            );
+            var date_column = ${date_column|n};
+            var category_columns = ${category_columns|n};
+            var data = new google.visualization.DataTable();
+            var date_col = data.addColumn('string', 'Дата');
+            console.log(category_columns);
+            for (var i=0; i<date_column.length; i++) {
+                var row_n = data.addRow();
+                data.setCell(row_n, date_col, date_column[i]);
+            }
+            for (var j=0; j<category_columns.length; j++) {
+                var title = category_columns[j].shift();
+                console.log(title);
+                var cat_col = data.addColumn('number', title);
+                for (var cr=0; cr<category_columns[j].length; cr++) {
+                    data.setCell(cr, cat_col, category_columns[j][cr]);
+                }
+            }
+
             var options = {
                 title: 'Категории продуктов',
                 curveType: 'function',

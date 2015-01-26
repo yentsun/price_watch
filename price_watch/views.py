@@ -38,12 +38,12 @@ def get_datetimes(days):
     """Return list with days back range"""
 
     result = list()
-    for count in range(0, int(days)):
+    for count in reversed(range(0, int(days))):
         date = datetime.date.today() + datetime.timedelta(-1*MULTIPLIER*count)
         date_time = datetime.datetime.combine(date,
                                               datetime.datetime.now().time())
         result.append(date_time)
-    return reversed(result)
+    return result
 
 
 class EntityView(object):
@@ -266,10 +266,10 @@ class CategoryView(EntityView):
 
         products = list()
         sorted_products = sorted(category.get_qualified_products(),
-                                 key=lambda pr: pr.get_price())
-        for num, product in enumerate(sorted_products):
+                                 key=lambda pr: pr[1])
+        for num, product_tuple in enumerate(sorted_products):
             try:
-                price = product.get_price()
+                product, price = product_tuple
                 middle_num = int(len(sorted_products) / 2)
                 median = (num == middle_num)
                 if len(sorted_products) % 2 == 0:
@@ -301,25 +301,27 @@ class CategoryView(EntityView):
 
 class RootView(EntityView):
     """General root views"""
-    EXCLUDE_LIST = ['sour cream', 'salt', 'chicken egg', 'bread', 'rice']
+    CHART_EXCLUDE_LIST = ['sour cream', 'salt', 'chicken egg',
+                          'bread', 'sugar']
 
     @general_region.cache_on_arguments('index')
     @view_config(request_method='GET', renderer='index.mako')
     def get(self):
-        root = self.root
-        categories = root['categories'].values()
+        categories = self.root['categories'].values()
+
+        # charts
         datetimes = get_datetimes(self.display_days)
-        chart_rows = list()
-        for date in datetimes:
-            row = [date.strftime('%d.%m')]
-            for category in categories:
-                price = category.get_price(date)
-                if category.title not in self.EXCLUDE_LIST and price:
-                    row.append(price)
-            chart_rows.append(row)
+        date_column = [date.strftime('%d.%m') for date in datetimes]
+        category_columns = list()
+        for category in categories:
+            if category.title not in self.CHART_EXCLUDE_LIST:
+                category_column = [category.get_data('keyword').split(', ')[0]]
+                for date in datetimes:
+                    category_column.append(category.get_price(date))
+                category_columns.append(category_column)
+
+        # category list
         category_tuples = list()
-        chart_titles = list()
-        # TODO optimize this
         for category in categories:
             price = category.get_price()
             if price:
@@ -333,13 +335,10 @@ class RootView(EntityView):
                 locations = ', '.join(category.get_locations())
                 category_tuples.append((url, title, price, delta,
                                         package_title, locations))
-                if category.title not in self.EXCLUDE_LIST:
-                    chart_titles.append(title)
         time = format_datetime(datetime.datetime.now(), format='long',
                                locale=self.request.locale_name)
-
         return {'categories': category_tuples,
                 'time': time,
                 'root': True,
-                'chart_titles': json.dumps(chart_titles),
-                'chart_rows': json.dumps(chart_rows)}
+                'date_column': json.dumps(date_column),
+                'category_columns': json.dumps(category_columns)}

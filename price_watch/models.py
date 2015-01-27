@@ -141,10 +141,10 @@ class StorageManager(object):
         if zodb_storage is not None:
             self._db = DB(zodb_storage)
             self._zodb_storage = zodb_storage
+            self.connection = self._db.open()
         if connection is not None:
             self.connection = connection
-        else:
-            self.connection = self._db.open()
+            self._db = self.connection._db
         self._root = self.connection.root()
 
     def __getitem__(self, namespace):
@@ -212,6 +212,10 @@ class StorageManager(object):
                     except TypeError:
                         pass
         return result
+
+    def pack(self):
+        """Perform ZODB pack"""
+        self._db.pack()
 
 
 class Entity(Persistent):

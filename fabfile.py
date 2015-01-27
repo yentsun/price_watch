@@ -241,13 +241,6 @@ def backup():
 
 
 @task
-def pack():
-    """Pack the storage"""
-    keeper = get_storage()
-    keeper._db.pack()
-
-
-@task
 def prepare():
     res = local('git status', capture=True)
     if 'nothing to commit, working directory clean' in res:

@@ -53,5 +53,7 @@ setup(name='price_watch',
       entry_points="""\
       [paste.app_factory]
       main = price_watch:main
+      [console_scripts]
+      pack_storage = price_watch.scripts:pack_storage
       """,
       )

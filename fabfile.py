@@ -235,6 +235,8 @@ def cleanup():
 @task
 def backup():
     """Backup the remote storage"""
+    with cd('www/food-price.net'):
+        run('~/env/bin/pack_storage production.ini')
     local('scp ubuntu@alpha:www/storage/food-price.net/storage.fs '
           'storage')
     local('cp storage/storage.fs ~/Dropbox/Vault/food-price.net')

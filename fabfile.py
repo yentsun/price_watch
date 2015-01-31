@@ -235,8 +235,16 @@ def cleanup():
 @task
 def backup():
     """Backup the remote storage"""
+    print(yellow('Stopping processes...'))
+    with cd('www'):
+        run('~/env/bin/supervisorctl stop food-price.net:*')
+    print(cyan('Packing storage...'))
     with cd('www/food-price.net'):
         run('~/env/bin/pack_storage production.ini')
+    print(cyan('Starting processes...'))
+    with cd('www'):
+        run('~/env/bin/supervisorctl start food-price.net:*')
+    print(cyan('Downloading storage...'))
     local('scp ubuntu@alpha:www/storage/food-price.net/storage.fs '
           'storage')
     local('cp storage/storage.fs ~/Dropbox/Vault/food-price.net')
@@ -258,8 +266,6 @@ def prepare():
 def deploy():
     print(cyan('Preparing package...'))
     prepare()
-    # print(cyan('Backing up storage...'))
-    # backup()
     print(cyan('Uploading package...'))
     dist = local('~/env2/bin/python setup.py --fullname', capture=True).strip()
     local('scp dist/{dist}.tar.gz '

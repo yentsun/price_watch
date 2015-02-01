@@ -587,7 +587,7 @@ class ProductCategory(Entity):
             result.extend(product.get_reports(date_time))
         return result
 
-    def get_qualified_products(self, date_time=None):
+    def get_qualified_products(self, date_time=None, root=None):
         """
         Return product and price list to datetime filtered by qualification
         conditions
@@ -601,22 +601,22 @@ class ProductCategory(Entity):
             if min_package_ratio:
                 package_fit = product.package_ratio >= float(min_package_ratio)
             # Actual qualification
-            product_price = product.get_price(date_time)
+            product_price = product.get_price(date_time, root=root)
             if package_fit and product_price:
                 filtered_products.append((product, product_price))
         return filtered_products
 
-    def get_prices(self, date_time=None):
+    def get_prices(self, date_time=None, root=None):
         """
         Fetch last known to `date_time` prices filtering by `min_package_ratio`
         """
-        product_tuples = self.get_qualified_products(date_time)
+        product_tuples = self.get_qualified_products(date_time, root=root)
         return [t[1] for t in product_tuples]
 
-    def get_price(self, date_time=None, prices=None, cheap=False):
+    def get_price(self, date_time=None, prices=None, cheap=False, root=None):
         """Get median or minimum price for the date"""
 
-        prices = prices or self.get_prices(date_time)
+        prices = prices or self.get_prices(date_time, root=root)
         if len(prices):
             if cheap:
                 try:
@@ -685,13 +685,13 @@ class Product(Entity):
         if merchant.key not in self.merchants:
             self.merchants[merchant.key] = merchant
 
-    def get_price(self, date_time=None, normalized=True):
+    def get_price(self, date_time=None, normalized=True, root=None):
         """Get price for the product"""
         date_time = date_time or datetime.datetime.now()
         known_prices = list()
         for merchant in self.merchants.values():
             report = self.get_last_report(date_time=date_time,
-                                          merchant=merchant)
+                                          merchant=merchant, root=root)
             if report and report.date_time > date_time - REPORT_LIFETIME:
                 if normalized:
                     price = report.normalized_price_value
@@ -755,7 +755,7 @@ class Product(Entity):
             return category_data['title']
         raise CategoryLookupError(self)
 
-    def get_last_report(self, date_time=None, merchant=None):
+    def get_last_report(self, date_time=None, merchant=None, root=None):
         """Get last (to `date_time`) report of the product"""
 
         date_time = date_time or datetime.datetime.now()
@@ -768,8 +768,12 @@ class Product(Entity):
                 qualified = False
             return qualified
 
+        if root is None:
+            reports = self.reports.values()
+        else:
+            keys = self.reports.keys()
+            reports = [root[PriceReport.namespace][key] for key in keys]
         # TODO decide which one to do first sorting or filtering
-        reports = self.reports.values()
         if len(reports) > 0:
             sorted_reports = sorted(reports,
                                     key=attrgetter('date_time'))

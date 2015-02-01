@@ -22,6 +22,7 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn(u'Категории', res.body.decode('utf-8'))
         self.assertIn(u'<a href="/categories/milk/">молоко</a>',
                       res.body.decode('utf-8'))
+        self.assertIn(u'Москва', res.body.decode('utf-8'))
 
     def test_category(self):
         res = self.testapp.get('/categories/milk', status=200)

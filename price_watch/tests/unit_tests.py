@@ -132,6 +132,10 @@ class TestPriceReport(unittest.TestCase):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertIn(u'Москва', milk.get_locations(root=self.keeper._root))
 
+    def test_category_get_price_root(self):
+        milk = ProductCategory.fetch('milk', self.keeper)
+        self.assertEqual(55.6, milk.get_price(root=self.keeper._root))
+
     def test_report_assembly(self):
 
         raw_data1 = {

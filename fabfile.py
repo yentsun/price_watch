@@ -23,7 +23,7 @@ logging.basicConfig(filename='debug.log', level=logging.DEBUG)
 
 
 def get_storage():
-    return StorageManager(FileStorage('storage/storage.fs'))
+    return StorageManager('storage/storage.fs')
 
 
 def get_datetimes(days):
@@ -181,23 +181,43 @@ def cleanup():
     keeper = get_storage()
     products = Product.fetch_all(keeper, objects_only=False)
 
+    print('Categories check...')
+    for category in ProductCategory.fetch_all(keeper):
+        if type(category.products) is not list:
+            category.products = list(category.products.values())
+        for product in category.products:
+            if len(product.reports) == 0:
+                print(yellow(u'Deleting "{}"...'.format(product)))
+                category.products.remove(product)
+            if type(product.reports) is not list:
+                product.reports = list(product.reports.values())
+            if type(product.merchants) is not list:
+                product.merchants = list(product.merchants.values())
+
     print('Products check...')
     for key, product in products.iteritems():
+        if type(product.reports) is not list:
+            product.reports = list(product.reports.values())
+        if type(product.merchants) is not list:
+            product.merchants = list(product.merchants.values())
         # key check
         if key != product.key:
             print(yellow(u'Fixing {}...'.format(key)))
             keeper.register(product)
             keeper.delete_key(product.__class__.__name__, key)
-            del product.category.products[key]
+            product.category.products.remove(product)
             product.category.add_product(product)
-            for merchant in product.merchants.values():
-                del merchant.products[key]
-                merchant.add_product(product)
 
         # remove products with no reports or category
         if len(product.reports) == 0 or product.category is None:
             print(yellow(u'Deleting "{}"...'.format(product)))
             product.delete_from(keeper)
+
+        for report in product.reports:
+            if type(report) is str:
+                print(yellow('Removing str reports...'))
+                product.reports.remove(report)
+                product._p_changed = True
 
         # correct category check
         try:
@@ -210,7 +230,7 @@ def cleanup():
                 product.delete_from(keeper)
 
         # reverse category reference
-        if product.category and product not in product.category.products.values():
+        if product.category and product not in product.category.products:
             print(yellow(u'Adding "{}" to "{}"'.format(product,
                                                        product.category)))
 
@@ -218,17 +238,25 @@ def cleanup():
 
     print('Merchants check...')
     for merchant in Merchant.fetch_all(keeper):
-        for key, product in merchant.products.items():
+        if type(merchant.products) is not list:
+            merchant.products = list(merchant.products.values())
+        for product in merchant.products:
             if len(product.reports) == 0:
                 print(yellow(u'Deleting "{}"...'.format(product)))
-                del merchant.products[key]
+                merchant.products.remove(product)
+            for report in product.reports:
+                if type(report) is str:
+                    print(yellow('Removing product with str report ...'))
+                    product.delete_from(keeper)
 
-    print('Categories check...')
-    for category in ProductCategory.fetch_all(keeper):
-        for key, product in category.products.items():
-            if len(product.reports) == 0:
-                print(yellow(u'Deleting "{}"...'.format(product)))
-                del category.products[key]
+    print('Reporters check...')
+    for reporter in Reporter.fetch_all(keeper):
+        # TODO carefully later on !
+        try:
+            delattr(reporter, 'reports')
+        except AttributeError:
+            pass
+
     transaction.commit()
 
 

@@ -6,6 +6,8 @@ import numpy
 import urllib
 from uuid import uuid4
 from ZODB import DB
+from ZODB.FileStorage import FileStorage
+from ZODB.MappingStorage import MappingStorage
 from persistent import Persistent
 from operator import attrgetter
 from BTrees import OOBTree
@@ -137,7 +139,11 @@ class CategoryLookupError(Exception):
 class StorageManager(object):
     """Persistence tool for entity instances."""
 
-    def __init__(self, zodb_storage=None, connection=None):
+    def __init__(self, path=None, zodb_storage=None, connection=None):
+        if all([path, zodb_storage, connection]) is False:
+            zodb_storage = MappingStorage('test')
+        if path is not None:
+            zodb_storage = FileStorage(path)
         if zodb_storage is not None:
             self._db = DB(zodb_storage)
             self._zodb_storage = zodb_storage
@@ -209,7 +215,7 @@ class StorageManager(object):
                         if entity.namespace not in result:
                             result[entity.namespace] = list()
                         result[entity.namespace].append(instance)
-                    except TypeError:
+                    except TypeError as e:
                         pass
         return result
 
@@ -223,6 +229,9 @@ class Entity(Persistent):
     _representation = u'{title}'
     _key_pattern = u'{title}'
     namespace = None
+
+    def __eq__(self, other):
+        return self.key == other.key
 
     def __str__(self):
         return str(self.__repr__().encode('utf-8'))
@@ -346,8 +355,7 @@ class PriceReport(Entity):
     def delete_from(self, storage_manager):
         """Delete the report from product and storage"""
         try:
-            del self.product.reports[self.key]
-            del self.reporter.reports[self.key]
+            self.product.reports.remove(self)
         except (KeyError, AttributeError):
             pass
         storage_manager.delete_key(self.namespace, self.key)
@@ -423,7 +431,6 @@ class PriceReport(Entity):
         report = cls(price_value=float(price_value), product=product,
                      reporter=reporter, merchant=merchant, url=url,
                      date_time=date_time)
-        reporter.add_report(report)
         product.add_report(report)
 
         storage_manager.register(report)
@@ -437,11 +444,12 @@ class Merchant(Entity):
     """Merchant model"""
     _representation = u'{title}-{location}'
     namespace = 'merchants'
+    _container_attr = 'products'
 
     def __init__(self, title, location=None):
         self.title = title
         self.location = location
-        self.products = OOBTree.BTree()
+        self.products = list()
 
     def patch(self, data, storage_manager):
         """Update merchant from dict. Return `True` if new key created"""
@@ -454,16 +462,14 @@ class Merchant(Entity):
             storage_manager.register(self)
             try:
                 storage_manager.delete_key(self.namespace, old_key)
-                for product in self.products.values():
-                    del product.merchants[old_key]
-                    product.add_merchant(self)
             except KeyError:
                 pass
 
     def add_product(self, product):
         """Add product to products dict"""
-        if product.key not in self.products:
-            self.products[product.key] = product
+        if product not in self.products:
+            self.products.append(product)
+            self._p_changed = True
 
     @classmethod
     def assemble(cls, storage_manager, title, location=None):
@@ -531,7 +537,7 @@ class ProductCategory(Entity):
 
     def __init__(self, title):
         self.title = title
-        self.products = OOBTree.BTree()
+        self.products = list()
 
     def get_data(self, attribute):
         """Get category data from `data_map.yaml`"""
@@ -558,9 +564,10 @@ class ProductCategory(Entity):
         """Add product(s) to the category and set category to the products"""
 
         for product in products:
-            product.category = self
-            if product.key not in self.products:
-                self.products[product.key] = product
+            if product not in self.products:
+                product.category = self
+                self.products.append(product)
+                self._p_changed = True
 
     def remove_product(self, product):
         """
@@ -568,8 +575,8 @@ class ProductCategory(Entity):
         attribute to None
         """
         product.category = None
-        if product.key in self.products:
-                del self.products[product.key]
+        if product in self.products:
+            self.products.remove(product)
 
     def add_package(self, package):
         """Add package to the category"""
@@ -583,25 +590,25 @@ class ProductCategory(Entity):
         """Get price reports for the category by datetime"""
 
         result = list()
-        for key, product in self.products.items():
+        for product in self.products:
             result.extend(product.get_reports(date_time))
         return result
 
-    def get_qualified_products(self, date_time=None, root=None):
+    def get_qualified_products(self, date_time=None):
         """
         Return product and price list to datetime filtered by qualification
         conditions
         """
 
         min_package_ratio = self.get_data('min_package_ratio')
-        products = self.products.values()
+        products = self.products
         filtered_products = list()
         for product in products:
             package_fit = True
             if min_package_ratio:
                 package_fit = product.package_ratio >= float(min_package_ratio)
             # Actual qualification
-            product_price = product.get_price(date_time, root=root)
+            product_price = product.get_price(date_time)
             if package_fit and product_price:
                 filtered_products.append((product, product_price))
         return filtered_products
@@ -610,13 +617,13 @@ class ProductCategory(Entity):
         """
         Fetch last known to `date_time` prices filtering by `min_package_ratio`
         """
-        product_tuples = self.get_qualified_products(date_time, root=root)
+        product_tuples = self.get_qualified_products(date_time)
         return [t[1] for t in product_tuples]
 
-    def get_price(self, date_time=None, prices=None, cheap=False, root=None):
+    def get_price(self, date_time=None, prices=None, cheap=False):
         """Get median or minimum price for the date"""
 
-        prices = prices or self.get_prices(date_time, root=root)
+        prices = prices or self.get_prices(date_time)
         if len(prices):
             if cheap:
                 try:
@@ -634,7 +641,7 @@ class ProductCategory(Entity):
         current_price = self.get_price()
         return get_delta(base_price, current_price, relative)
 
-    def get_locations(self, root=None):
+    def get_locations(self):
         """
         Get category's merchant locations. Load merchants from root if
         provided. The root trick is needed for threaded cache as lazy-loading
@@ -642,14 +649,9 @@ class ProductCategory(Entity):
         """
         locations = list()
         merchants = list()
-        if root:
-            for product in self.products.values():
-                for key in product.merchants.keys():
-                    merchants.append(root[Merchant.namespace][key])
-        else:
-            for product in self.products.values():
-                for merchant in product.merchants.values():
-                    merchants.append(merchant)
+        for product in self.products:
+            for merchant in product.merchants:
+                merchants.append(merchant)
         for merchant in merchants:
             if (merchant.location is not None) and \
                     (merchant.location not in locations):
@@ -668,30 +670,32 @@ class Product(Entity):
         self.title = title
         self.manufacturer = manufacturer
         self.category = category
+        if self.category is not None:
+            self.category.add_product(self)
         self.package = package
         self.package_ratio = package_ratio
-        self.reports = OOBTree.BTree()
-        self.merchants = OOBTree.BTree()
+        self.reports = list()
+        self.merchants = list()
 
     def add_report(self, report):
         """Add report"""
-
-        if report.key not in self.reports:
-            self.reports[report.key] = report
+        if report not in self.reports:
+            self.reports.append(report)
+            self._p_changed = True
 
     def add_merchant(self, merchant):
-        """Add merchant"""
+        """Add merchant if it's not in list"""
+        if merchant not in self.merchants:
+            self.merchants.append(merchant)
+            self._p_changed = True
 
-        if merchant.key not in self.merchants:
-            self.merchants[merchant.key] = merchant
-
-    def get_price(self, date_time=None, normalized=True, root=None):
+    def get_price(self, date_time=None, normalized=True):
         """Get price for the product"""
         date_time = date_time or datetime.datetime.now()
         known_prices = list()
-        for merchant in self.merchants.values():
+        for merchant in self.merchants:
             report = self.get_last_report(date_time=date_time,
-                                          merchant=merchant, root=root)
+                                          merchant=merchant)
             if report and report.date_time > date_time - REPORT_LIFETIME:
                 if normalized:
                     price = report.normalized_price_value
@@ -714,7 +718,7 @@ class Product(Entity):
         """Get reports to the given date/time"""
 
         result = list()
-        for report in self.reports.values():
+        for report in self.reports:
             qualifies = True
             if to_date_time and report.date_time > to_date_time:
                 qualifies = False
@@ -755,7 +759,7 @@ class Product(Entity):
             return category_data['title']
         raise CategoryLookupError(self)
 
-    def get_last_report(self, date_time=None, merchant=None, root=None):
+    def get_last_report(self, date_time=None, merchant=None):
         """Get last (to `date_time`) report of the product"""
 
         date_time = date_time or datetime.datetime.now()
@@ -768,11 +772,7 @@ class Product(Entity):
                 qualified = False
             return qualified
 
-        if root is None:
-            reports = self.reports.values()
-        else:
-            keys = self.reports.keys()
-            reports = [root[PriceReport.namespace][key] for key in keys]
+        reports = self.reports
         # TODO decide which one to do first sorting or filtering
         if len(reports) > 0:
             sorted_reports = sorted(reports,
@@ -799,12 +799,12 @@ class Product(Entity):
         """Delete the product from all referenced objects"""
         key = self.key
         try:
-            del self.category.products[key]
-            for merchant in self.merchants.values():
-                del merchant.products[key]
+            self.category.products.remove(self)
+            for merchant in self.merchants:
+                merchant.products.remove(self)
         except AttributeError:
             pass
-        for report in self.reports.values():
+        for report in self.reports:
             report.delete_from(storage_manager)
         storage_manager.delete_key(self.namespace, key)
 
@@ -818,7 +818,7 @@ class Reporter(Entity):
 
     def __init__(self, name):
         self.name = name
-        self.reports = OOBTree.BTree()
+        self.reports = list()
 
     def add_report(self, report):
         """Add report"""

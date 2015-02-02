@@ -317,8 +317,7 @@ class RootView(EntityView):
             if category.title not in self.CHART_EXCLUDE_LIST:
                 category_column = [category.get_data('keyword').split(', ')[0]]
                 for date in datetimes:
-                    category_column.append(category.get_price(date,
-                                                              root=self.root))
+                    category_column.append(category.get_price(date))
                 category_columns.append(category_column)
 
         # category list
@@ -333,7 +332,7 @@ class RootView(EntityView):
                 package_key = category.get_data('normal_package')
                 package_title = ProductPackage(
                     package_key).get_data('synonyms')[0]
-                locations = ', '.join(category.get_locations(root=self.root))
+                locations = ', '.join(category.get_locations())
                 category_tuples.append((url, title, price, delta,
                                         package_title, locations))
         time = format_datetime(datetime.datetime.now(), format='long',

@@ -48,6 +48,7 @@ def get_datetimes(days):
 
 class EntityView(object):
     """View class for Milk Price Report entities"""
+
     def __init__(self, request):
         self.request = request
         self.context = request.context
@@ -57,6 +58,9 @@ class EntityView(object):
         self.delta_period = (datetime.datetime.now() -
                              datetime.timedelta(days=self.display_days))
         self.fd = format_datetime
+
+    def __str__(self):
+        return self.__class__.__name__
 
     def menu(self):
         """Generate simple menu"""
@@ -305,8 +309,8 @@ class RootView(EntityView):
                           'bread', 'sugar']
 
     @general_region.cache_on_arguments('index')
-    @view_config(request_method='GET', renderer='index.mako')
-    def get(self):
+    def served_data(self, location):
+        """Serve general index data optionally filter by region"""
         categories = self.root['categories'].values()
 
         # charts
@@ -317,13 +321,14 @@ class RootView(EntityView):
             if category.title not in self.CHART_EXCLUDE_LIST:
                 category_column = [category.get_data('keyword').split(', ')[0]]
                 for date in datetimes:
-                    category_column.append(category.get_price(date))
+                    category_column.append(
+                        category.get_price(date, location=location))
                 category_columns.append(category_column)
 
         # category list
         category_tuples = list()
         for category in categories:
-            price = category.get_price()
+            price = category.get_price(location=location)
             if price:
                 price = self.currency(price)
                 url = self.request.resource_path(category)
@@ -339,6 +344,14 @@ class RootView(EntityView):
                                locale=self.request.locale_name)
         return {'categories': category_tuples,
                 'time': time,
+                'location': location,
                 'root': True,
                 'date_column': json.dumps(date_column),
                 'category_columns': json.dumps(category_columns)}
+
+    @view_config(request_method='GET', renderer='index.mako')
+    def get(self):
+        location = None
+        if 'location' in self.request.params:
+            location = self.request.params.getone('location')
+        return self.served_data(location)

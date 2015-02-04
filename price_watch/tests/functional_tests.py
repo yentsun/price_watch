@@ -267,3 +267,15 @@ class FunctionalTests(unittest.TestCase):
                                u'Milk 1L'.encode('utf-8'),
                                status=200)
         self.assertNotIn('59,30', res.body)
+
+    def test_region(self):
+        res = self.testapp.get('/?location=Санкт-Петербург', status=200)
+        self.assertIn(u'Санкт-Петербург', res.body.decode('utf-8'))
+        self.assertIn('45,90', res.body.decode('utf-8'))
+
+        res = self.testapp.get('/?location=Москва', status=200)
+        self.assertIn(u'Москва', res.body.decode('utf-8'))
+        self.assertIn('55,60', res.body.decode('utf-8'))
+
+        res = self.testapp.get('/', status=200)
+        self.assertIn('50,75', res.body.decode('utf-8'))

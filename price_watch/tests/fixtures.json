@@ -1,38 +1,49 @@
 [
   {
     "price_value": 55.6,
-    "url": "http://howies.com/products/milk/1",
+    "url": "http://mosmag.com/products/milk/1",
     "product_title": "Молоко Красная Цена у/паст. 3.2% 1л",
-    "merchant_title": "Howie's grocery",
+    "merchant_title": "Московский магазин",
     "reporter_name": "Jack"
   },
   {
     "price_value": 41.7,
-    "url": "http://howies.com/products/milk/2",
+    "url": "http://mosmag.com/products/milk/2",
     "product_title": "Молоко Farmers Milk 1L",
-    "merchant_title": "Howie's grocery",
+    "merchant_title": "Московский магазин",
     "reporter_name": "Jack"
   },
   {
     "price_value": 64.3,
-    "url": "http://howies.com/products/milk/3",
+    "url": "http://mosmag.com/products/milk/3",
     "product_title": "Молоко Deli Milk 1L",
-    "merchant_title": "Howie's grocery",
+    "merchant_title": "Московский магазин",
     "reporter_name": "Jack"
   },
   {
     "price_value": 199.9,
-    "url": "http://howies.com/products/sunflower_oil/345",
+    "url": "http://mosmag.com/products/sunflower_oil/345",
     "product_title": "Масло подсолнечное Sunny Oil 1л",
-    "merchant_title": "Howie's grocery",
+    "merchant_title": "Московский магазин",
     "reporter_name": "Jack",
     "date_time": "2014-09-14 00:00:00"
+  },
+   {
+    "price_value": 45.9,
+    "url": "http://pitermag.com/products/milk/345",
+    "product_title": "Молоко Балтика ультрапас. 3.2% 1л",
+    "merchant_title": "Питерские продукты",
+    "reporter_name": "Jack"
   },
   {
     "slug": "about"
   },
   {
     "location": "Москва",
-    "title": "Howie's grocery"
+    "title": "Московский магазин"
+  },
+  {
+    "location": "Санкт-Петербург",
+    "title": "Питерские продукты"
   }
 ]

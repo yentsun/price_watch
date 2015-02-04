@@ -24,7 +24,6 @@
                             <a href="${url}">${title}</a>
                         </td>
                         <td>
-                            ${price}
                              % if delta > 0:
                             <span title="+${delta}%"
                                   class="glyphicon glyphicon-arrow-up"
@@ -34,6 +33,7 @@
                                       class="glyphicon glyphicon-arrow-down"
                                       style="color:green"></span>
                             % endif
+                            ${price}
                         </td>
                         <td>${package}</td>
                         <td>${locations}</td>

@@ -594,36 +594,42 @@ class ProductCategory(Entity):
             result.extend(product.get_reports(date_time))
         return result
 
-    def get_qualified_products(self, date_time=None):
+    def get_qualified_products(self, date_time=None, location=None):
         """
-        Return product and price list to datetime filtered by qualification
-        conditions
+        Return product and price list to datetime and location filtered by
+        qualification conditions
         """
 
         min_package_ratio = self.get_data('min_package_ratio')
         products = self.products
         filtered_products = list()
         for product in products:
+
             package_fit = True
             if min_package_ratio:
                 package_fit = product.package_ratio >= float(min_package_ratio)
+
             # Actual qualification
-            product_price = product.get_price(date_time)
+            product_price = product.get_price(date_time, location=location)
             if package_fit and product_price:
                 filtered_products.append((product, product_price))
+
         return filtered_products
 
-    def get_prices(self, date_time=None, root=None):
+    def get_prices(self, date_time=None, location=None):
         """
         Fetch last known to `date_time` prices filtering by `min_package_ratio`
         """
-        product_tuples = self.get_qualified_products(date_time)
+        product_tuples = self.get_qualified_products(date_time, location)
         return [t[1] for t in product_tuples]
 
-    def get_price(self, date_time=None, prices=None, cheap=False):
-        """Get median or minimum price for the date"""
+    def get_price(self, date_time=None, prices=None, cheap=False,
+                  location=None):
+        """
+        Get median or minimum price for the date and optionally location
+        """
 
-        prices = prices or self.get_prices(date_time)
+        prices = prices or self.get_prices(date_time, location)
         if len(prices):
             if cheap:
                 try:
@@ -689,11 +695,13 @@ class Product(Entity):
             self.merchants.append(merchant)
             self._p_changed = True
 
-    def get_price(self, date_time=None, normalized=True):
+    def get_price(self, date_time=None, normalized=True, location=None):
         """Get price for the product"""
         date_time = date_time or datetime.datetime.now()
         known_prices = list()
         for merchant in self.merchants:
+            if location and merchant.location != location:
+                break
             report = self.get_last_report(date_time=date_time,
                                           merchant=merchant)
             if report and report.date_time > date_time - REPORT_LIFETIME:

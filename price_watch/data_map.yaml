@@ -286,7 +286,7 @@ ProductCategory:
             salt:
               title: salt
               keyword: соль
-              stopword: морская водорослевая
+              stopword: морская водорослевая, фасоль, розовая
               normal_package: 1 kg
               min_package_ratio: 0.5
             cereals:

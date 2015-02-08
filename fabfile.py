@@ -22,8 +22,8 @@ MULTIPLIER = 1
 logging.basicConfig(filename='debug.log', level=logging.DEBUG)
 
 
-def get_storage():
-    return StorageManager('storage/storage.fs')
+def get_storage(path_='storage/storage.fs'):
+    return StorageManager(path_)
 
 
 def get_datetimes(days):
@@ -36,29 +36,6 @@ def get_datetimes(days):
                                               datetime.datetime.now().time())
         result.append(date_time)
     return result
-
-
-@task
-def output_data(days=14):
-    """Generate JSON with data"""
-    storage = StorageManager(FileStorage('storage.fs'))
-    categories = ProductCategory.fetch_all(storage)
-    dates = [datetime.date.today() + datetime.timedelta(-1*count)
-             for count in range(0, int(days))]
-    result = dict()
-    for category in categories:
-        result[category.key()] = OrderedDict()
-        for date in dates:
-            data_dict = dict()
-            prices = category.get_prices(date)
-            if len(prices) > 0:
-                data_dict['median'] = category.get_price(date, prices=prices)
-                data_dict['min'] = min(prices)
-                data_dict['max'] = max(prices)
-                result[category.title][str(date)] = data_dict
-    with open('data.json', 'w') as f:
-        json.dump(result, f, indent=2)
-    storage.close()
 
 
 @task
@@ -98,32 +75,6 @@ def set_package_ratio():
             logging.debug(e.message.encode('utf-8'))
             print(yellow(e.message))
     transaction.commit()
-
-
-@task
-def add(merchant_str, title, price_value, url, date_time=None):
-    """Add price report"""
-    keeper = StorageManager(FileStorage('storage/storage.fs'))
-    merchant = Merchant.acquire(merchant_str.decode('utf-8'), keeper)
-    reporter = Reporter.acquire('Price Watch', keeper)
-    if date_time:
-        date_time = datetime.datetime.strptime(date_time, '%d.%m.%Y')
-    try:
-        report, stats_ = PriceReport.assemble(
-            price_value=float(price_value),
-            product_title=title.decode('utf-8'),
-            url=url,
-            merchant=merchant,
-            reporter=reporter,
-            date_time=date_time,
-            storage_manager=keeper
-        )
-        transaction.commit()
-        print(green(u'Report {} added'.format(report)))
-    except (PackageLookupError, CategoryLookupError), e:
-        transaction.abort()
-        print(red(e.message))
-    keeper.close()
 
 
 @task
@@ -176,88 +127,117 @@ def stats(category_key, days=2):
 
 
 @task
+def recreate():
+    """Recreate storage from reports"""
+    keeper = get_storage()
+    new_keeper = get_storage('storage/new.fs')
+
+    reports = PriceReport.fetch_all(keeper)
+    print(cyan('Recreating storage from {} reports...'.format(len(reports))))
+    for report in reports:
+        try:
+            PriceReport.assemble(storage_manager=new_keeper,
+                                 uuid=report.uuid,
+                                 price_value=report.price_value,
+                                 product_title=report.product.title,
+                                 merchant_title=report.merchant.title,
+                                 reporter_name=report.reporter.name,
+                                 url=report.url,
+                                 date_time=report.date_time)
+        except CategoryLookupError:
+            print(yellow(u'Dropping `{}`: '
+                         u'no category...'.format(report.product)))
+    transaction.commit()
+    keeper.close()
+    new_keeper.close()
+
+
+@task
 def cleanup():
     """Perform cleanup and fixing routines on stored instances"""
-    keeper = get_storage()
-    products = Product.fetch_all(keeper, objects_only=False)
 
-    print('Categories check...')
-    for category in ProductCategory.fetch_all(keeper):
-        if type(category.products) is not list:
-            category.products = list(category.products.values())
-        for product in category.products:
-            if len(product.reports) == 0:
-                print(yellow(u'Deleting "{}"...'.format(product)))
-                category.products.remove(product)
-            if type(product.reports) is not list:
-                product.reports = list(product.reports.values())
-            if type(product.merchants) is not list:
-                product.merchants = list(product.merchants.values())
+    entity_list = [ProductCategory, Product, Merchant]
 
-    print('Products check...')
-    for key, product in products.iteritems():
-        if type(product.reports) is not list:
-            product.reports = list(product.reports.values())
-        if type(product.merchants) is not list:
-            product.merchants = list(product.merchants.values())
-        # key check
-        if key != product.key:
-            print(yellow(u'Fixing {}...'.format(key)))
-            keeper.register(product)
-            keeper.delete_key(product.__class__.__name__, key)
-            product.category.products.remove(product)
-            product.category.add_product(product)
+    def cycle(entity_class):
+        """Perform all needed routines on an `entity_class`"""
+        keeper = get_storage()
+        print(cyan('{} check...'.format(entity_class.__name__)))
+        instances = entity_class.fetch_all(keeper, objects_only=False)
 
-        # remove products with no reports or category
-        if len(product.reports) == 0 or product.category is None:
-            print(yellow(u'Deleting "{}"...'.format(product)))
-            product.delete_from(keeper)
+        for key, instance in instances.iteritems():
 
-        for report in product.reports:
-            if type(report) is str:
-                print(yellow('Removing str reports...'))
-                product.reports.remove(report)
-                product._p_changed = True
+            if entity_class is ProductCategory:
 
-        # correct category check
-        try:
-            product.get_category_key()
-        except CategoryLookupError:
-            if product.category:
-                category = product.category
-                print(yellow(u'Deleting "{}" from "{}"'.format(product,
-                                                               category)))
-                product.delete_from(keeper)
+                if type(instance.products) is not list:
+                    print(yellow(u'Fixing category products '
+                                 u'list for `{}`...'.format(instance)))
+                    instance.products = list(category.products.values())
 
-        # reverse category reference
-        if product.category and product not in product.category.products:
-            print(yellow(u'Adding "{}" to "{}"'.format(product,
-                                                       product.category)))
+                for product in instance.products:
+                    if len(product.reports) == 0:
+                        print(yellow(u'Removing stale '
+                                     u'`{}` from `{}`...'.format(product,
+                                                                 instance)))
+                        instance.products.remove(product)
+                    if product not in keeper[product.namespace]:
+                        print(yellow(u'Removing `{}` from `{}` '
+                                     u'as its not '
+                                     u'registered...'.format(product,
+                                                             instance)))
+                        instance.products.remove(product)
 
-            product.category.add_product(product)
+            if entity_class is Product:
 
-    print('Merchants check...')
-    for merchant in Merchant.fetch_all(keeper):
-        if type(merchant.products) is not list:
-            merchant.products = list(merchant.products.values())
-        for product in merchant.products:
-            if len(product.reports) == 0:
-                print(yellow(u'Deleting "{}"...'.format(product)))
-                merchant.products.remove(product)
-            for report in product.reports:
-                if type(report) is str:
-                    print(yellow('Removing product with str report ...'))
-                    product.delete_from(keeper)
+                if type(instance.reports) is not list:
+                    print(yellow(u'Fixing product report '
+                                 u'list for `{}`...'.format(instance)))
+                    instance.reports = list(instance.reports.values())
 
-    print('Reporters check...')
-    for reporter in Reporter.fetch_all(keeper):
-        # TODO carefully later on !
-        try:
-            delattr(reporter, 'reports')
-        except AttributeError:
-            pass
+                if type(instance.merchants) is not list:
+                    print(yellow(u'Fixing product merchant '
+                                 u'list for `{}`...'.format(instance)))
+                    instance.merchants = list(instance.merchants.values())
 
-    transaction.commit()
+                if len(instance.reports) == 0:
+                    print(yellow(u'Removing stale `{}`...'.format(instance)))
+                    instance.delete_from(keeper)
+
+                # check category
+                try:
+                    cat_key = instance.get_category_key()
+                    category = ProductCategory.fetch(cat_key, keeper)
+                    if instance.category is not category:
+                        category.add_product(instance)
+                except CategoryLookupError:
+                    print(yellow(u'Removing `{}` as no '
+                                 u'category found...'.format(instance)))
+                    instance.delete_from(keeper)
+
+                # check key
+                if key != instance.key:
+                    print(yellow(u'Fixing key for `{}`...'.format(key)))
+                    keeper.register(instance)
+                    keeper.delete_key(instance.namespace, key)
+
+            if entity_class is Merchant:
+                if type(instance.products) is not list:
+                    instance.products = list(instance.products.values())
+                for product in instance.products:
+                    if len(product.reports) == 0:
+                        print(yellow(u'Deleting `{}` '
+                                     u'from `{}`...'.format(product,
+                                                            instance)))
+                        instance.products.remove(product)
+                    for report in product.reports:
+                        if type(report) is str:
+                            print(yellow('Removing product with str report ...'))
+                        product.delete_from(keeper)
+
+        transaction.commit()
+        keeper.close()
+
+    for entity in entity_list:
+        cycle(entity)
 
 
 @task

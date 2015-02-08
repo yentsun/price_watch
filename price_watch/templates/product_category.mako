@@ -18,7 +18,7 @@
             <tr>
                 <th>№</th>
                 <th>Продукт</th>
-                <th class="price">Цена за ${package_title}</th>
+                <th class="price">Цена (руб.) за ${package_title}</th>
             </tr>
             </thead>
             <tbody>

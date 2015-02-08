@@ -11,13 +11,12 @@
       <div class="row-fluid marketing">
           <div class="span12">
               <div id="chart_div" style="width: 700px; height: 300px;"></div>
-        <div>
               <table class="table">
                   <thead>
                   <tr>
                       <th>Дата и время отчета</th>
                       <th>Продавец</th>
-                      <th>Цена</th>
+                      <th>Цена (руб.)</th>
                   </tr>
                   </thead>
                   <tbody>

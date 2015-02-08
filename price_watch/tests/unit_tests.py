@@ -100,6 +100,7 @@ class TestBasicLogic(unittest.TestCase):
         self.assertIn(product, merchant.products)
 
     def test_report_assembly_new_product(self):
+        from uuid import uuid4
         product_title = u'Молоко Great Milk TWO 1L'
         reporter_name = 'Jill'
         merchant_title = "Scotty's grocery"
@@ -111,13 +112,17 @@ class TestBasicLogic(unittest.TestCase):
             'date_time': None,
             'reporter_name': reporter_name
         }
-        report, stats = PriceReport.assemble(self.keeper, **raw_data1)
+        uuid_ = uuid4()
+        report, stats = PriceReport.assemble(storage_manager=self.keeper,
+                                             uuid=uuid_,
+                                             **raw_data1)
         transaction.commit()
         self.keeper.close()
 
         self.keeper = open_storage()
         stored_report = PriceReport.fetch(report.key, self.keeper)
         self.assertEqual(report.key, stored_report.key)
+        self.assertEqual(report.key, str(uuid_))
 
         product = Product.fetch(product_title, self.keeper)
         self.assertEqual(product_title, product.title)

@@ -334,8 +334,8 @@ class PriceReport(Entity):
     namespace = 'reports'
 
     def __init__(self, price_value, product, reporter, merchant,
-                 url=None, date_time=None):
-        self.uuid = uuid4()
+                 url=None, date_time=None, uuid=None):
+        self.uuid = uuid or uuid4()
         self.date_time = date_time or datetime.datetime.now()
         self.merchant = merchant
         self.product = product
@@ -368,7 +368,8 @@ class PriceReport(Entity):
 
     @classmethod
     def assemble(cls, storage_manager, price_value, product_title,
-                 merchant_title, reporter_name, url, date_time=None):
+                 merchant_title, reporter_name, url, date_time=None,
+                 uuid=None):
         """
         The only encouraged factory method for price reports and all the
         referenced instances:
@@ -430,7 +431,7 @@ class PriceReport(Entity):
         reporter = Reporter.acquire(reporter_name, storage_manager)
         report = cls(price_value=float(price_value), product=product,
                      reporter=reporter, merchant=merchant, url=url,
-                     date_time=date_time)
+                     date_time=date_time, uuid=uuid)
         product.add_report(report)
 
         storage_manager.register(report)

@@ -1,4 +1,5 @@
 <%inherit file="base.mako"/>
+<%def name="noindex()"><meta name="robots" content="noindex"></%def>
       <div>
         <h1>
             <%block name="title">Отчет о цене</%block>

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="${req.locale_name}">
 <head>
-    <meta charset="utf-8">
     <%def name="project_title()">food-price.net</%def>
-
     <title>${self.title()} - ${project_title()}</title>
+    <meta charset="utf-8">
+    % if hasattr(self,'noindex'):
+        ${self.noindex()}
+    % endif
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Max Korinets">

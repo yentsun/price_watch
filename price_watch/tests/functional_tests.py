@@ -267,3 +267,17 @@ class FunctionalTests(unittest.TestCase):
                                u'Milk 1L'.encode('utf-8'),
                                status=200)
         self.assertNotIn('59,30', res.body)
+
+    def test_noindex_tag(self):
+        res = self.testapp.get('/')
+        self.assertNotIn('<meta name="robots" content="noindex">', res.text)
+
+        res = self.testapp.get(u'/products/Молоко Deli '
+                               u'Milk 1L'.encode('utf-8'))
+        self.assertNotIn('<meta name="robots" content="noindex">', res.text)
+
+        res = self.testapp.get('/categories/milk')
+        self.assertNotIn('<meta name="robots" content="noindex">', res.text)
+
+        res = self.testapp.get('/reports/{}'.format(self.report_key))
+        self.assertIn('<meta name="robots" content="noindex">', res.text)

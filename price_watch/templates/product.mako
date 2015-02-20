@@ -34,11 +34,12 @@
                   % endfor
                   </tbody>
               </table>
-              % endif
+              % else:
               <div class="alert alert-warning">
                   По этому продукту отчеты не поступали длительное время.
                   <a href="${last_report_url}">Последний отчет</a>
               </div>
+              % endif
         </div>
       </div>
 <%def name="js()">

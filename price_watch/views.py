@@ -146,7 +146,14 @@ class ProductView(EntityView):
     def served_data(self, product):
         """Return prepared product data"""
         data = dict()
-        data['current_price'] = self.currency(product.get_price())
+        current_price = product.get_price()
+        if current_price:
+            data['current_price'] = self.currency(current_price)
+            data['last_report_url'] = None
+        else:
+            data['current_price'] = None
+            data['last_report_url'] = self.request.resource_url(
+                self.context.get_last_report())
         data['chart_data'] = list()
         datetimes = get_datetimes(self.display_days)
         for date in datetimes:

@@ -1,8 +1,10 @@
 <%inherit file="base.mako"/>
       <div>
+          % if current_price:
           <div class="pull-right well well-sm cat-price">
             ${current_price}р.
           </div>
+          % endif
         <h1 id="product_heading">
             <%block name="title">${req.context.title}</%block>
         </h1>
@@ -10,6 +12,7 @@
 
       <div class="row-fluid marketing">
           <div class="span12">
+              % if len(reports):
               <div id="chart_div" style="width: 700px; height: 300px;"></div>
               <table class="table">
                   <thead>
@@ -31,6 +34,11 @@
                   % endfor
                   </tbody>
               </table>
+              % endif
+              <div class="alert alert-warning">
+                  По этому продукту отчеты не поступали длительное время.
+                  <a href="${last_report_url}">Последний отчет</a>
+              </div>
         </div>
       </div>
 <%def name="js()">

@@ -5,6 +5,8 @@ import transaction
 from webtest import TestApp
 from pyramid.paster import bootstrap
 from datetime import datetime, timedelta
+from babel.dates import format_datetime
+
 from price_watch.models import TWO_WEEKS_AGO
 
 
@@ -15,7 +17,8 @@ class FunctionalTests(unittest.TestCase):
         result = boot['root'].load_fixtures('fixtures.json')
         transaction.commit()
         self.testapp = TestApp(boot['app'])
-        self.report_key = result['reports'][0].key
+        self.report = result['reports'][0]
+        self.report_key = self.report.key
 
     def test_root(self):
         res = self.testapp.get('/', status=200)
@@ -281,3 +284,25 @@ class FunctionalTests(unittest.TestCase):
 
         res = self.testapp.get('/reports/{}'.format(self.report_key))
         self.assertIn('<meta name="robots" content="noindex">', res.text)
+
+    def test_description_tag(self):
+        res = self.testapp.get(u'/products/Молоко Deli '
+                               u'Milk 1L'.encode('utf-8'))
+        self.assertIn(u'<meta name="description" content="Динамика цен на '
+                      u'Молоко Deli Milk 1L за последний месяц">', res.text)
+
+        res = self.testapp.get('/', status=200)
+        self.assertIn(u'<meta name="description" content="Динамика цен на '
+                      u'продукты за последний месяц">', res.text)
+
+        res = self.testapp.get('/categories/milk')
+        self.assertIn(u'<meta name="description" content="Динамика цен на '
+                      u'молоко за последний месяц">', res.text)
+
+        res = self.testapp.get('/reports/{}'.format(self.report_key))
+        date_time = format_datetime(self.report.date_time, format='long',
+                                    locale='ru')
+        self.assertIn(u'<meta name="description" content="Отчет о цене на '
+                      u'{}\nу продавца Howie&#39;s grocery за {}">'.format(
+                          self.report.product.title,
+                          date_time), res.text)

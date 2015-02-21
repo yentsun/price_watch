@@ -7,8 +7,11 @@
     % if hasattr(self,'noindex'):
         ${self.noindex()}
     % endif
+    <%def name="description()">
+    <meta name="description" content="Динамика цен на продукты за последний месяц">
+    </%def>
+    ${self.description()}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
     <meta name="author" content="Max Korinets">
     <link rel="shortcut icon" type="image/png"
           href="${request.static_url('price_watch:static/favicon.png')}"/>

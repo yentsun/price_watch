@@ -1,5 +1,11 @@
 <%inherit file="base.mako"/>
 <%def name="noindex()"><meta name="robots" content="noindex"></%def>
+<%def name="description()">
+<meta name="description" content="Отчет о цене на ${req.context.product.title}
+у продавца ${req.context.merchant.title} за ${view.fd(req.context.date_time,
+                                                      format='long',
+                                                      locale=req.locale_name)}">
+</%def>
       <div>
         <h1>
             <%block name="title">Отчет о цене</%block>

@@ -1,4 +1,7 @@
 <%inherit file="base.mako"/>
+<%def name="description()">
+<meta name="description" content="Динамика цен на ${cat_title} за последний месяц">
+</%def>
 <div class="pull-right well well-sm cat-price">
     ${median_price}
 </div>

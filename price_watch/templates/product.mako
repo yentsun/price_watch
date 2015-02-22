@@ -1,6 +1,6 @@
 <%inherit file="base.mako"/>
 <%def name="description()">
-<meta name="description" content="Динамика цен на ${req.context.title} за последний месяц">
+<meta name="description" content="Текущая цена и история цен на ${req.context.title} за последний месяц">
 </%def>
       <div>
           % if current_price:

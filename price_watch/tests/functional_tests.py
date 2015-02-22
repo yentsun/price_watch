@@ -288,7 +288,8 @@ class FunctionalTests(unittest.TestCase):
     def test_description_tag(self):
         res = self.testapp.get(u'/products/Молоко Deli '
                                u'Milk 1L'.encode('utf-8'))
-        self.assertIn(u'<meta name="description" content="Динамика цен на '
+        self.assertIn(u'<meta name="description" content="Текущая цена и '
+                      u'история цен на '
                       u'Молоко Deli Milk 1L за последний месяц">', res.text)
 
         res = self.testapp.get('/', status=200)

@@ -26,6 +26,16 @@ body {
     padding: 14px 24px;
 }
 
+.masthead{
+    position: relative;
+}
+
+#location_menu{
+    position: absolute;
+    top: 7px;
+    left: 260px;
+}
+
 /* Supporting marketing content */
 .marketing {
     margin: 0 0 60px 0;

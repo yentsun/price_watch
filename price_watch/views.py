@@ -48,6 +48,7 @@ def get_datetimes(days):
 
 class EntityView(object):
     """View class for Milk Price Report entities"""
+
     def __init__(self, request):
         self.request = request
         self.context = request.context
@@ -57,6 +58,9 @@ class EntityView(object):
         self.delta_period = (datetime.datetime.now() -
                              datetime.timedelta(days=self.display_days))
         self.fd = format_datetime
+
+    def __str__(self):
+        return self.__class__.__name__
 
     def menu(self):
         """Generate simple menu"""
@@ -161,6 +165,11 @@ class ProductView(EntityView):
                                       product.get_price(date)])
         data['chart_data'] = json.dumps(data['chart_data'])
         data['reports'] = list()
+
+        package_key = product.category.get_data('normal_package')
+        data['package_title'] = ProductPackage(
+            package_key).get_data('synonyms')[0]
+
         for report in sorted(product.get_reports(
                 from_date_time=self.delta_period),
                 reverse=True, key=lambda rep: rep.date_time):
@@ -255,10 +264,11 @@ class PriceReportView(EntityView):
 class CategoryView(EntityView):
 
     @general_region.cache_on_arguments('category')
-    def served_data(self, category):
+    def served_data(self, category, location):
         """Return prepared category data"""
 
         cat_title = category.get_data('ru_accu_case')
+        median_price = category.get_price(location=location)
         if not cat_title:
             cat_title = category.get_data('keyword').split(', ')[0]
 
@@ -269,11 +279,14 @@ class CategoryView(EntityView):
         datetimes = get_datetimes(self.display_days)
         for date in datetimes:
             chart_data.append([date.strftime('%d.%m'),
-                               category.get_price(date)])
+                               category.get_price(date, location=location)])
 
         products = list()
-        sorted_products = sorted(category.get_qualified_products(),
-                                 key=lambda pr: pr[1])
+        locations = category.get_locations()
+        current_path = self.request.resource_url(category)
+        sorted_products = sorted(
+            category.get_qualified_products(location=location),
+            key=lambda pr: pr[1])
         for num, product_tuple in enumerate(sorted_products):
             try:
                 product, price = product_tuple
@@ -296,14 +309,21 @@ class CategoryView(EntityView):
         return {'price_data': json.dumps(chart_data),
                 'products': products,
                 'cat_title': cat_title,
+                'current_location': location,
+                'locations': locations,
+                'current_path': current_path,
                 'package_title': package_title,
-                'median_price': self.currency(category.get_price(), u'р.')}
+                'median_price': self.currency(median_price, u'р.')
+                if median_price else None}
 
     @view_config(request_method='GET',
                  renderer='product_category.mako')
     def get(self):
         category = self.request.context
-        return self.served_data(category)
+        location = None
+        if 'location' in self.request.params:
+            location = self.request.params.getone('location')
+        return self.served_data(category, location)
 
 
 class RootView(EntityView):
@@ -312,8 +332,8 @@ class RootView(EntityView):
                           'bread', 'sugar']
 
     @general_region.cache_on_arguments('index')
-    @view_config(request_method='GET', renderer='index.mako')
-    def get(self):
+    def served_data(self, location):
+        """Serve general index data optionally filter by region"""
         categories = self.root['categories'].values()
 
         # charts
@@ -324,28 +344,42 @@ class RootView(EntityView):
             if category.title not in self.CHART_EXCLUDE_LIST:
                 category_column = [category.get_data('keyword').split(', ')[0]]
                 for date in datetimes:
-                    category_column.append(category.get_price(date))
+                    category_column.append(
+                        category.get_price(date, location=location))
                 category_columns.append(category_column)
 
         # category list
         category_tuples = list()
+        all_locations = set()
         for category in categories:
-            price = category.get_price()
+            price = category.get_price(location=location)
             if price:
                 price = self.currency(price)
-                url = self.request.resource_path(category)
+                query = {'location': location} if location else None
+                url = self.request.resource_path(category, query=query)
                 title = category.get_data('keyword').split(', ')[0]
                 delta = int(category.get_price_delta(self.delta_period)*100)
                 package_key = category.get_data('normal_package')
                 package_title = ProductPackage(
                     package_key).get_data('synonyms')[0]
-                locations = ', '.join(category.get_locations())
+                cat_locations = category.get_locations()
+                all_locations.update(cat_locations)
+                locations = ', '.join(cat_locations)
                 category_tuples.append((url, title, price, delta,
                                         package_title, locations))
         time = format_datetime(datetime.datetime.now(), format='long',
                                locale=self.request.locale_name)
         return {'categories': category_tuples,
                 'time': time,
+                'current_location': location,
+                'locations': list(all_locations),
                 'root': True,
                 'date_column': json.dumps(date_column),
                 'category_columns': json.dumps(category_columns)}
+
+    @view_config(request_method='GET', renderer='index.mako')
+    def get(self):
+        location = None
+        if 'location' in self.request.params:
+            location = self.request.params.getone('location')
+        return self.served_data(location)

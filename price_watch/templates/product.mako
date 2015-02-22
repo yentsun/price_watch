@@ -2,16 +2,16 @@
 <%def name="description()">
 <meta name="description" content="Текущая цена и история цен на ${req.context.title} за последний месяц">
 </%def>
-      <div>
-          % if current_price:
-          <div class="pull-right well well-sm cat-price">
-            ${current_price}р.
-          </div>
-          % endif
-        <h1 id="product_heading">
-            <%block name="title">${req.context.title}</%block>
-        </h1>
-      </div>
+<div>
+    <div class="pull-right well well-sm cat-price">
+        ${current_price}р.
+    </div>
+    <h1 id="product_heading">
+        <%block name="title">${req.context.title}</%block>
+        <br>
+        <small>цена за ${package_title}</small>
+    </h1>
+</div>
 
       <div class="row-fluid marketing">
           <div class="span12">
@@ -45,6 +45,7 @@
               % endif
         </div>
       </div>
+</div>
 <%def name="js()">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">

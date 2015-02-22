@@ -290,24 +290,26 @@ class TestCalculations(unittest.TestCase):
         self.report2_key = result['reports'][1].key
 
     def test_presense_in_references(self):
-
         milk = ProductCategory.fetch('milk', self.keeper)
-        self.assertEqual(3, len(milk.products))
+        self.assertEqual(4, len(milk.products))
         self.assertIn(64.3, milk.get_prices())
 
         report1 = PriceReport.fetch(self.report1_key, self.keeper)
         self.assertEqual(55.6, report1.normalized_price_value)
         self.assertIs(milk, report1.product.category)
-        self.assertEqual("Howie's grocery", report1.merchant.title)
+        self.assertEqual(u'Московский магазин', report1.merchant.title)
         self.assertEqual('Jack', report1.reporter.name)
 
     def test_category_median(self):
-
         milk = ProductCategory.fetch('milk', self.keeper)
-        self.assertEqual(55.6, milk.get_price())
+        self.assertEqual(50.75, milk.get_price())
+
+    def test_category_median_location(self):
+        milk = ProductCategory.fetch('milk', self.keeper)
+        self.assertEqual(45.9, milk.get_price(location=u'Санкт-Петербург'))
+        self.assertEqual(55.6, milk.get_price(location=u'Москва'))
 
     def test_category_median_ignore_irrelevant(self):
-
         raw_data1 = {
             'product_title': u'Молоко Great Milk 0,5л',
             'price_value': 32.6,
@@ -319,14 +321,14 @@ class TestCalculations(unittest.TestCase):
         PriceReport.assemble(storage_manager=self.keeper, **raw_data1)
         transaction.commit()
         milk = ProductCategory.fetch('milk', self.keeper)
-        self.assertEqual(55.6, milk.get_price())
+        self.assertEqual(50.75, milk.get_price())
 
     def test_category_get_locations(self):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertIn(u'Москва', milk.get_locations())
+        self.assertIn(u'Санкт-Петербург', milk.get_locations())
 
     def test_report_assembly(self):
-
         raw_data1 = {
             'product_title': u'Молоко Great Milk 1L',
             'price_value': 42.6,
@@ -383,7 +385,7 @@ class TestCalculations(unittest.TestCase):
         # check category and products
         milk = ProductCategory.fetch('milk', self.keeper)
         sc = ProductCategory.fetch('sour cream', self.keeper)
-        self.assertEqual(5, len(milk.products))
+        self.assertEqual(6, len(milk.products))
         self.assertIn(42.6, milk.get_prices())
         product1 = Product.fetch(u'Молоко Great Milk 1L', self.keeper)
         product2 = Product.fetch(u'Молоко Great Milk 0.93 L', self.keeper)
@@ -436,7 +438,7 @@ class TestCalculations(unittest.TestCase):
     def test_representation(self):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertIn(u"55.6-Молоко Красная Цена у/паст. 3.2% 1л"
-                      u"-Howie's grocery-"
+                      u"-Московский магазин-"
                       u"Москва-Jack",
                       [unicode(r) for r in milk.get_reports()])
 
@@ -518,8 +520,8 @@ class TestCalculations(unittest.TestCase):
         self.assertEqual(0.034364261168384876,
                          cheapest_milk.get_price_delta(DAY_AGO))
         self.assertEqual(30.10, min(milk.get_prices()))
-        self.assertEqual(48.65, milk.get_price())
-        self.assertEqual(0.6718213058419242, milk.get_price_delta(DAY_AGO))
+        self.assertEqual(45.9, milk.get_price())
+        self.assertEqual(0.5773195876288658, milk.get_price_delta(DAY_AGO))
 
     def test_price_report_lifetime(self):
         milk = ProductCategory.fetch('milk', self.keeper)
@@ -533,7 +535,7 @@ class TestCalculations(unittest.TestCase):
                              date_time=MONTH_AGO,
                              storage_manager=self.keeper)
         transaction.commit()
-        self.assertEqual(55.6, milk.get_price())
+        self.assertEqual(50.75, milk.get_price())
 
         # add a valid report
         PriceReport.assemble(price_value=10.22,
@@ -544,7 +546,7 @@ class TestCalculations(unittest.TestCase):
                              date_time=HOUR_AGO,
                              storage_manager=self.keeper)
         transaction.commit()
-        self.assertEqual(48.65, milk.get_price())
+        self.assertEqual(45.9, milk.get_price())
         self.assertEqual(15.40, milk.get_price(datetime.datetime.now() -
                                                datetime.timedelta(days=25)))
         self.assertIsNone(milk.get_price(datetime.datetime.now() -
@@ -558,8 +560,8 @@ class TestCalculations(unittest.TestCase):
         product = Product.fetch(u'Молоко Farmers Milk 1L', self.keeper)
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertIsNone(product.category)
-        self.assertEqual(59.95, milk.get_price())
-        self.assertEqual(55.6, milk.get_price(cheap=True))
+        self.assertEqual(55.6, milk.get_price())
+        self.assertEqual(45.9, milk.get_price(cheap=True))
 
     def test_qualified_products(self):
         milk = ProductCategory.fetch('milk', self.keeper)
@@ -576,7 +578,7 @@ class TestCalculations(unittest.TestCase):
                                    self.keeper)
         qual_products = [p for p, pr in milk.get_qualified_products()]
         self.assertNotIn(fancy_milk, qual_products)
-        self.assertEqual(3, len(qual_products))
+        self.assertEqual(4, len(qual_products))
 
     def test_key_sanitizing(self):
         title = u'Молоко Красная Цена у/паст. 3.2% 1000г'

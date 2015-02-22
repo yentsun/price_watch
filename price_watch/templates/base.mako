@@ -24,10 +24,6 @@
           rel="stylesheet">
     <link href="${request.static_url('price_watch:static/css/theme.css')}"
           rel="stylesheet">
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="../assets/js/html5shiv.js"></script>
-    <![endif]-->
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -43,7 +39,9 @@
 <div class="container-narrow">
 
     <div class="masthead">
-
+        % if hasattr(self,'location_menu'):
+        ${self.location_menu()}
+        % endif
         <ul class="nav nav-pills pull-right">
             % for title, path, active in view.menu():
             % if active:
@@ -79,7 +77,11 @@
         </p>
     </div>
 
-</div> <!-- /container -->
+</div>
+<script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript"
+        src="${request.static_url('price_watch:static/js/bootstrap.min.js')}">
+</script>
     % if hasattr(self,'js'):
         ${self.js()}
     % endif

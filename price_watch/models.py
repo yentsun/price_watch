@@ -619,6 +619,7 @@ class ProductCategory(Entity):
     def get_prices(self, date_time=None, location=None):
         """
         Fetch last known to `date_time` prices filtering by `min_package_ratio`
+        and location
         """
         product_tuples = self.get_qualified_products(date_time, location)
         return [t[1] for t in product_tuples]

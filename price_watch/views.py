@@ -252,7 +252,7 @@ class PriceReportView(EntityView):
 class CategoryView(EntityView):
 
     @general_region.cache_on_arguments('category')
-    def served_data(self, category):
+    def served_data(self, category, location):
         """Return prepared category data"""
 
         cat_title = category.get_data('ru_accu_case')
@@ -266,11 +266,12 @@ class CategoryView(EntityView):
         datetimes = get_datetimes(self.display_days)
         for date in datetimes:
             chart_data.append([date.strftime('%d.%m'),
-                               category.get_price(date)])
+                               category.get_price(date, location=location)])
 
         products = list()
-        sorted_products = sorted(category.get_qualified_products(),
-                                 key=lambda pr: pr[1])
+        sorted_products = sorted(
+            category.get_qualified_products(location=location),
+            key=lambda pr: pr[1])
         for num, product_tuple in enumerate(sorted_products):
             try:
                 product, price = product_tuple
@@ -293,6 +294,7 @@ class CategoryView(EntityView):
         return {'price_data': json.dumps(chart_data),
                 'products': products,
                 'cat_title': cat_title,
+                'location': location,
                 'package_title': package_title,
                 'median_price': self.currency(category.get_price(), u'р.')}
 
@@ -300,7 +302,10 @@ class CategoryView(EntityView):
                  renderer='product_category.mako')
     def get(self):
         category = self.request.context
-        return self.served_data(category)
+        location = None
+        if 'location' in self.request.params:
+            location = self.request.params.getone('location')
+        return self.served_data(category, location)
 
 
 class RootView(EntityView):

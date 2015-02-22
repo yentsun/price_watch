@@ -97,21 +97,21 @@ class FunctionalTests(unittest.TestCase):
             ('url', 'http://howies.com/products/milk/4'),
             ('product_title',
              u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
-            ('merchant_title', "Howie's grocery"),
+            ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jack'),
 
             ('price_value', 45.3),
             ('url', 'http://howies.com/products/milk/5'),
             ('product_title',
              u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
-            ('merchant_title', "Howie's grocery"),
+            ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jack'),
 
             ('price_value', 67.1),
             ('url', 'http://howies.com/products/milk/6'),
             ('product_title',
              u'Волшебный Элексир Красная Цена у/паст. 1% 1л'.encode('utf-8')),
-            ('merchant_title', "Howie's grocery"),
+            ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jill'),
         ]
         res = self.testapp.post('/reports', data, status=200)
@@ -130,8 +130,8 @@ class FunctionalTests(unittest.TestCase):
                       errors)
 
         milk_page = self.testapp.get('/categories/milk', status=200)
-        self.assertIn(u'45,30', milk_page.html.find('tr', 'info').text)
-        self.assertIn(u'50,45', milk_page.html.find('div', 'cat-price').text)
+        self.assertIn(u'45,90', milk_page.html.find('tr', 'info').text)
+        self.assertIn(u'45,90', milk_page.html.find('div', 'cat-price').text)
 
         from pyramid_mailer import get_mailer
         registry = self.testapp.app.registry
@@ -203,16 +203,20 @@ class FunctionalTests(unittest.TestCase):
         self.testapp.get('/pages/test', status=404)
 
     def test_merchant_patch(self):
-        res = self.testapp.patch("/merchants/Howie's grocery",
-                                 [('title', 'Fred & Co.')], status=200)
+        res = self.testapp.patch(
+            u"/merchants/Московский магазин".encode('utf-8'),
+            [('title', 'Fred & Co.')],
+            status=200)
         self.assertEqual('Fred & Co.', res.json_body['title'])
-        self.testapp.get("/merchants/Howie's grocery", status=404)
+        self.testapp.get(
+            u"/merchants/Московский магазин".encode('utf-8'),
+            status=404)
         res = self.testapp.get("/merchants/Fred & Co.", status=200)
         self.assertEqual('Fred & Co.', res.json_body['title'])
 
     def test_merchants_get(self):
         res = self.testapp.get('/merchants', status=200)
-        self.assertIn("Howie's grocery", res.json_body)
+        self.assertIn(u"Московский магазин", res.json_body)
 
     def test_product_chart_data(self):
         data = [
@@ -268,7 +272,7 @@ class FunctionalTests(unittest.TestCase):
                                status=200)
         self.assertNotIn('59,30', res.body)
 
-    def test_region(self):
+    def test_location_at_root_view(self):
         res = self.testapp.get('/?location=Санкт-Петербург', status=200)
         self.assertIn(u'Санкт-Петербург', res.body.decode('utf-8'))
         self.assertIn('45,90', res.body.decode('utf-8'))
@@ -279,3 +283,16 @@ class FunctionalTests(unittest.TestCase):
 
         res = self.testapp.get('/', status=200)
         self.assertIn('50,75', res.body.decode('utf-8'))
+
+    def test_location_at_category_view(self):
+        res = self.testapp.get('/categories/milk?location=Санкт-Петербург',
+                               status=200)
+        self.assertIn(u'Молоко Балтика ультрапас. 3.2% 1л',
+                      res.body.decode('utf-8'))
+        self.assertNotIn(u'Молоко Farmers Milk 1L', res.body.decode('utf-8'))
+
+        res = self.testapp.get('/categories/milk?location=Москва',
+                               status=200)
+        self.assertNotIn(u'Молоко Балтика ультрапас. 3.2% 1л',
+                         res.body.decode('utf-8'))
+        self.assertIn(u'Молоко Farmers Milk 1L', res.body.decode('utf-8'))

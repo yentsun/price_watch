@@ -306,7 +306,7 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn(u'Молоко Балтика ультрапас. 3.2% 1л',
                          res.body.decode('utf-8'))
         self.assertIn(u'Молоко Farmers Milk 1L', res.body.decode('utf-8'))
-        self.assertIn(u'50,75', res.html.find('div', 'cat-price').text)        self.assertNotIn('59,30', res.body)
+        self.assertIn(u'50,75', res.html.find('div', 'cat-price').text)
 
     def test_noindex_tag(self):
         res = self.testapp.get('/')
@@ -325,22 +325,25 @@ class FunctionalTests(unittest.TestCase):
     def test_description_tag(self):
         res = self.testapp.get(u'/products/Молоко Deli '
                                u'Milk 1L'.encode('utf-8'))
-        self.assertIn(u'<meta name="description" content="Текущая цена и '
-                      u'история цен на '
-                      u'Молоко Deli Milk 1L за последний месяц">', res.text)
+        self.assertIn(u'Текущая цена и история цен на '
+                      u'Молоко Deli Milk 1L за последний месяц',
+                      res.html.find(attrs={"name": "description"})['content'])
 
         res = self.testapp.get('/', status=200)
-        self.assertIn(u'<meta name="description" content="Динамика цен на '
-                      u'продукты за последний месяц">', res.text)
+        self.assertIn(u'Динамика цен на '
+                      u'продукты за последний месяц',
+                      res.html.find(attrs={"name": "description"})['content'])
 
         res = self.testapp.get('/categories/milk')
-        self.assertIn(u'<meta name="description" content="Динамика цен на '
-                      u'молоко за последний месяц">', res.text)
+        self.assertIn(u'Динамика цен на молоко за последний месяц',
+                      res.html.find(attrs={"name": "description"})['content'])
 
         res = self.testapp.get('/reports/{}'.format(self.report_key))
         date_time = format_datetime(self.report.date_time, format='long',
                                     locale='ru')
-        self.assertIn(u'<meta name="description" content="Отчет о цене на '
-                      u'{}\nу продавца Howie&#39;s grocery за {}">'.format(
+        self.assertIn(u'\nОтчет о цене на '
+                      u'{}\nу продавца {} за {}'.format(
                           self.report.product.title,
-                          date_time), res.text)
+                          self.report.merchant.title,
+                          date_time),
+                      res.html.find(attrs={"name": "description"})['content'])

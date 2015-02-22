@@ -1,13 +1,14 @@
 <%inherit file="base.mako"/>
 <%def name="description()">
-<meta name="description" content="Текущая цена и история цен на ${req.context.title} за последний месяц">
+Текущая цена и история цен на ${req.context.title} за последний месяц
 </%def>
 <div>
     <div class="pull-right well well-sm cat-price">
         ${current_price}р.
     </div>
     <h1 id="product_heading">
-        <%block name="title">${req.context.title}</%block>
+        <%def name="title()">Цена на ${req.context.title}</%def>
+        ${req.context.title}
         <br>
         <small>цена за ${package_title}</small>
     </h1>
@@ -22,7 +23,7 @@
                   <tr>
                       <th>Дата и время отчета</th>
                       <th>Продавец</th>
-                      <th>Цена (руб.)</th>
+                      <th>Цена (руб.) / ${package_title}</th>
                   </tr>
                   </thead>
                   <tbody>

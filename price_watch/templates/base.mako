@@ -7,23 +7,20 @@
     % if hasattr(self,'noindex'):
         ${self.noindex()}
     % endif
-    <%def name="description()">
-    <meta name="description" content="Динамика цен на продукты за последний месяц">
-    </%def>
-    ${self.description()}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Max Korinets">
+    <meta name="description" content="${self.description()}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Max Korinets" />
     <link rel="shortcut icon" type="image/png"
           href="${request.static_url('price_watch:static/favicon.png')}"/>
     <!-- Le styles -->
     <link href="${request.static_url('price_watch:static/css/'
     'bootstrap.min.css')}"
-          rel="stylesheet">
+          rel="stylesheet" />
     <link href="${request.static_url('price_watch:static/css/'
     'bootstrap-responsive.min.css')}"
-          rel="stylesheet">
+          rel="stylesheet" />
     <link href="${request.static_url('price_watch:static/css/theme.css')}"
-          rel="stylesheet">
+          rel="stylesheet" />
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

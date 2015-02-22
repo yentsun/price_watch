@@ -6,6 +6,12 @@
     Цены на продукты
     % endif
 </%def>
+<%def name="description()">
+    Динамика цен на продукты за последний месяц
+    % if current_location:
+    ${current_location}
+    % endif
+</%def>
 <%def name="location_menu()">
     <%include file="partials/location_menu.mako"
               args="current_location=current_location, locations=locations,

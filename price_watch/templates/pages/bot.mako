@@ -1,5 +1,6 @@
 <%inherit file="page_base.mako"/>
 <%def name="title()">Milk Bot</%def>
+<%def name="description()">Краткое описание работы Milk Bot</%def>
 
 <p>
     Наш сервис собирает данные интернет-магазинов с помощью робота

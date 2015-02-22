@@ -1,6 +1,9 @@
 <%inherit file="base.mako"/>
 <%def name="description()">
-<meta name="description" content="Динамика цен на ${cat_title} за последний месяц">
+Динамика цен на ${cat_title} за последний месяц
+    % if current_location:
+    ${current_location}
+    % endif
 </%def>
 <%def name="location_menu()">
     <%include file="partials/location_menu.mako"
@@ -20,11 +23,6 @@
     % endif
     </%block>
     <br>
-<div class="pull-right well well-sm cat-price">
-    ${median_price}
-</div>
-<h1>
-    <%block name="title">Цены на ${cat_title}</%block><br>
     <small>${package_title}</small>
 </h1>
 
@@ -41,7 +39,7 @@
             <tr>
                 <th>№</th>
                 <th>Продукт</th>
-                <th class="price">Цена (руб.) за ${package_title}</th>
+                <th class="price">Цена (руб.) / ${package_title}</th>
             </tr>
             </thead>
             <tbody>

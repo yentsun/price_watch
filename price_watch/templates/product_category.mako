@@ -1,13 +1,28 @@
 <%inherit file="base.mako"/>
-<div class="pull-right well well-sm cat-price">
-    ${median_price}
-</div>
-<h1>
-    <%block name="title">Цены на ${cat_title}</%block><br>
+<%def name="location_menu()">
+    <%include file="partials/location_menu.mako"
+              args="current_location=current_location, locations=locations,
+                    current_path=current_path" />
+</%def>
+
+% if median_price:
+<div class="pull-right well well-sm cat-price">${median_price}</div>
+% endif
+
+<h1><%block name="title">
+    % if current_location is not None:
+    Цены на ${cat_title}, ${current_location}
+    % else:
+    Цены на ${cat_title}
+    % endif
+    </%block>
+    <br>
     <small>${package_title}</small>
 </h1>
+
 <div class="row-fluid marketing">
     <div class="span12">
+        % if len(products):
         <div id="chart_div" style="width: 700px; height: 300px;"></div>
         <div>
             Ниже представлен список продуктов, из цен на которые складывается
@@ -51,6 +66,9 @@
                 % endfor
             </tbody>
         </table>
+        % else:
+        <div class="alert alert-info">Нет данных в этой категории :(</div>
+        % endif
     </div>
 </div>
 <%def name="js()">

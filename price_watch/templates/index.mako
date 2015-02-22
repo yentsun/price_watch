@@ -1,8 +1,16 @@
 <%inherit file="base.mako"/>
-      <div>
-            <%def name="title()">Главная</%def>
-      </div>
-
+<%def name="title()">
+     % if current_location:
+    Цены на продукты, ${current_location}
+    % else:
+    Цены на продукты
+    % endif
+</%def>
+<%def name="location_menu()">
+    <%include file="partials/location_menu.mako"
+              args="current_location=current_location, locations=locations,
+                    current_path='/'" />
+</%def>
       <div class="row-fluid marketing">
           <div class="span12">
               <div id="chart_div" style="width: 700px; height: 400px;"></div>
@@ -13,7 +21,6 @@
                       <th>Категория</th>
                       <th>средняя цена</th>
                       <th>упаковка</th>
-                      <th>регионы</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -36,7 +43,6 @@
                             ${price}
                         </td>
                         <td>${package}</td>
-                        <td>${locations}</td>
                     </tr>
                   % endfor
                   </tbody>

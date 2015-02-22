@@ -290,9 +290,17 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn(u'Молоко Балтика ультрапас. 3.2% 1л',
                       res.body.decode('utf-8'))
         self.assertNotIn(u'Молоко Farmers Milk 1L', res.body.decode('utf-8'))
+        self.assertIn(u'45,90', res.html.find('div', 'cat-price').text)
 
         res = self.testapp.get('/categories/milk?location=Москва',
                                status=200)
         self.assertNotIn(u'Молоко Балтика ультрапас. 3.2% 1л',
                          res.body.decode('utf-8'))
         self.assertIn(u'Молоко Farmers Milk 1L', res.body.decode('utf-8'))
+        self.assertIn(u'55,60', res.html.find('div', 'cat-price').text)
+
+        res = self.testapp.get('/categories/milk', status=200)
+        self.assertIn(u'Молоко Балтика ультрапас. 3.2% 1л',
+                         res.body.decode('utf-8'))
+        self.assertIn(u'Молоко Farmers Milk 1L', res.body.decode('utf-8'))
+        self.assertIn(u'50,75', res.html.find('div', 'cat-price').text)

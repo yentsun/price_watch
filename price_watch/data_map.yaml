@@ -50,6 +50,7 @@ ProductPackage:
       - 900мл
       - 900 мл
       - 0,9л
+      - 900 МЛ
   0.85 l:
     synonyms:
       - 0,85л
@@ -61,6 +62,7 @@ ProductPackage:
       - 810мл
       - 810 мл
       - 0,81 л
+      - 0.81л
   0.75 l:
     synonyms:
       - 0,75л

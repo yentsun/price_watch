@@ -358,7 +358,8 @@ class RootView(EntityView):
                 query = {'location': location} if location else None
                 url = self.request.resource_path(category, query=query)
                 title = category.get_data('keyword').split(', ')[0]
-                delta = int(category.get_price_delta(self.delta_period)*100)
+                delta = int(category.get_price_delta(self.delta_period,
+                                                     location=location)*100)
                 package_key = category.get_data('normal_package')
                 package_title = ProductPackage(
                     package_key).get_data('synonyms')[0]

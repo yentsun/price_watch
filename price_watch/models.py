@@ -643,10 +643,10 @@ class ProductCategory(Entity):
                 return round(numpy.median(prices), 2)
         return None
 
-    def get_price_delta(self, date_time, relative=True):
+    def get_price_delta(self, date_time, relative=True, location=None):
 
-        base_price = self.get_price(date_time)
-        current_price = self.get_price()
+        base_price = self.get_price(date_time, location=location)
+        current_price = self.get_price(location=location)
         return get_delta(base_price, current_price, relative)
 
     def get_locations(self):

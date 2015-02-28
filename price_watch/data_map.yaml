@@ -285,6 +285,7 @@ ProductCategory:
                   title: sunflower oil
                   keyword: масло подсолнечное, микс подсолнечного и оливкового, масло подcолнечное,
                   normal_package: 1 l
+                  min_package_ratio: 0.75
             sugar:
               title: sugar
               keyword: сахар
@@ -303,6 +304,7 @@ ProductCategory:
                 rice:
                   title: rice
                   keyword: рис
+                  stopword: черный, чёрный, смесь
                   normal_package: 1 kg
                   min_package_ratio: 0.8
                 buckwheat:

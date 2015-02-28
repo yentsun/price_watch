@@ -193,7 +193,7 @@ class TestBasicLogic(unittest.TestCase):
         self.assertEqual('0.5 l', product6.get_package().title)
 
         sour_cream025 = Product(u'Сметана Углече Поле органическая 15%, 250г')
-        key = sour_cream025.get_category_key()
+        key = sour_cream025.get_category_title()
         sour_cream = ProductCategory(key)
         self.assertEqual('0.25 kg', sour_cream025.get_package_key())
         self.assertEqual(0.625,
@@ -234,46 +234,46 @@ class TestBasicLogic(unittest.TestCase):
 
         product_title = u'Сметана Углече Поле органическая 15%, 250г'
         product = Product(product_title)
-        self.assertEqual('sour cream', product.get_category_key())
+        self.assertEqual('sour cream', product.get_category_title())
 
         product2_title = u'Молоко Тема питьевое ультрапастеризованное ' \
                          u'для детей с 8 месяцев 3,2%, 200г'
-        self.assertEqual('milk', Product(product2_title).get_category_key())
+        self.assertEqual('milk', Product(product2_title).get_category_title())
 
         product2_title = u'Молоко топленое МОЖАЙСКОЕ стерилизованное, ' \
                          u'1,5% 0,45л'
         self.assertRaises(CategoryLookupError,
-                          Product(product2_title).get_category_key)
+                          Product(product2_title).get_category_title)
         product2_1_title = u'Молоко козье МОЖАЙСКОЕ стерилизованное, ' \
                            u'1,5% 0,45л'
         self.assertRaises(CategoryLookupError,
-                          Product(product2_1_title).get_category_key)
+                          Product(product2_1_title).get_category_title)
 
         product3_title = u'Яйцо Окское куриное С0 белое десяток'
         self.assertEqual('chicken egg',
-                         Product(product3_title).get_category_key())
+                         Product(product3_title).get_category_title())
 
         product4_title = u'Яйцо динозавриное столовое, 20шт'
         self.assertRaises(CategoryLookupError,
-                          Product(product4_title).get_category_key)
+                          Product(product4_title).get_category_title)
 
         batat_title = u'Картофель батат, 1,9-2,1кг'
         self.assertRaises(CategoryLookupError,
-                          Product(batat_title).get_category_key)
+                          Product(batat_title).get_category_title)
 
         brown_sugar = u'"Сахар Мистраль Демерара тростниковый ' \
                       u'нерафинированный, 1кг"'
         self.assertRaises(CategoryLookupError,
-                          Product(brown_sugar).get_category_key)
+                          Product(brown_sugar).get_category_title)
 
         buckwheat = u'Крупа Мистраль гречневая "Зеленая", 450г'
-        self.assertEqual('buckwheat', Product(buckwheat).get_category_key())
+        self.assertEqual('buckwheat', Product(buckwheat).get_category_title())
 
         buckwheat2 = u'Греча Ярмарка Ядрица, 800г'
-        self.assertEqual('buckwheat', Product(buckwheat2).get_category_key())
+        self.assertEqual('buckwheat', Product(buckwheat2).get_category_title())
 
         spaghetti = u'Спагетти Макфа 950г'
-        self.assertEqual('pasta', Product(spaghetti).get_category_key())
+        self.assertEqual('pasta', Product(spaghetti).get_category_title())
 
     def tearDown(self):
         self.keeper.close()
@@ -574,8 +574,7 @@ class TestCalculations(unittest.TestCase):
                              storage_manager=self.keeper)
         transaction.commit()
 
-        fancy_milk = Product.fetch(u'Молоко The Luxury Milk!!! 0,5л',
-                                   self.keeper)
+        fancy_milk = Product.fetch(fancy_milk_title, self.keeper)
         qual_products = [p for p, pr in milk.get_qualified_products()]
         self.assertNotIn(fancy_milk, qual_products)
         self.assertEqual(4, len(qual_products))

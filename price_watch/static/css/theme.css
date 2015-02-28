@@ -44,8 +44,25 @@ body {
     margin-top: 28px;
 }
 
-.cat-price{
-    font-size: 250%
+.cat_price{
+    font-size: 250%;
+    text-align: right;
+    line-height: .7em;
+    border-bottom: 1px solid lightgray;
+    font-weight: bold;
+    margin-left: 1em;
+}
+.cat_price .fa{
+    color: gray;
+    font-size: 80%;
+}
+.package_title{
+    border-top: 1px solid lightgray;
+    font-size: 50%;
+    font-weight: normal;
+    color: gray;
+    display: block;
+    margin-top: .3em;
 }
 
 th.price{

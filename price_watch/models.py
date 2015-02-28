@@ -401,7 +401,7 @@ class PriceReport(Entity):
             product = Product(product_title)
 
             # early get critical info or raise exceptions
-            category_key = product.get_category_key()
+            category_key = product.get_category_title()
             package_key = product.get_package_key()
 
             # category
@@ -758,7 +758,7 @@ class Product(Entity):
             key = self.get_package_key()
             return ProductPackage(key)
 
-    def get_category_key(self):
+    def get_category_title(self):
         """
         Get category key from the product's title by looking up keywords
         in `data_map.yaml`

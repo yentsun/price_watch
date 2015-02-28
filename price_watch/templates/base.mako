@@ -10,6 +10,7 @@
     <meta name="description" content="${self.description()}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Max Korinets" />
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="shortcut icon" type="image/png"
           href="${request.static_url('price_watch:static/favicon.png')}"/>
     <!-- Le styles -->

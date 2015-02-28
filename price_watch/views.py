@@ -153,6 +153,8 @@ class ProductView(EntityView):
         current_price = product.get_price()
         if current_price:
             data['current_price'] = self.currency(current_price)
+            data['product_delta'] = int(product.get_price_delta(
+                self.delta_period)*100)
             data['last_report_url'] = None
         else:
             data['current_price'] = None
@@ -269,6 +271,8 @@ class CategoryView(EntityView):
 
         cat_title = category.get_data('ru_accu_case')
         median_price = category.get_price(location=location)
+        category_delta = int(category.get_price_delta(self.delta_period,
+                                                      location=location)*100)
         if not cat_title:
             cat_title = category.get_data('keyword').split(', ')[0]
 
@@ -313,7 +317,8 @@ class CategoryView(EntityView):
                 'locations': locations,
                 'current_path': current_path,
                 'package_title': package_title,
-                'median_price': self.currency(median_price, u'р.')
+                'median_price': self.currency(median_price),
+                'category_delta': category_delta
                 if median_price else None}
 
     @view_config(request_method='GET',

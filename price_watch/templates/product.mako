@@ -2,17 +2,23 @@
 <%def name="description()">
 Текущая цена и история цен на ${req.context.title} за последний месяц
 </%def>
-<div>
-    <div class="pull-right well well-sm cat-price">
-        ${current_price}р.
-    </div>
-    <h1 id="product_heading">
-        <%def name="title()">Цена на ${req.context.title}</%def>
-        ${req.context.title}
-        <br>
-        <small>цена за ${package_title}</small>
-    </h1>
+<div class="pull-right well well-sm cat_price">
+    % if product_delta > 0:
+        <span title="+${product_delta}%"
+              class="fa fa-arrow-up"
+              style="color:red"></span>
+    % elif product_delta < 0:
+        <span title="${product_delta}%"
+              class="fa fa-arrow-down"
+              style="color:green"></span>
+    % endif
+    ${current_price}<i class="fa fa-rub"></i><br>
+    <small class="package_title">за ${package_title}</small>
 </div>
+<h1 id="product_heading">
+    <%def name="title()">Цена на ${req.context.title}</%def>
+    ${req.context.title}
+</h1>
 
       <div class="row-fluid marketing">
           <div class="span12">
@@ -23,7 +29,7 @@
                   <tr>
                       <th>Дата и время отчета</th>
                       <th>Продавец</th>
-                      <th>Цена (руб.) / ${package_title}</th>
+                      <th>Цена <i class="fa fa-rub"></i> / ${package_title}</th>
                   </tr>
                   </thead>
                   <tbody>

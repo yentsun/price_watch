@@ -80,12 +80,25 @@ ProductPackage:
     synonyms:
       - 0,45л
       - 0,45 л
+      - 450 мл
   0.2 l:
     synonyms:
       - 0,2л
       - 0,2 л
       - 200мл
       - 200 мл
+  50 kg:
+    synonyms:
+      - 50кг
+      - 50 кг
+  25 kg:
+    synonyms:
+      - 25кг
+      - 25 кг
+  10 kg:
+    synonyms:
+      - 10кг
+      - 10 кг
   5 kg:
     synonyms:
       - 5кг
@@ -106,6 +119,7 @@ ProductPackage:
     synonyms:
       - 2,5 кг
       - 2,5кг
+      - 2,5-2,8кг
   2.1 kg:
     synonyms:
       - 1,9-2,1кг
@@ -113,6 +127,11 @@ ProductPackage:
     synonyms:
       - 2кг
       - 2,0кг
+  1.5 kg:
+    synonyms:
+      - 1,5кг
+      - 1500г
+      - 1,5-2,0кг
   1.45 kg:
     synonyms:
       - 1450г
@@ -123,6 +142,9 @@ ProductPackage:
       - 1 кг
       - 1000г
       - 1000 г
+      - 1kg
+      - 1 kg
+      - 0,9-1,15кг
   0.95 kg:
     synonyms:
       - 950г
@@ -138,15 +160,34 @@ ProductPackage:
   0.8 kg:
     synonyms:
       - 800г
+      - 800 г
+      - 800-850г
+      - 8*100г
+      - 800-850 г
+      - 8х100г
   0.7 kg:
     synonyms:
       - 700г
+      - 0,6-0,8кг
   0.75 kg:
     synonyms:
       - 750г
+      - 750 г
+  0.73 kg:
+    synonyms:
+      - 730г
+      - 730 г
+  0.68 kg:
+    synonyms:
+      - 680 г
+      - 680г
+      - 680-700г
   0.65 kg:
     synonyms:
       - 0,65кг
+      - 0,65 кг
+      - 650г
+      - 650 г
   0.6 kg:
     synonyms:
       - 600 г
@@ -160,32 +201,61 @@ ProductPackage:
       - 500 г
       - 0,5кг
       - 5*100г
+      - 5х100г
       - 100гх5
+      - 500g
+      - 500 g
+  0.475 kg:
+    synonyms:
+      - 475г
   0.47 kg:
     synonyms:
       - 470г
   0.45 kg:
     synonyms:
       - 450г
+      - 450 г
       - 450g
       - 0,45кг
+      - 0,45 кг
   0.4 kg:
     synonyms:
       - 400г
+      - 400 г
       - 5*80г
+      - 400-450г
+      - 4*100г
   0.38 kg:
     synonyms:
       - 380г
+      - 380 г
   0.372 kg:
     synonyms:
       - 372г
+      - 372 г
+  0.365 kg:
+    synonyms:
+      - 365г
+      - 365 г
   0.35 kg:
     synonyms:
       - 350г
       - 350 г
+      - 350Г
+      - 330-400г
+  0.34 kg:
+    synonyms:
+      - 340г
+      - 340 г
+      - 340гр
+      - 340 гр
   0.33 kg:
     synonyms:
       - 330г
+      - 330 г
+      - 0,33кг
+      - 0,33 кг
+      - 200-450г
   0.32 kg:
     synonyms:
       - 320г
@@ -213,6 +283,9 @@ ProductPackage:
   0.22 kg:
     synonyms:
       - 220г
+  0.21 kg:
+    synonyms:
+      - 210г
   0.2 kg:
     synonyms:
       - 200г
@@ -221,15 +294,42 @@ ProductPackage:
   0.18 kg:
     synonyms:
       - 180г
+      - 180 г
   0.175 kg:
     synonyms:
       - 175г
+      - 175 г
   0.15 kg:
     synonyms:
       - 150г
+      - 150 г
+  0.13 kg:
+    synonyms:
+      - 130г
+      - 130 г
+  0.12 kg:
+    synonyms:
+      - 120гр
+      - 120г
+      - 120 г
+  0.11 kg:
+    synonyms:
+      - 110гр
+      - 110г
+      - 110 г
+  0.1 kg:
+    synonyms:
+      - 100гр
+      - 100г
+      - 100 г
   0.075 kg:
     synonyms:
       - 75г
+      - 75 г
+  0.06 kg:
+    synonyms:
+      - 60г
+      - 60 г
   30 pcs:
     synonyms:
       - 30шт
@@ -241,6 +341,7 @@ ProductPackage:
       - десяток
       - 10шт
       - 10 шт
+      - 10 ШТ
   6 pcs:
     synonyms:
       - 6шт
@@ -268,8 +369,16 @@ ProductCategory:
               normal_package: 0.4 kg
             chicken egg:
               title: chicken egg
-              keyword: яйцо куриное, яйца куриные
+              keyword: яйцо, яйцо куриное, яйца куриные
+              stopword: перепелиное, перепелиные
               normal_package: 10 pcs
+            cheese:
+              title: cheese
+              sub:
+                hard cheese:
+                  title: hard cheese
+                  keyword: твердый сыр, твёрдый сыр
+                  normal_package: 0.4 kg
         grocery:
           title: grocery
           sub:
@@ -298,6 +407,16 @@ ProductCategory:
               stopword: морская водорослевая, фасоль, розовая
               normal_package: 1 kg
               min_package_ratio: 0.5
+            flours:
+              title: flours
+              sub:
+                wheat flour:
+                  title: wheat flour
+                  keyword: мука пшеничная
+                  ru_accu_case: муку пшеничную
+                  stopword: для пиццы, итальянская
+                  normal_package: 1 kg
+                  min_package_ratio: 0.8
             cereals:
               title: cereals
               sub:
@@ -327,13 +446,30 @@ ProductCategory:
           sub:
             tuna:
               title: tuna
+        fruits:
+          title: fruits
+          sub:
+            orange:
+              title: orange
+              keyword: апельсины, апельсин
+              normal_package: 1 kg
         vegetables:
           title: vegetables
           sub:
+            tomato:
+              title: tomato
+              keyword: помидоры, томаты, томат
+              normal_package: 1 kg
+              min_package_ratio: 1
             potato:
               title: potato
               keyword: картофель
               stopword: батат
+              normal_package: 1 kg
+              min_package_ratio: 1
+            pumpkin:
+              title: pumpkin
+              keyword: тыква
               normal_package: 1 kg
               min_package_ratio: 1
     home:

@@ -1,6 +1,6 @@
 <%inherit file="base.mako"/>
 <%def name="description()">
-Текущая цена и история цен на ${req.context.title} за последний месяц
+    Текущая цена и история цен на ${req.context.title} за последний месяц
 </%def>
 <div class="pull-right well well-sm cat_price">
     % if product_delta > 0:
@@ -20,38 +20,37 @@
     ${req.context.title}
 </h1>
 
-      <div class="row-fluid marketing">
-          <div class="span12">
-              % if len(reports):
-              <div id="chart_div" style="width: 700px; height: 300px;"></div>
-              <table class="table">
-                  <thead>
-                  <tr>
-                      <th>Дата и время отчета</th>
-                      <th>Продавец</th>
-                      <th>Цена <i class="fa fa-rub"></i> / ${package_title}</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  % for url, date, merchant, location, price in reports:
-                    <tr>
-                        <td>
-                            <a href="${url}">${date}</a>
-                        </td>
-                        <td>${merchant} (${location})</td>
-                        <td>${price}</td>
-                    </tr>
-                  % endfor
-                  </tbody>
-              </table>
-              % else:
-              <div class="alert alert-warning">
-                  По этому продукту отчеты не поступали длительное время.
-                  <a href="${last_report_url}">Последний отчет</a>
-              </div>
-              % endif
-        </div>
-      </div>
+<div class="row-fluid marketing">
+    <div class="span12">
+        % if len(reports):
+            <div id="chart_div" style="width: 700px; height: 300px;"></div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Дата и время отчета</th>
+                    <th>Продавец</th>
+                    <th>Цена <i class="fa fa-rub"></i> / ${package_title}</th>
+                </tr>
+                </thead>
+                <tbody>
+                    % for url, date, merchant, location, price in reports:
+                        <tr>
+                            <td>
+                                <a href="${url}">${date}</a>
+                            </td>
+                            <td>${merchant} (${location})</td>
+                            <td>${price}</td>
+                        </tr>
+                    % endfor
+                </tbody>
+            </table>
+        % else:
+            <div class="alert alert-warning">
+                По этому продукту отчеты не поступали длительное время.
+                <a href="${last_report_url}">Последний отчет</a>
+            </div>
+        % endif
+    </div>
 </div>
 <%def name="js()">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -61,7 +60,7 @@
         function drawChart() {
             var headers = [['Дата', 'Цена, руб.']];
             var data = google.visualization.arrayToDataTable(
-                headers.concat(${chart_data|n})
+                    headers.concat(${chart_data|n})
             );
             var options = {
                 title: 'Динамика цены за месяц ',

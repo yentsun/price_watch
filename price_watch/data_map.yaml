@@ -370,7 +370,7 @@ ProductCategory:
             chicken egg:
               title: chicken egg
               keyword: яйцо, яйцо куриное, яйца куриные
-              stopword: перепелиное, перепелиные
+              stopword: перепелиное, перепелиные, динозавриное
               normal_package: 10 pcs
             cheese:
               title: cheese

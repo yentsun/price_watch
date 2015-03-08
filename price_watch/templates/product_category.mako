@@ -29,9 +29,9 @@
 
 <h1><%block name="title">
     % if current_location is not None:
-    Цены на ${cat_title}, ${current_location}
+    Цены на ${cat_title}, ${current_location} за ${package_title}
     % else:
-    Цены на ${cat_title}
+    Цены на ${cat_title} за ${package_title}
     % endif
     </%block>
 </h1>

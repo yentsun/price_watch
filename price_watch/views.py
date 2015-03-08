@@ -337,7 +337,8 @@ class CategoryView(EntityView):
 class RootView(EntityView):
     """General root views"""
     CHART_EXCLUDE_LIST = ['sour cream', 'salt', 'chicken egg',
-                          'bread', 'sugar']
+                          'bread', 'sugar', 'hard cheese', 'tomato', 'pumpkin',
+                          'orange']
 
     @general_region.cache_on_arguments('index')
     def served_data(self, location):

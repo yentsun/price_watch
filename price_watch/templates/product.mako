@@ -1,4 +1,5 @@
 <%inherit file="base.mako"/>
+<%def name="title()">Цена на ${req.context.title}</%def>
 <%def name="description()">
     Текущая цена и история цен на ${req.context.title} за последний месяц
 </%def>
@@ -15,12 +16,15 @@
     ${current_price}<i class="fa fa-rub"></i><br>
     <small class="package_title">за ${package_title}</small>
 </div>
-<h1 id="product_heading">
-    <%def name="title()">Цена на ${req.context.title}</%def>
+<div itemscope itemtype="http://www.data-vocabulary.org/Product">
+<a itemprop="category" id="product_category" href="${category_url}"
+   title="категория">
+    ${category_name}
+</a>
+<h1 itemprop="name" id="product_heading">
     ${req.context.title}
 </h1>
-
-<div class="row-fluid marketing">
+<div class="row-fluid marketing" itemprop="offers">
     <div class="span12">
         % if len(reports):
             <div id="chart_div" style="width: 700px; height: 300px;"></div>
@@ -29,17 +33,24 @@
                 <tr>
                     <th>Дата и время отчета</th>
                     <th>Продавец</th>
-                    <th>Цена <i class="fa fa-rub"></i> / ${package_title}</th>
+                    <th>Цена / ${package_title}</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
                     % for url, date, merchant, location, price in reports:
-                        <tr>
+                        <tr itemscope
+                            itemtype="http://www.data-vocabulary.org/Offer">
                             <td>
-                                <a href="${url}">${date}</a>
+                                <a itemprop="priceValidUntil"
+                                   href="${url}">${date}</a>
                             </td>
-                            <td>${merchant} (${location})</td>
-                            <td>${price}</td>
+                            <td itemprop="seller">${merchant} (${location})</td>
+                            <td><span itemprop="price">${price}</span>
+                            <i class="fa fa-rub"></i>
+                            <span class="currency_iso"
+                                  itemprop="currency">RUB</span>
+                            </td>
                         </tr>
                     % endfor
                 </tbody>
@@ -51,6 +62,7 @@
             </div>
         % endif
     </div>
+</div>
 </div>
 <%def name="js()">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>

@@ -169,6 +169,9 @@ class ProductView(EntityView):
         data['reports'] = list()
 
         package_key = product.category.get_data('normal_package')
+        data['category_name'] = \
+            product.category.get_data('keyword').split(', ')[0]
+        data['category_url'] = self.request.resource_url(product.category)
         data['package_title'] = ProductPackage(
             package_key).get_data('synonyms')[0]
 

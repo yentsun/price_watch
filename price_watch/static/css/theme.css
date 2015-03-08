@@ -115,10 +115,17 @@ h3{
 }
 #product_heading{
     width: 75%;
+    margin-top: .1em;
+}
+#product_category{
+    color: gray;
 }
 .footer_separator {
     border: 1px solid lightgray;
 }
 .footer {
     margin-top: 3em;
+}
+.currency_iso{
+    display: none;
 }

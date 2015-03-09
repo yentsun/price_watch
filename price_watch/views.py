@@ -157,7 +157,9 @@ class ProductView(EntityView):
                 self.delta_period)*100)
             data['last_report_url'] = None
         else:
-            data['current_price'] = None
+            data['product_delta'] = 0
+            data['current_price'] = \
+                self.currency(product.get_last_reported_price())
             data['last_report_url'] = self.request.resource_url(
                 self.context.get_last_report())
         data['chart_data'] = list()

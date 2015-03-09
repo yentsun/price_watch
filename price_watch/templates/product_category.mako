@@ -1,4 +1,8 @@
 <%inherit file="base.mako"/>
+<%def name="location_suffix()">${', '+current_location if current_location else ''}</%def>
+<%def name="title()">
+    Цены на ${cat_title} за ${package_title}${location_suffix()}
+    </%def>
 <%def name="description()">
 Динамика цен на ${cat_title} за последний месяц
     % if current_location:
@@ -27,13 +31,8 @@
     </div>
 % endif
 
-<h1><%block name="title">
-    % if current_location is not None:
-    Цены на ${cat_title}, ${current_location} за ${package_title}
-    % else:
-    Цены на ${cat_title} за ${package_title}
-    % endif
-    </%block>
+<h1>
+    Цены на ${cat_title}${location_suffix()}
 </h1>
 
 <div class="row-fluid marketing">

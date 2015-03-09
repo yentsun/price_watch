@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="${req.locale_name}">
+<%def name="project_title()">food-price.net</%def>
 <head>
-    <%def name="project_title()">food-price.net</%def>
     <title>${self.title()} - ${project_title()}</title>
     <meta charset="utf-8">
     % if hasattr(self,'noindex'):

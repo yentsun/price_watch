@@ -147,35 +147,31 @@ class PagesView(EntityView):
 class ProductView(EntityView):
 
     @general_region.cache_on_arguments('product')
-    def served_data(self, product):
+    def serve_data(self, product):
         """Return prepared product data"""
-        data = dict()
         current_price = product.get_price()
         if current_price:
-            data['current_price'] = self.currency(current_price)
-            data['product_delta'] = int(product.get_price_delta(
+            current_price = self.currency(current_price)
+            product_delta = int(product.get_price_delta(
                 self.delta_period)*100)
-            data['last_report_url'] = None
+            last_report_url = None
         else:
-            data['product_delta'] = 0
-            data['current_price'] = \
+            product_delta = 0
+            current_price = \
                 self.currency(product.get_last_reported_price())
-            data['last_report_url'] = self.request.resource_url(
+            last_report_url = self.request.resource_url(
                 self.context.get_last_report())
-        data['chart_data'] = list()
         datetimes = get_datetimes(self.display_days)
+        chart_data = list()
         for date in datetimes:
-            data['chart_data'].append([date.strftime('%d.%m'),
-                                      product.get_price(date)])
-        data['chart_data'] = json.dumps(data['chart_data'])
-        data['reports'] = list()
-
+            chart_data.append([date.strftime('%d.%m'),
+                               product.get_price(date)])
+        chart_data = json.dumps(chart_data)
         package_key = product.category.get_data('normal_package')
-        data['category_name'] = \
-            product.category.get_data('keyword').split(', ')[0]
-        data['category_url'] = self.request.resource_url(product.category)
-        data['package_title'] = ProductPackage(
-            package_key).get_data('synonyms')[0]
+        category_name = product.category.get_data('keyword').split(', ')[0]
+        category_url = self.request.resource_url(product.category)
+        package_title = ProductPackage(package_key).get_data('synonyms')[0]
+        reports = list()
 
         for report in sorted(product.get_reports(
                 from_date_time=self.delta_period),
@@ -186,12 +182,22 @@ class ProductView(EntityView):
             merchant = report.merchant.title
             location = report.merchant.location
             price = self.currency(report.normalized_price_value)
-            data['reports'].append((url, date, merchant, location, price))
-        return data
+            reports.append((url, date, merchant, location, price))
+
+        return {
+            'current_price': current_price,
+            'product_delta': product_delta,
+            'last_report_url': last_report_url,
+            'chart_data': chart_data,
+            'reports': reports,
+            'category_name': category_name,
+            'category_url': category_url,
+            'package_title': package_title
+        }
 
     @view_config(renderer='product.mako', request_method='GET')
     def get(self):
-        return self.served_data(self.context)
+        return self.serve_data(self.context)
 
 
 @view_defaults(custom_predicates=(namespace_predicate(PriceReport),))
@@ -271,7 +277,7 @@ class PriceReportView(EntityView):
 class CategoryView(EntityView):
 
     @general_region.cache_on_arguments('category')
-    def served_data(self, category, location):
+    def serve_data(self, category, location):
         """Return prepared category data"""
 
         cat_title = category.get_data('ru_accu_case')
@@ -323,8 +329,7 @@ class CategoryView(EntityView):
                 'current_path': current_path,
                 'package_title': package_title,
                 'median_price': self.currency(median_price),
-                'category_delta': category_delta
-                if median_price else None}
+                'category_delta': category_delta if median_price else None}
 
     @view_config(request_method='GET',
                  renderer='product_category.mako')
@@ -333,7 +338,7 @@ class CategoryView(EntityView):
         location = None
         if 'location' in self.request.params:
             location = self.request.params.getone('location')
-        return self.served_data(category, location)
+        return self.serve_data(category, location)
 
 
 class RootView(EntityView):

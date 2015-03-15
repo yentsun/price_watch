@@ -3,6 +3,7 @@
 <%def name="description()">
     Текущая цена и история цен на ${req.context.title} за последний месяц
 </%def>
+<div itemscope itemtype="http://www.data-vocabulary.org/Product">
 <div class="pull-right well well-sm cat_price">
     % if product_delta > 0:
         <span title="+${product_delta}%"
@@ -13,10 +14,9 @@
               class="fa fa-arrow-down"
               style="color:green"></span>
     % endif
-    ${current_price}<i class="fa fa-rub"></i><br>
+    <span>${current_price}</span><i class="fa fa-rub"></i><br>
     <small class="package_title">за ${package_title}</small>
 </div>
-<div itemscope itemtype="http://www.data-vocabulary.org/Product">
 <a itemprop="category" id="product_category" href="${category_url}"
    title="категория">
     ${category_name}

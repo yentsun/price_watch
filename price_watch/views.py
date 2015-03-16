@@ -400,3 +400,48 @@ class RootView(EntityView):
         if 'location' in self.request.params:
             location = self.request.params.getone('location')
         return self.served_data(location)
+
+    @general_region.cache_on_arguments('sitemap')
+    def serve_sitemap_data(self):
+        url_tuples = list()
+
+        # index
+        loc = self.request.resource_url(self.root)
+        priority = 1.0
+        url_tuples.append((loc, priority))
+
+        # pages
+        pages = self.root['pages'].values()
+        for page in pages:
+            loc = self.request.resource_url(page)
+            priority = 1.0
+            url_tuples.append((loc, priority))
+
+        # categories
+        categories = self.root['categories'].values()
+        for category in categories:
+            loc = self.request.resource_url(category)
+            priority = 1.0
+            url_tuples.append((loc, priority))
+            locations = category.get_locations()
+            for location in locations:
+                query = {'location': location}
+                loc = self.request.resource_url(category, query=query)
+                priority = 0.8
+                url_tuples.append((loc, priority))
+
+        # products
+        products = self.root['products'].values()
+        for product in products:
+            loc = self.request.resource_url(product)
+            priority = 0.5
+            url_tuples.append((loc, priority))
+
+        return {'url_tuples': url_tuples}
+
+    @view_config(request_method='GET', renderer='sitemap.mako',
+                 name='sitemap.xml')
+    def sitemap(self):
+        """Serve sitemap.xml"""
+        self.request.response.content_type = 'text/xml'
+        return self.serve_sitemap_data()

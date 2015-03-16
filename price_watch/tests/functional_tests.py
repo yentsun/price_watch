@@ -347,3 +347,15 @@ class FunctionalTests(unittest.TestCase):
                           self.report.merchant.title,
                           date_time),
                       res.html.find(attrs={"name": "description"})['content'])
+
+    def test_sitemap(self):
+        res = self.testapp.get('/sitemap.xml'.encode('utf-8'))
+        self.assertIn('urlset', res.xml.tag)
+        self.assertEqual(12, len(res.xml))
+        self.assertIn('http://localhost/pages/about/', res.text)
+        self.assertIn('http://localhost/products/%D0%9C%D0%BE%D0%BB%D0%BE%D0%'
+                      'BA%D0%BE%20Deli%20Milk%201L/', res.text)
+        self.assertIn('http://localhost/categories/milk/', res.text)
+        self.assertIn('http://localhost/categories/milk/?location=%D0%A1%D0%'
+                      'B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%'
+                      '80%D0%B1%D1%83%D1%80%D0%B3', res.text)

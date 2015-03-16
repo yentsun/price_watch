@@ -139,6 +139,8 @@ class CategoryLookupError(Exception):
 class StorageManager(object):
     """Persistence tool for entity instances."""
 
+    __name__ = None
+
     def __init__(self, path=None, zodb_storage=None, connection=None):
         if all([path, zodb_storage, connection]) is False:
             zodb_storage = MappingStorage('test')

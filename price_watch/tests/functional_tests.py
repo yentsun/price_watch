@@ -142,7 +142,7 @@ class FunctionalTests(unittest.TestCase):
 
         self.assertEqual(len(mailer.outbox), 1)
         self.assertEqual(mailer.outbox[0].subject,
-                         u'Price Watch: новые данные')
+                         u'Price Watch: отчеты от Jill, Jack')
         self.assertIn(u'Category lookup failed for product '
                       u'&#34;Волшебный Элексир Красная Цена у/паст. 1% 1л&#34;',
                       mailer.outbox[0].html)

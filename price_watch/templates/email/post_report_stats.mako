@@ -1,5 +1,5 @@
 <h2>Прислано отчетов: ${counts['total']}</h2>
-<p>Авторы: ${', '.join(reporters)}</p>
+<p>Авторы: ${reporters}</p>
 <h3>Добавлено в базу</h3>
 <table>
     <tbody>

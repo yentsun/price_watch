@@ -173,7 +173,7 @@ class TestBasicLogic(unittest.TestCase):
         self.assertIn(product, merchant)
         self.assertIn(merchant, product.merchants)
 
-    def test_package_lookup(self):
+    def test_get_package_key(self):
 
         milk = ProductCategory('milk')
         product = Product(u'Молоко Веселый молочник 1л', category=milk)
@@ -208,6 +208,9 @@ class TestBasicLogic(unittest.TestCase):
                          Product(product4_title).get_package().get_ratio(egg))
         product6 = Product(u'Спагетти PASTA ZARA №4,500г')
         self.assertEqual('0.5 kg', product6.get_package_key())
+
+        product7 = Product(u'Молоко Пармалат 3.5% стерил.1л')
+        self.assertEqual('1 l', product7.get_package_key())
 
     def test_traverse_yaml(self):
 

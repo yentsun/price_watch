@@ -748,7 +748,8 @@ class Product(Entity):
                                key=lambda key: len(key), reverse=True):
             for synonym in package_data[pack_key]['synonyms']:
                 if (u' {}'.format(synonym) in self.title or
-                        u',{}'.format(synonym) in self.title):
+                        u',{}'.format(synonym) in self.title or
+                        u'.{}'.format(synonym) in self.title):
                     return pack_key
         raise PackageLookupError(self)
 

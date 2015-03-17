@@ -407,7 +407,7 @@ ProductCategory:
               sub:
                 sunflower oil:
                   title: sunflower oil
-                  keyword: масло подсолнечное, микс подсолнечного и оливкового, масло подcолнечное,
+                  keyword: масло подсолнечное, микс подсолнечного и оливкового, масло подcолнечное, масло подсол.
                   normal_package: 1 l
                   min_package_ratio: 0.75
             sugar:
@@ -427,7 +427,7 @@ ProductCategory:
               sub:
                 wheat flour:
                   title: wheat flour
-                  keyword: мука пшеничная
+                  keyword: мука пшеничная, мука пшен.
                   ru_accu_case: муку пшеничную
                   stopword: для пиццы, итальянская
                   normal_package: 1 kg

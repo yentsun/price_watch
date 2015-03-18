@@ -5,8 +5,6 @@ from setuptools import setup, find_packages
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst')) as f:
     README = f.read()
-with open(os.path.join(here, 'CHANGES.txt')) as f:
-    CHANGES = f.read()
 with open(os.path.join(here, 'VERSION.txt')) as f:
     VERSION = f.read().strip()
 
@@ -33,7 +31,7 @@ requires = [
 setup(name='price_watch',
       version=VERSION,
       description='price_watch',
-      long_description=README + '\n\n' + CHANGES,
+      long_description=README,
       classifiers=[
           "Programming Language :: Python",
           "Framework :: Pyramid",

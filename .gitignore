@@ -1,8 +1,8 @@
 .idea
-*.pyc
-*.log
 storage
 price_watch.egg-info
 cache
 dist
+*.pyc
+*.log
 VERSION.txt

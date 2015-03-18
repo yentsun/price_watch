@@ -141,11 +141,15 @@ ProductPackage:
   2 kg:
     synonyms:
       - 2кг
+      - 2 кг
       - 2,0кг
+      - 2,0 кг
   1.5 kg:
     synonyms:
       - 1,5кг
+      - 1,5 кг
       - 1500г
+      - 1500 г
       - 1,5-2,0кг
   1.45 kg:
     synonyms:
@@ -348,15 +352,18 @@ ProductPackage:
   30 pcs:
     synonyms:
       - 30шт
+      - 1х30
   20 pcs:
     synonyms:
       - 20шт
+      - 1х20
   10 pcs:
     synonyms:
       - десяток
       - 10шт
       - 10 шт
       - 10 ШТ
+      - 1х10
   6 pcs:
     synonyms:
       - 6шт
@@ -373,7 +380,7 @@ ProductCategory:
             milk:
               title: milk
               keyword: молоко, mолоко
-              stopword: топленое, козье
+              stopword: топленое, козье, овечье
               density: 1027
               normal_package: 1 l
               min_package_ratio: 0.8
@@ -407,7 +414,7 @@ ProductCategory:
               sub:
                 sunflower oil:
                   title: sunflower oil
-                  keyword: масло подсолнечное, микс подсолнечного и оливкового, масло подcолнечное, масло подсол.
+                  keyword: масло подсолнечное, микс подсолнечного и оливкового, масло подcолнечное, масло подсол., масло растительное
                   normal_package: 1 l
                   min_package_ratio: 0.75
             sugar:
@@ -427,9 +434,9 @@ ProductCategory:
               sub:
                 wheat flour:
                   title: wheat flour
-                  keyword: мука пшеничная, мука пшен.
+                  keyword: мука пшеничная, мука пшен., мука
                   ru_accu_case: муку пшеничную
-                  stopword: для пиццы, итальянская
+                  stopword: для пиццы, итальянская, ржаная, гороховая, гречневая, рисовая
                   normal_package: 1 kg
                   min_package_ratio: 0.8
             cereals:

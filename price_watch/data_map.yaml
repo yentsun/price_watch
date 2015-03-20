@@ -130,20 +130,31 @@ ProductPackage:
     synonyms:
       - 3кг
       - 3 кг
+      - 2,4-3,5кг
+  2.8 kg:
+    synonyms:
+      - 2,2-3,5кг
   2.5 kg:
     synonyms:
       - 2,5 кг
       - 2,5кг
       - 2,5-2,8кг
-  2.1 kg:
+  2.4 kg:
     synonyms:
-      - 1,9-2,1кг
+      - 2,3-2,5кг
   2 kg:
     synonyms:
       - 2кг
       - 2 кг
       - 2,0кг
       - 2,0 кг
+      - 1,9-2,1кг
+  1.8 kg:
+    synonyms:
+      - 1,4-2,2кг
+  1.6 kg:
+    synonyms:
+      - 1,3-2кг
   1.5 kg:
     synonyms:
       - 1,5кг
@@ -151,10 +162,19 @@ ProductPackage:
       - 1500г
       - 1500 г
       - 1,5-2,0кг
+      - 1,2-1,8кг
+      - 0,8-2,2кг
   1.45 kg:
     synonyms:
       - 1450г
       - 1450 г
+      - 1,3-1,6кг
+  1.4 kg:
+    synonyms:
+      - 1,3-1,5кг
+  1.2 kg:
+    synonyms:
+      - 1,1-1,3кг
   1 kg:
     synonyms:
       - 1кг
@@ -163,19 +183,26 @@ ProductPackage:
       - 1000 г
       - 1kg
       - 1 kg
+      - 0,9-1,1кг
+      - 1,0-1,1кг
       - 0,9-1,15кг
+      - 0,9-1,2кг
+      - 0,8-1,2кг
+      - 0,5-1,5кг
   0.95 kg:
     synonyms:
       - 950г
       - 950 г
       - 0.95 kg
       - 0.95kg
+      - 0,5-1,4кг
   0.93 kg:
     synonyms:
       - 930г
   0.9 kg:
     synonyms:
       - 900г
+      - 0,5-1,3кг
   0.8 kg:
     synonyms:
       - 800г
@@ -184,10 +211,13 @@ ProductPackage:
       - 8*100г
       - 800-850 г
       - 8х100г
+      - 0,6-0,95кг
+      - 0,7-0,9кг
   0.7 kg:
     synonyms:
       - 700г
       - 0,6-0,8кг
+      - 0,5-0,85кг
   0.75 kg:
     synonyms:
       - 750г
@@ -211,6 +241,8 @@ ProductPackage:
     synonyms:
       - 600 г
       - 600г
+      - 0,43-0,83кг
+      - 0,5-0,7кг
   0.515 kg:
     synonyms:
       - 515г
@@ -224,9 +256,14 @@ ProductPackage:
       - 100гх5
       - 500g
       - 500 g
+      - 0,4-0,6 кг
+      - 0,4-0,6кг
+      - 0,5-0,6кг
+      - 0,5-0,6 кг
   0.475 kg:
     synonyms:
       - 475г
+      - 0,45-0,5 кг
   0.47 kg:
     synonyms:
       - 470г
@@ -237,6 +274,7 @@ ProductPackage:
       - 450g
       - 0,45кг
       - 0,45 кг
+      - 0,3-0,6кг
   0.4 kg:
     synonyms:
       - 400г
@@ -244,6 +282,7 @@ ProductPackage:
       - 5*80г
       - 400-450г
       - 4*100г
+      - 0,3-0,5кг
   0.38 kg:
     synonyms:
       - 380г
@@ -262,6 +301,7 @@ ProductPackage:
       - 350 г
       - 350Г
       - 330-400г
+      - 0,2-0,5кг
   0.34 kg:
     synonyms:
       - 340г
@@ -283,6 +323,7 @@ ProductPackage:
       - 300г
       - 300 г
       - 0,3кг
+      - 0,2-0,35кг
   0.28 kg:
     synonyms:
       - 280г
@@ -293,6 +334,7 @@ ProductPackage:
   0.25 kg:
     synonyms:
       - 250г
+      - 0,2-0,3кг
   0.24 kg:
     synonyms:
       - 240г
@@ -338,9 +380,16 @@ ProductPackage:
       - 110 г
   0.1 kg:
     synonyms:
-      - 100гр
       - 100г
+      - 100гр
       - 100 г
+  0.9 kg:
+    synonyms:
+      - 90г
+      - 90гр
+      - 90 г
+      - 0,09кг
+      - 0,08-0,1кг
   0.075 kg:
     synonyms:
       - 75г
@@ -384,6 +433,27 @@ ProductCategory:
               density: 1027
               normal_package: 1 l
               min_package_ratio: 0.8
+            baked milk:
+              title: baked milk
+              keyword: молоко топленое
+              stopword: козье, овечье
+              density: 1027
+              normal_package: 1 l
+              min_package_ratio: 0.8
+            kefir:
+              title: kefir
+              keyword: кефир
+              stopword: фруктовый, биокефир
+              density: 1031
+              normal_package: 1 l
+              min_package_ratio: 0.8
+            cream:
+              title: cream
+              keyword: сливки
+              stopword: сухие
+              density: 1012
+              normal_package: 0.5 l
+              min_package_ratio: 0.8
             sour cream:
               title: sour cream
               keyword: сметана, сметанный продукт
@@ -394,9 +464,26 @@ ProductCategory:
               keyword: яйцо куриное, яйца куриные, яйцо
               stopword: перепелиное, перепелиные, динозавриное
               normal_package: 10 pcs
+            quail egg:
+              title: quail egg
+              keyword: яйцо перепелиное
+              normal_package: 20 pcs
             cheese:
               title: cheese
               sub:
+                soft cheese:
+                  title: soft cheese
+                  keyword: сыр
+                  stopword: твердый, твёрдый, творожный, плавленый, шоколадный
+                  normal_package: 0.4 kg
+                cream cheese:
+                  title: cream cheese
+                  keyword: творожный сыр, крем-сыр
+                  normal_package: 0.4 kg
+                processed cheese:
+                  title: processed cheese
+                  keyword: сыр плавленый
+                  normal_package: 0.4 kg
                 hard cheese:
                   title: hard cheese
                   keyword: твердый сыр, твёрдый сыр
@@ -475,9 +562,138 @@ ProductCategory:
               title: orange
               keyword: апельсины, апельсин
               normal_package: 1 kg
+            avocado:
+              title: avocado
+              keyword: авокадо
+              normal_package: 1 kg
+            quince:
+              title: quince
+              keyword: айва
+              normal_package: 1 kg
+            pomegranate:
+              title: pomegranate
+              keyword: гранат
+              normal_package: 1 kg
+            grapefriut:
+              title: grapefruit
+              keyword: грейпфрут
+              normal_package: 1 kg
+            pear:
+              title: pear
+              keyword: груши, груша
+              normal_package: 1 kg
+            kiwi:
+              title: kiwi
+              keyword: киви
+              normal_package: 1 kg
+            lime:
+              title: lime
+              keyword: лайм
+              normal_package: 0.5 kg
+            lemon:
+              title: lemon
+              keyword: лимон
+              normal_package: 1 kg
+            mango:
+              title: mango
+              keyword: манго
+              normal_package: 1 kg
+            mangostin:
+              title: mangostin
+              keyword: мангостин
+              normal_package: 0.5 kg
+            peach:
+              title: peach
+              keyword: персик
+              normal_package: 1 kg
+            plum:
+              title: plum
+              keyword: слива, сливы
+              normal_package: 1 kg
+            apple:
+              title: apple
+              keyword: яблоки, яблоко
+              normal_package: 1 kg
+            pomelo:
+              title: pomelo
+              keyword: помело
+              normal_package: 1 kg
+            pineapple:
+              title: pineapple
+              keyword: ананас
+              normal_package: 1 kg
+            melon:
+              title: melon
+              keyword: дыня, дыни
+              ru_accu_case: дыню
+              normal_package: 1 kg
+            banana:
+              title: banana
+              keyword: банан
+              normal_package: 1 kg
         vegetables:
           title: vegetables
           sub:
+            asparagus:
+              title: asparagus
+              keyword: спаржа
+              stopword: маринованая
+              normal_package: 0.5 kg
+            celery root:
+              title: celery root
+              keyword: сельдерей корни
+              stopword: стебель
+              normal_package: 1 kg
+            beet:
+              title: beet
+              keyword: свекла
+              stopword: отварная, сахарная
+              normal_package: 1 kg
+              min_package_ratio: 0.8
+            radish:
+              title: radish
+              keyword: редька
+              normal_package: 1 kg
+            radishes:
+              title: radishes
+              keyword: редис
+              normal_package: 0.5 kg
+            hot pepper:
+              title: hot pepper
+              keyword: перец острый
+              stopword: молотый, черный, чёрный
+              normal_package: 0.1 kg
+            bell pepper:
+              title: bell pepper
+              keyword: перец болгарский, перец желтый, перец зеленый, перец красный, перец оранжевый
+              stopword: острый
+              normal_package: 1 kg
+              min_package_ratio: 0.6
+            cucumber:
+              title: cucumber
+              keyword: огурцы, огурец
+              stopword: соленые, соленый, маринованые
+              normal_package: 1 kg
+              min_package_ratio: 0.6
+            carrot:
+              title: carrot
+              keyword: морковь
+              normal_package: 1 kg
+              min_package_ratio: 0.8
+            onion:
+              title: onion
+              keyword: лук репчатый, лук
+              stopword: порей, шалот, сладкий
+              normal_package: 1 kg
+            cabbage:
+              title: cabbage
+              keyword: капуста
+              stopword: кольраби, брокколи, брюссельская, квашеная, кислая, цветная
+              normal_package: 1 kg
+            broccoli:
+              title: broccoli
+              keyword: брокколи
+              normal_package: 1 kg
             tomato:
               title: tomato
               keyword: помидоры, томаты, томат

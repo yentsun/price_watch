@@ -28,6 +28,12 @@
                       <strong>${req.context.product.title}</strong>
                       </td>
                   </tr>
+                  <tr class="package">
+                      <td>Упаковка</td>
+                      <td>
+                      <strong>${req.context.product.get_package()}</strong>
+                      </td>
+                  </tr>
                   <tr>
                       <td>Продавец</td>
                       <td><strong>${req.context.merchant.title}

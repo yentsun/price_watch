@@ -212,6 +212,13 @@ class TestBasicLogic(unittest.TestCase):
         product7 = Product(u'Молоко Пармалат 3.5% стерил.1л')
         self.assertEqual('1 l', product7.get_package_key())
 
+    def test_package_confusion(self):
+        category = ProductCategory('rice')
+        product = Product(u'Рис АГРОАЛЬЯНС краснодарский 1,5кг',
+                          category=category)
+        self.assertNotEqual('5 kg', product.get_package_key())
+        self.assertEqual('1.5 kg', product.get_package_key())
+
     def test_traverse_yaml(self):
 
         milk = ProductCategory('milk')

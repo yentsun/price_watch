@@ -345,9 +345,8 @@ class CategoryView(EntityView):
 
 class RootView(EntityView):
     """General root views"""
-    CHART_EXCLUDE_LIST = ['sour cream', 'salt', 'chicken egg',
-                          'bread', 'sugar', 'hard cheese', 'tomato', 'pumpkin',
-                          'orange']
+    CHART_CATEGORIES = ['milk', 'bread', 'sugar', 'buckwheat', 'flour',
+                        'apple', 'rice', 'sunflower oil']
 
     @general_region.cache_on_arguments('index')
     def served_data(self, location):
@@ -359,7 +358,7 @@ class RootView(EntityView):
         date_column = [date.strftime('%d.%m') for date in datetimes]
         category_columns = list()
         for category in categories:
-            if category.title not in self.CHART_EXCLUDE_LIST:
+            if category.title in self.CHART_CATEGORIES:
                 category_column = [category.get_data('keyword').split(', ')[0]]
                 for date in datetimes:
                     category_column.append(

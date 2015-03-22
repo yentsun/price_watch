@@ -75,6 +75,7 @@ def traverse(target, category_node, return_parent=False):
                 return match
     except (KeyError, TypeError):
         pass
+    return None
 
 
 def keyword_lookup(string_, data_map):

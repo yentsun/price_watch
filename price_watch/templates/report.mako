@@ -31,7 +31,7 @@
                   <tr class="package">
                       <td>Упаковка</td>
                       <td>
-                      <strong>${req.context.product.get_package()}</strong>
+                      <strong>${req.context.product.get_package_key()}</strong>
                       </td>
                   </tr>
                   <tr>

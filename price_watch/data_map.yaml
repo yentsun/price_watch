@@ -202,6 +202,7 @@ ProductPackage:
   0.9 kg:
     synonyms:
       - 900г
+      - 900гр
       - 0,5-1,3кг
   0.8 kg:
     synonyms:
@@ -335,6 +336,7 @@ ProductPackage:
     synonyms:
       - 250г
       - 0,2-0,3кг
+      - 0.25кг
   0.24 kg:
     synonyms:
       - 240г
@@ -383,7 +385,7 @@ ProductPackage:
       - 100г
       - 100гр
       - 100 г
-  0.9 kg:
+  0.09 kg:
     synonyms:
       - 90г
       - 90гр

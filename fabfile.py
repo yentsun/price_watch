@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import json
 import datetime
 import transaction
 import logging
-from collections import OrderedDict
 from ZODB.FileStorage import FileStorage
 from fabric.api import *
 from fabric.colors import *
 
 from price_watch.models import (ProductCategory, StorageManager,
-                                PriceReport, PackageLookupError, Reporter,
-                                Product, Merchant, CategoryLookupError)
+                                ProductPackage, PriceReport,
+                                PackageLookupError, Product, Merchant,
+                                CategoryLookupError)
 
 APP_NAME = 'food-price.net'
 env.hosts = ['ubuntu@alpha.korinets.name']
@@ -39,22 +38,35 @@ def get_datetimes(days):
 
 
 @task
-def set_normalized_price():
-    """Walk through all reports and set normalized price_value"""
+def fix_normalized_price():
+    """
+    Walk through all reports and fix normalized price_value
+    and product package
+    """
 
-    storage = StorageManager(FileStorage('storage.fs'))
-    reports = PriceReport.fetch_all(storage)
+    keeper = get_storage()
+    reports = PriceReport.fetch_all(keeper)
     for report in reports:
         try:
-            del report.product.package
-            report.product.package = report.product.get_package()
-            report.normalized_price_value = \
-                report._get_normalized_price(report.price_value)
-            print('Report {0} updated'.format(report.uuid))
+            correct_package_key = report.product.get_package_key()
+            if report.product.package.key != correct_package_key:
+                print(yellow(u'Fixing package for {}'.format(report.product)))
+                correct_package = ProductPackage.acquire(correct_package_key,
+                                                         keeper)
+                product = Product.fetch(report.product.key, keeper)
+                product.package = correct_package
+                report.product = product
+
+            old_norm_price = report.normalized_price_value
+            new_norm_price = report._get_normalized_price(report.price_value)
+            if old_norm_price != new_norm_price:
+                print(yellow(u'Fixing normal price {}-->{}'.format(
+                      old_norm_price, new_norm_price)))
+                report.normalized_price_value = new_norm_price
         except PackageLookupError, e:
             print(e.message)
     transaction.commit()
-    storage.close()
+    keeper.close()
 
 
 @task

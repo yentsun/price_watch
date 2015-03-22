@@ -56,13 +56,13 @@ class FunctionalTests(unittest.TestCase):
         data = [
             ('price_value', 55.6),
             ('url', 'http://howies.com/products/milk/4'),
-            ('product_title', u'Кефир Веселый молочник 950г'.encode('utf-8')),
+            ('product_title', u'Элексир Веселый молочник 950г'.encode('utf-8')),
             ('merchant_title', "Howie's grocery"),
             ('reporter_name', 'Jack')
         ]
         res = self.testapp.post('/reports', data, status=400)
         self.assertIn(u'Category lookup failed for product '
-                      u'"Кефир Веселый молочник 950г"',
+                      u'"Элексир Веселый молочник 950г"',
                       res.body.decode('utf-8'))
 
     def test_report_post_bad_package(self):

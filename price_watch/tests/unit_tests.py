@@ -212,12 +212,29 @@ class TestBasicLogic(unittest.TestCase):
         product7 = Product(u'Молоко Пармалат 3.5% стерил.1л')
         self.assertEqual('1 l', product7.get_package_key())
 
-    def test_package_confusion(self):
+    def test_package_confusions(self):
         category = ProductCategory('rice')
         product = Product(u'Рис АГРОАЛЬЯНС краснодарский 1,5кг',
                           category=category)
         self.assertNotEqual('5 kg', product.get_package_key())
         self.assertEqual('1.5 kg', product.get_package_key())
+
+        category = ProductCategory('bread')
+        product = Product(u'Хлеб Геркулес зерновой половин.нар.0.25кг ХД',
+                          category=category)
+        self.assertNotEqual('25 kg', product.get_package_key())
+        self.assertEqual('0.25 kg', product.get_package_key())
+
+        category = ProductCategory('milk')
+        product = Product(u'МОЛОКО 3,2% п/п 0,85л КИРЗА',
+                          category=category)
+        self.assertEqual('0.85 l', product.get_package_key())
+
+    def test_900g_package_confusion(self):
+        category = ProductCategory('buckwheat')
+        product = Product(u'Гречка Maltagliati ядрица 900г',
+                          category=category)
+        self.assertEqual('0.9 kg', product.get_package_key())
 
     def test_traverse_yaml(self):
 
@@ -250,10 +267,6 @@ class TestBasicLogic(unittest.TestCase):
                          u'для детей с 8 месяцев 3,2%, 200г'
         self.assertEqual('milk', Product(product2_title).get_category_title())
 
-        product2_title = u'Молоко топленое МОЖАЙСКОЕ стерилизованное, ' \
-                         u'1,5% 0,45л'
-        self.assertRaises(CategoryLookupError,
-                          Product(product2_title).get_category_title)
         product2_1_title = u'Молоко козье МОЖАЙСКОЕ стерилизованное, ' \
                            u'1,5% 0,45л'
         self.assertRaises(CategoryLookupError,

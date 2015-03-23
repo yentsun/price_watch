@@ -406,7 +406,7 @@ class RootView(EntityView):
     def serve_sitemap_data(self):
         url_tuples = list()
 
-        # index
+        # root
         loc = self.request.resource_url(self.root)
         priority = 1.0
         url_tuples.append((loc, priority))
@@ -420,16 +420,25 @@ class RootView(EntityView):
 
         # categories
         categories = self.root['categories'].values()
+        all_locations = set()
         for category in categories:
             loc = self.request.resource_url(category)
             priority = 1.0
             url_tuples.append((loc, priority))
             locations = category.get_locations()
+            all_locations.update(locations)
             for location in locations:
                 query = {'location': location}
                 loc = self.request.resource_url(category, query=query)
                 priority = 0.8
                 url_tuples.append((loc, priority))
+
+        # root locations
+        for location in list(all_locations):
+            query = {'location': location}
+            loc = self.request.resource_url(self.root, query=query)
+            priority = 0.9
+            url_tuples.append((loc, priority))
 
         # products
         products = self.root['products'].values()

@@ -1,9 +1,13 @@
+# -*- coding: utf-8 -*-
+
 import os
 import datetime
 import yaml
 import json
 import numpy
 import urllib
+import re
+
 from uuid import uuid4
 from ZODB import DB
 from ZODB.FileStorage import FileStorage
@@ -745,13 +749,27 @@ class Product(Entity):
         """Resolve product's package key from known ones"""
 
         package_data = load_data_map('ProductPackage')
-        for pack_key in sorted(package_data,
-                               key=lambda key: len(key), reverse=True):
+        for pack_key in package_data:
             for synonym in package_data[pack_key]['synonyms']:
-                if (u' {}'.format(synonym) in self.title or
-                        u',{}'.format(synonym) in self.title or
-                        u'.{}'.format(synonym) in self.title):
-                    return pack_key
+                look_behind_patterns = [
+                    u'(?<!(\d(\.|,|х|x|\*))|'
+                    u'(\d{2})|(\+\s)|(\s\+)|(\d\+)|'
+                    u'(\.|,|х|x|\*|\s)\d)',
+                    u'(?<=№\d(\.|,))',
+                    u'(?<=№\d{2}(\.|,))',
+                    u'(?<=№\d{3}(\.|,))',
+                ]
+                for pattern in look_behind_patterns:
+                    # TODO screen regex chars in synonym
+                    pattern = pattern + re.escape(synonym)
+                    match = re.search(pattern, self.title)
+                    if match:
+                        if 'unlike' in package_data[pack_key]:
+                            for unlike in package_data[pack_key]['unlike']:
+                                if unlike in self.title:
+                                    match = None
+                    if match:
+                        return pack_key
         raise PackageLookupError(self)
 
     def get_package(self):

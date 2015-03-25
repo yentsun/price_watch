@@ -173,69 +173,6 @@ class TestBasicLogic(unittest.TestCase):
         self.assertIn(product, merchant)
         self.assertIn(merchant, product.merchants)
 
-    def test_get_package_key(self):
-
-        milk = ProductCategory('milk')
-        product = Product(u'Молоко Веселый молочник 1л', category=milk)
-        product3 = Product(u'Молоко Веселый молочник 950г', category=milk)
-        product4 = Product(u'Молоко Веселый молочник 950 г', category=milk)
-        product5 = Product(u'Молоко Веселый молочник 0,4599 г', category=milk)
-        product6 = Product(u'Молоко Веселый молочник 0,5л', category=milk)
-        self.assertEqual('1 l', product.get_package_key())
-        self.assertEqual('0.95 kg', product3.get_package_key())
-        self.assertEqual('0.95 kg', product4.get_package_key())
-        self.assertRaises(PackageLookupError, product5.get_package_key)
-        self.assertTrue(product.get_package().is_normal(milk))
-        self.assertFalse(product4.get_package().is_normal(milk))
-        self.assertEqual(1, product.get_package().get_ratio(milk))
-        self.assertEqual(0.93, round(product4.get_package().get_ratio(milk),
-                                     2))
-        self.assertEqual('0.5 l', product6.get_package().title)
-
-        sour_cream025 = Product(u'Сметана Углече Поле органическая 15%, 250г')
-        key = sour_cream025.get_category_title()
-        sour_cream = ProductCategory(key)
-        self.assertEqual('0.25 kg', sour_cream025.get_package_key())
-        self.assertEqual(0.625,
-                         sour_cream025.get_package().get_ratio(sour_cream))
-
-        product3_title = u'Яйцо Окское куриное С0 белое десяток'
-        self.assertEqual('10 pcs',
-                         Product(product3_title).get_package_key())
-        egg = ProductCategory('chicken egg')
-        product4_title = u'Яйцо динозавриное столовое, 20шт'
-        self.assertEqual(2,
-                         Product(product4_title).get_package().get_ratio(egg))
-        product6 = Product(u'Спагетти PASTA ZARA №4,500г')
-        self.assertEqual('0.5 kg', product6.get_package_key())
-
-        product7 = Product(u'Молоко Пармалат 3.5% стерил.1л')
-        self.assertEqual('1 l', product7.get_package_key())
-
-    def test_package_confusions(self):
-        category = ProductCategory('rice')
-        product = Product(u'Рис АГРОАЛЬЯНС краснодарский 1,5кг',
-                          category=category)
-        self.assertNotEqual('5 kg', product.get_package_key())
-        self.assertEqual('1.5 kg', product.get_package_key())
-
-        category = ProductCategory('bread')
-        product = Product(u'Хлеб Геркулес зерновой половин.нар.0.25кг ХД',
-                          category=category)
-        self.assertNotEqual('25 kg', product.get_package_key())
-        self.assertEqual('0.25 kg', product.get_package_key())
-
-        category = ProductCategory('milk')
-        product = Product(u'МОЛОКО 3,2% п/п 0,85л КИРЗА',
-                          category=category)
-        self.assertEqual('0.85 l', product.get_package_key())
-
-    def test_900g_package_confusion(self):
-        category = ProductCategory('buckwheat')
-        product = Product(u'Гречка Maltagliati ядрица 900г',
-                          category=category)
-        self.assertEqual('0.9 kg', product.get_package_key())
-
     def test_traverse_yaml(self):
 
         milk = ProductCategory('milk')

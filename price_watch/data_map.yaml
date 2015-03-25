@@ -20,7 +20,9 @@ ProductPackage:
   1.5 l:
     synonyms:
       - 1л + 0,5л
+      - 1л+0,5л
       - 1,5л
+      - 1,5 л
   1.45 l:
     synonyms:
       - 1.45л
@@ -35,6 +37,8 @@ ProductPackage:
       - 1L
       - 1l
       - 1 l
+    unlike:
+    - 1л + 0,5л
   0.95 l:
     synonyms:
       - 0,95л
@@ -175,6 +179,9 @@ ProductPackage:
   1.2 kg:
     synonyms:
       - 1,1-1,3кг
+  1.1 kg:
+    synonyms:
+      - 1,0-1,2кг
   1 kg:
     synonyms:
       - 1кг
@@ -252,9 +259,14 @@ ProductPackage:
       - 500г
       - 500 г
       - 0,5кг
+      - 0,5 кг
+      - 0.5 кг
+      - 0.5кг
       - 5*100г
       - 5х100г
+      - 5x100г
       - 100гх5
+      - 100г х 5
       - 500g
       - 500 g
       - 0,4-0,6 кг
@@ -284,6 +296,8 @@ ProductPackage:
       - 400-450г
       - 4*100г
       - 0,3-0,5кг
+      - 0.4кг
+      - 0,4кг
   0.38 kg:
     synonyms:
       - 380г
@@ -354,6 +368,9 @@ ProductPackage:
       - 200г
       - 200 г
       - 0,2кг
+      - 0,2 кг
+      - 0.2кг
+      - 0.2 кг
   0.18 kg:
     synonyms:
       - 180г
@@ -515,7 +532,7 @@ ProductCategory:
             salt:
               title: salt
               keyword: соль
-              stopword: морская водорослевая, фасоль, розовая
+              stopword: морская водорослевая, фасоль, розовая, рассоль, малосоль
               normal_package: 1 kg
               min_package_ratio: 0.5
             flours:
@@ -662,7 +679,7 @@ ProductCategory:
               normal_package: 0.5 kg
             hot pepper:
               title: hot pepper
-              keyword: перец острый
+              keyword: перец острый, перец чили
               stopword: молотый, черный, чёрный
               normal_package: 0.1 kg
             bell pepper:

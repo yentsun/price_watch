@@ -50,10 +50,11 @@ def fix_normalized_price():
         try:
             correct_package_key = report.product.get_package_key()
             if report.product.package.key != correct_package_key:
-                print(yellow(u'Fixing package for {}'.format(report.product)))
                 correct_package = ProductPackage.acquire(correct_package_key,
                                                          keeper)
                 product = Product.fetch(report.product.key, keeper)
+                print(yellow(u'Fixing package for {}: {}-->{}'.format(
+                    report.product, product.package, correct_package)))
                 product.package = correct_package
                 report.product = product
 
@@ -300,6 +301,7 @@ def deploy():
         run('~/env/bin/python setup.py install')
     print(cyan('Running tests...'))
     with cd('www/{}/price_watch/tests'.format(dist)):
+        run('~/env/bin/nosetests lookup_tests.py')
         run('~/env/bin/nosetests unit_tests.py')
         run('~/env/bin/nosetests functional_tests.py')
     print(cyan('Swapping directories...'))

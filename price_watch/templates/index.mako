@@ -1,4 +1,5 @@
 <%inherit file="base.mako"/>
+<%def name="noindex()"><meta name="verify-reformal" content="7eb4a72022cfae60dcf8a022" /></%def>
 <%def name="title()">
      % if current_location:
     Цены на продукты, ${current_location}

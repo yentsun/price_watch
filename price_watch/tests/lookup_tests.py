@@ -128,3 +128,16 @@ class TestPackageLookup(unittest.TestCase):
     def test_1kg_12kg(self):
         product = Product(u'Томаты сливка, 1,0-1,2кг')
         self.assertEqual('1.1 kg', product.get_package_key())
+
+    def test_4_5kg_dot_preceding(self):
+        product = Product(u'Картофель Деревенский фасов.4.5кг Агроторг')
+        self.assertEqual('4.5 kg', product.get_package_key())
+
+    def test_1_3_1_5kg(self):
+        product = Product(u'Яблоки Ред Делишес (55+) 1,3-1,5кг')
+        self.assertEqual('1.4 kg', product.get_package_key())
+
+    def test_200_400g(self):
+        product = Product(u'Сыр Rokiskio Гоюс твердый фасованный 40%, '
+                          u'200-450г')
+        self.assertEqual('0.33 kg', product.get_package_key())

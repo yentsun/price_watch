@@ -752,7 +752,7 @@ class Product(Entity):
         for pack_key in package_data:
             for synonym in package_data[pack_key]['synonyms']:
                 look_behind_patterns = [
-                    u'(?<!(\d(\.|,|х|x|\*))|'
+                    u'(?<!(\d(\.|,|х|x|\*|\-))|'
                     u'(\d{2})|(\+\s)|(\s\+)|(\d\+)|'
                     u'(\.|,|х|x|\*|\s)\d)',
                     u'(?<=№\d(\.|,))',

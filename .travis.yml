@@ -1,0 +1,10 @@
+language: python
+
+install:
+    - ~/env/bin/python setup.py install
+
+script:
+    - cd price_watch/tests
+    - ~/env/bin/nosetests lookup_tests.py
+    - ~/env/bin/nosetests unit_tests.py
+    - ~/env/bin/nosetests functional_tests.py

@@ -2,7 +2,8 @@
 
 import unittest
 
-from price_watch.models import Product, ProductCategory, PackageLookupError
+from price_watch.models import (Product, ProductCategory, PackageLookupError,
+                                CategoryLookupError)
 
 
 class TestPackageLookup(unittest.TestCase):
@@ -37,7 +38,7 @@ class TestPackageLookup(unittest.TestCase):
 
     def test_250g_comma_preceding(self):
         sour_cream025 = Product(u'Сметана Углече Поле органическая 15%, 250г')
-        key = sour_cream025.get_category_title()
+        key = sour_cream025.get_category_key()
         sour_cream = ProductCategory(key)
         self.assertEqual('0.25 kg', sour_cream025.get_package_key())
         self.assertEqual(0.625,
@@ -141,3 +142,54 @@ class TestPackageLookup(unittest.TestCase):
         product = Product(u'Сыр Rokiskio Гоюс твердый фасованный 40%, '
                           u'200-450г')
         self.assertEqual('0.33 kg', product.get_package_key())
+
+
+class TestCategoryLookup(unittest.TestCase):
+
+    def test_baking_mix(self):
+        product = Product(u'Смесь мучная ХлебБург хлеб ржано-пшеничный '
+                          u'Скандинавский, 500г')
+        self.assertEqual('flour mix', product.get_category_key())
+
+    def test_sour_cream(self):
+        product = Product(u'Сметана Углече Поле органическая 15%, 250г')
+        self.assertEqual('sour cream', product.get_category_key())
+
+    def test_milk(self):
+        product = Product(u'Молоко Тема питьевое ультрапастеризованное '
+                          u'для детей с 8 месяцев 3,2%, 200г')
+        self.assertEqual('milk', product.get_category_key())
+
+    def test_goat_milk(self):
+        product = Product(u'Молоко козье МОЖАЙСКОЕ стерилизованное, '
+                          u'1,5% 0,45л')
+        self.assertRaises(CategoryLookupError, product.get_category_key)
+
+    def test_chicken_egg(self):
+        product = Product(u'Яйцо Окское куриное С0 белое десяток')
+        self.assertEqual('chicken egg', product.get_category_key())
+
+    def test_dino_egg(self):
+        product = Product(u'Яйцо динозавриное столовое, 20шт')
+        self.assertRaises(CategoryLookupError, product.get_category_key)
+
+    def test_batat(self):
+        product = Product(u'Картофель батат, 1,9-2,1кг')
+        self.assertRaises(CategoryLookupError, product.get_category_key)
+
+    def test_brown_sugar(self):
+        product = Product(u'"Сахар Мистраль Демерара тростниковый '
+                          u'нерафинированный, 1кг"')
+        self.assertRaises(CategoryLookupError, product.get_category_key)
+
+    def test_buckwheat(self):
+        product = Product(u'Крупа Мистраль гречневая "Зеленая", 450г')
+        self.assertEqual('buckwheat', product.get_category_key())
+
+    def test_grecha(self):
+        product = Product(u'Греча Ярмарка Ядрица, 800г')
+        self.assertEqual('buckwheat', product.get_category_key())
+
+    def test_pasta(self):
+        product = Product(u'Спагетти Макфа 950г')
+        self.assertEqual('pasta', product.get_category_key())

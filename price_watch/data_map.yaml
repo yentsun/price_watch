@@ -568,6 +568,12 @@ ProductCategory:
                   stopword: для пиццы, итальянская, ржаная, гороховая, гречневая, рисовая
                   normal_package: 1 kg
                   min_package_ratio: 0.8
+                wheat flour:
+                  title: flour mix
+                  keyword: смесь мучная, смесь для выпечки, хлебная смесь
+                  ru_accu_case: мучную смесь
+                  normal_package: 1 kg
+                  min_package_ratio: 0.8
             cereals:
               title: cereals
               sub:
@@ -588,7 +594,8 @@ ProductCategory:
           sub:
             bread:
               title: bread
-              keyword: хлеб, батон
+              keyword: хлеб, батон, лаваш
+              stopword: смесь мучная, мука, смесь для выпечки, хлебная смесь
               normal_package: 0.5 kg
               min_package_ratio: 0.8
         meat:

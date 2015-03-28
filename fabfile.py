@@ -217,7 +217,7 @@ def cleanup():
 
                 # check category
                 try:
-                    cat_key = instance.get_category_title()
+                    cat_key = instance.get_category_key()
                     category = ProductCategory.fetch(cat_key, keeper)
                     if instance.category is not category:
                         category.add_product(instance)

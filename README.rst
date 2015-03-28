@@ -8,3 +8,5 @@ The platform is:
 * Mako
 * Fabric
 * YAML
+
+.. image:: https://travis-ci.org/yentsun/price_watch.svg?branch=master

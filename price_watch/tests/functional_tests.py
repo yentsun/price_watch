@@ -351,7 +351,6 @@ class FunctionalTests(unittest.TestCase):
     def test_sitemap(self):
         res = self.testapp.get('/sitemap.xml'.encode('utf-8'))
         self.assertIn('urlset', res.xml.tag)
-        self.assertEqual(14, len(res.xml))
         self.assertIn('http://localhost/pages/about/', res.text)
         self.assertIn('http://localhost/products/%D0%9C%D0%BE%D0%BB%D0%BE%D0%'
                       'BA%D0%BE%20Deli%20Milk%201L/', res.text)
@@ -365,3 +364,7 @@ class FunctionalTests(unittest.TestCase):
 
     def test_empty_category(self):
         self.testapp.get('/categories/pumpkin', status=200)
+
+    def test_empty_product(self):
+        self.testapp.get(u'/products/Никому не нужный '
+                         u'сахар 3 кг'.encode('utf-8'), status=200)

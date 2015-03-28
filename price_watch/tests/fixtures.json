@@ -1,5 +1,6 @@
 [
   {
+    "class": "PriceReport",
     "price_value": 55.6,
     "url": "http://mosmag.com/products/milk/1",
     "product_title": "Молоко Красная Цена у/паст. 3.2% 1л",
@@ -7,6 +8,7 @@
     "reporter_name": "Jack"
   },
   {
+    "class": "PriceReport",
     "price_value": 41.7,
     "url": "http://mosmag.com/products/milk/2",
     "product_title": "Молоко Farmers Milk 1L",
@@ -14,6 +16,7 @@
     "reporter_name": "Jack"
   },
   {
+    "class": "PriceReport",
     "price_value": 64.3,
     "url": "http://mosmag.com/products/milk/3",
     "product_title": "Молоко Deli Milk 1L",
@@ -21,6 +24,7 @@
     "reporter_name": "Jack"
   },
   {
+    "class": "PriceReport",
     "price_value": 199.9,
     "url": "http://mosmag.com/products/sunflower_oil/345",
     "product_title": "Масло подсолнечное Sunny Oil 1л",
@@ -29,6 +33,7 @@
     "date_time": "2014-09-14 00:00:00"
   },
    {
+    "class": "PriceReport",
     "price_value": 45.9,
     "url": "http://pitermag.com/products/milk/345",
     "product_title": "Молоко Балтика ультрапас. 3.2% 1л",
@@ -36,6 +41,7 @@
     "reporter_name": "Jack"
   },
   {
+    "class": "PriceReport",
     "price_value": 145.9,
     "url": "http://pitermag.com/products/pumpkin/345",
     "product_title": "Тыква 1кг",
@@ -44,13 +50,20 @@
     "date_time": "2014-09-14 00:00:00"
   },
   {
+    "class": "Product",
+    "title": "Никому не нужный сахар 3 кг"
+  },
+  {
+    "class": "Page",
     "slug": "about"
   },
   {
+    "class": "Merchant",
     "location": "Москва",
     "title": "Московский магазин"
   },
   {
+    "class": "Merchant",
     "location": "Санкт-Петербург",
     "title": "Питерские продукты"
   }

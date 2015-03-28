@@ -211,19 +211,18 @@ class StorageManager(object):
     def load_fixtures(self, path):
         """Load fixtures from JSON file in path. Mostly for testing"""
         result = dict()
-        expected_enities = [PriceReport, Page, Merchant]
         with open(path) as f:
             fixture_list = json.load(f)
             for fixture in fixture_list:
-                for entity in expected_enities:
-                    try:
-                        instance, stats = entity.assemble(
-                            storage_manager=self, **fixture)
-                        if entity.namespace not in result:
-                            result[entity.namespace] = list()
-                        result[entity.namespace].append(instance)
-                    except TypeError as e:
-                        pass
+                entity_class_name = fixture.pop('class')
+                import sys
+                entity_class = getattr(sys.modules[__name__],
+                                       entity_class_name)
+                instance, stats = entity_class.assemble(
+                        storage_manager=self, **fixture)
+                if entity_class.namespace not in result:
+                    result[entity_class.namespace] = list()
+                result[entity_class.namespace].append(instance)
         return result
 
     def pack(self):
@@ -481,6 +480,7 @@ class Merchant(Entity):
 
     @classmethod
     def assemble(cls, storage_manager, title, location=None):
+        """The merchant instance factory"""
         merchant = cls.acquire(title, storage_manager)
         merchant.location = location
         storage_manager.register(merchant)
@@ -691,6 +691,17 @@ class Product(Entity):
         self.package_ratio = package_ratio
         self.reports = list()
         self.merchants = list()
+
+    @classmethod
+    def assemble(cls, storage_manager, title):
+        """The product instance factory"""
+        product = cls(title=title)
+        category_key = product.get_category_key()
+        category = ProductCategory.acquire(category_key, storage_manager)
+        category.add_product(product)
+        product.category = category
+        storage_manager.register(product, category)
+        return product, None
 
     def add_report(self, report):
         """Add report"""

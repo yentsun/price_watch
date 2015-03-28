@@ -157,10 +157,11 @@ class ProductView(EntityView):
             last_report_url = None
         else:
             product_delta = 0
-            current_price = \
-                self.currency(product.get_last_reported_price())
-            last_report_url = self.request.resource_url(
-                self.context.get_last_report())
+            last_price = product.get_last_reported_price()
+            current_price = self.currency(last_price) if last_price else None
+            last_report = self.context.get_last_report()
+            last_report_url = \
+                self.request.resource_url(last_report) if last_report else None
         datetimes = get_datetimes(self.display_days)
         chart_data = list()
         for date in datetimes:
@@ -308,9 +309,9 @@ class CategoryView(EntityView):
             try:
                 product, price = product_tuple
                 middle_num = int(len(sorted_products) / 2)
-                median = (num == middle_num)
+                is_median = (num == middle_num)
                 if len(sorted_products) % 2 == 0:
-                    median = (num == middle_num or num == middle_num-1)
+                    is_median = (num == middle_num or num == middle_num-1)
 
                 # construct data row as tuple
                 products.append((
@@ -319,7 +320,7 @@ class CategoryView(EntityView):
                     self.request.resource_url(product),
                     self.currency(price),
                     int(product.get_price_delta(self.delta_period)*100),
-                    median
+                    is_median
                 ))
             except TypeError:
                 pass

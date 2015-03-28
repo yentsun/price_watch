@@ -193,3 +193,7 @@ class TestCategoryLookup(unittest.TestCase):
     def test_pasta(self):
         product = Product(u'Спагетти Макфа 950г')
         self.assertEqual('pasta', product.get_category_key())
+
+    def test_apple_juice(self):
+        product = Product(u'Напиток Актуаль Яблоко сыворотка с соком, 930г')
+        self.assertRaises(CategoryLookupError, product.get_category_key)

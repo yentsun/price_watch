@@ -662,6 +662,7 @@ ProductCategory:
             apple:
               title: apple
               keyword: яблоки, яблоко
+              stopword: напиток, сок
               normal_package: 1 kg
             pomelo:
               title: pomelo

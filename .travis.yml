@@ -7,6 +7,11 @@ install:
     - git describe --tags > VERSION.txt
     - python setup.py install
 
+before_script:
+    - mkdir $HOME/.python-eggs
+    - chmod og-w $HOME/.python-eggs
+    - pep8 ga4gh tests
+
 script:
     - cd price_watch/tests
     - nosetests lookup_tests.py

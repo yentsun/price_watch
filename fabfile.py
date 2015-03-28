@@ -290,7 +290,7 @@ def deploy():
     print(cyan('Uploading package...'))
     dist = local('~/env2/bin/python setup.py --fullname', capture=True).strip()
     local('scp dist/{dist}.tar.gz '
-          'ubuntu@alpha:www/{dist}.tar.gz'.format(dist=dist))
+          'ubuntu@alpha:www/{dist}.tar.gz'.format(dist=dist.replace('+', '-')))
     print(cyan('Unpacking...'))
     with cd('www'):
         run('tar xzf {}.tar.gz '.format(dist))

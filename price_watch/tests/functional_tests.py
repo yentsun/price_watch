@@ -362,3 +362,6 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn('http://localhost/?location=%D0%A1%D0%'
                       'B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%'
                       '80%D0%B1%D1%83%D1%80%D0%B3', res.text)
+
+    def test_empty_category(self):
+        self.testapp.get('/categories/pumpkin', status=200)

@@ -36,6 +36,14 @@
     "reporter_name": "Jack"
   },
   {
+    "price_value": 145.9,
+    "url": "http://pitermag.com/products/pumpkin/345",
+    "product_title": "Тыква 1кг",
+    "merchant_title": "Питерские продукты",
+    "reporter_name": "Jack",
+    "date_time": "2014-09-14 00:00:00"
+  },
+  {
     "slug": "about"
   },
   {

@@ -283,7 +283,7 @@ class CategoryView(EntityView):
         """Return prepared category data"""
 
         cat_title = category.get_data('ru_accu_case')
-        median_price = category.get_price(location=location)
+        median = category.get_price(location=location)
         category_delta = int(category.get_price_delta(self.delta_period,
                                                       location=location)*100)
         if not cat_title:
@@ -323,15 +323,17 @@ class CategoryView(EntityView):
                 ))
             except TypeError:
                 pass
-        return {'price_data': json.dumps(chart_data),
-                'products': products,
-                'cat_title': cat_title,
-                'current_location': location,
-                'locations': locations,
-                'current_path': current_path,
-                'package_title': package_title,
-                'median_price': self.currency(median_price),
-                'category_delta': category_delta if median_price else None}
+        return {
+            'price_data': json.dumps(chart_data),
+            'products': products,
+            'cat_title': cat_title,
+            'current_location': location,
+            'locations': locations,
+            'current_path': current_path,
+            'package_title': package_title,
+            'median_price': self.currency(median) if median else None,
+            'category_delta': category_delta if median else None
+        }
 
     @view_config(request_method='GET',
                  renderer='product_category.mako')

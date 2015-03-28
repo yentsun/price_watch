@@ -758,6 +758,7 @@ ProductCategory:
             pumpkin:
               title: pumpkin
               keyword: тыква
+              ru_accu_case: тыкву
               normal_package: 1 kg
               min_package_ratio: 1
     home:

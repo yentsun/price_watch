@@ -8,6 +8,7 @@ from ZODB.FileStorage import FileStorage
 from fabric.api import *
 from fabric.colors import *
 
+from setup import VERSION
 from price_watch.models import (ProductCategory, StorageManager,
                                 ProductPackage, PriceReport,
                                 PackageLookupError, Product, Merchant,
@@ -278,7 +279,6 @@ def prepare():
         local('git describe --tags > VERSION.txt')
         local('~/env2/bin/python setup.py sdist --formats=gztar',
               capture=False)
-        from setup import VERSION
         local('mv dist/{}.tar.gz '
               'dist/{}.tar.gz'.format(VERSION.replace('+', '-'), VERSION))
     else:

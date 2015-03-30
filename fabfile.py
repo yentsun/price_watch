@@ -278,6 +278,9 @@ def prepare():
         local('git describe --tags > VERSION.txt')
         local('~/env2/bin/python setup.py sdist --formats=gztar',
               capture=False)
+        from setup import VERSION
+        local('mv dist/{}.tar.gz '
+              'dist/{}.tar.gz'.format(VERSION.replace('+', '-'), VERSION))
     else:
         print(yellow('Git: directory not clean.'))
         sys.exit()

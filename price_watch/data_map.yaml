@@ -568,7 +568,7 @@ ProductCategory:
                   stopword: для пиццы, итальянская, ржаная, гороховая, гречневая, рисовая
                   normal_package: 1 kg
                   min_package_ratio: 0.8
-                wheat flour:
+                flour mix:
                   title: flour mix
                   keyword: смесь мучная, смесь для выпечки, хлебная смесь
                   ru_accu_case: мучную смесь

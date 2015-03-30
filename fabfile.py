@@ -267,7 +267,7 @@ def backup():
         run('~/env/bin/supervisorctl start food-price.net:*')
     print(cyan('Downloading storage...'))
     local('scp ubuntu@alpha:www/storage/food-price.net/storage.fs '
-          'storage')
+          'storage/storage.fs')
     local('cp storage/storage.fs ~/Dropbox/Vault/food-price.net')
 
 
@@ -289,7 +289,7 @@ def deploy():
     prepare()
     print(cyan('Uploading package...'))
     dist = local('~/env2/bin/python setup.py --fullname',
-                 capture=True).strip().replace('+', '-')
+                 capture=True).strip()
     local('scp dist/{dist}.tar.gz '
           'ubuntu@alpha:www/{dist}.tar.gz'.format(dist=dist))
     print(cyan('Unpacking...'))

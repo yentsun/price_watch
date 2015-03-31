@@ -173,31 +173,34 @@ def cleanup():
 
     def cycle(entity_class):
         """Perform all needed routines on an `entity_class`"""
-        keeper = get_storage()
+
         print(cyan('{} check...'.format(entity_class.__name__)))
+        keeper = get_storage()
         instances = entity_class.fetch_all(keeper, objects_only=False)
 
-        for key, instance in instances.iteritems():
-
+        for key in instances.keys():
+            instance = instances[key]
             if entity_class is ProductCategory:
-
-                if type(instance.products) is not list:
-                    print(yellow(u'Fixing category products '
-                                 u'list for `{}`...'.format(instance)))
-                    instance.products = list(category.products.values())
-
                 for product in instance.products:
-                    if len(product.reports) == 0:
-                        print(yellow(u'Removing stale '
+                    if product.category is not instance:
+                        instance.remove_product(product)
+                        print(yellow(u'Removed '
                                      u'`{}` from `{}`...'.format(product,
                                                                  instance)))
-                        instance.products.remove(product)
-                    if product not in keeper[product.namespace]:
-                        print(yellow(u'Removing `{}` from `{}` '
-                                     u'as its not '
-                                     u'registered...'.format(product,
-                                                             instance)))
-                        instance.products.remove(product)
+                    if len(product.reports) == 0:
+                        instance.remove_product(product)
+                        print(yellow(u'Removed stale '
+                                     u'`{}` from `{}`...'.format(product,
+                                                                 instance)))
+                    if product.key not in keeper[product.namespace]:
+                        try:
+                            instance.remove_product(product)
+                            print(yellow(u'Removed `{}` from `{}` '
+                                         u'as its not '
+                                         u'registered...'.format(product,
+                                                                 instance)))
+                        except ValueError:
+                            pass
 
             if entity_class is Product:
 
@@ -220,7 +223,10 @@ def cleanup():
                     cat_key = instance.get_category_key()
                     category = ProductCategory.fetch(cat_key, keeper)
                     if instance.category is not category:
+                        print(yellow(u'Adding `{}` to '
+                                     u'`{}`...'.format(instance, category)))
                         category.add_product(instance)
+                        instance.category = category
                 except CategoryLookupError:
                     print(yellow(u'Removing `{}` as no '
                                  u'category found...'.format(instance)))
@@ -240,12 +246,11 @@ def cleanup():
                         print(yellow(u'Deleting `{}` '
                                      u'from `{}`...'.format(product,
                                                             instance)))
-                        instance.products.remove(product)
+                        instance.remove_product(product)
                     for report in product.reports:
                         if type(report) is str:
                             print(yellow('Removing product with str report ...'))
-                        product.delete_from(keeper)
-
+                            product.delete_from(keeper)
         transaction.commit()
         keeper.close()
 

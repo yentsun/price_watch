@@ -585,6 +585,7 @@ class ProductCategory(Entity):
         product.category = None
         if product in self.products:
             self.products.remove(product)
+            self._p_changed = True
 
     def add_package(self, package):
         """Add package to the category"""

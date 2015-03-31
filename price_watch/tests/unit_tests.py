@@ -75,6 +75,23 @@ class TestBasicLogic(unittest.TestCase):
         self.assertIn(stored_product1, milk.products)
         self.assertIn(stored_product2, milk.products)
 
+    def test_category_remove_product(self):
+        self.category.add_product(self.product)
+        transaction.commit()
+        self.keeper.close()
+
+        keeper = open_storage()
+        milk = ProductCategory.fetch('milk', keeper)
+        stored_product = Product.fetch(self.product.key, keeper)
+        milk.remove_product(stored_product)
+        transaction.commit()
+        keeper.close()
+
+        keeper = open_storage()
+        stored_product = Product.fetch(self.product.key, keeper)
+        milk = ProductCategory.fetch('milk', keeper)
+        self.assertNotIn(stored_product, milk.products)
+
     def test_product_add_merchant(self):
         product = self.product
         merchant = Merchant('test merchant')

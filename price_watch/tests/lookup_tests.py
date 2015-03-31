@@ -197,3 +197,12 @@ class TestCategoryLookup(unittest.TestCase):
     def test_apple_juice(self):
         product = Product(u'Напиток Актуаль Яблоко сыворотка с соком, 930г')
         self.assertRaises(CategoryLookupError, product.get_category_key)
+
+    def test_flour(self):
+        product = Product(u'Мука Сокольническая пшеничная хлебопекарная '
+                          u'высший сорт 800г банка')
+        self.assertEqual('wheat flour', product.get_category_key())
+
+    def test_kefir_bread(self):
+        product = Product(u'Хлеб Хлебный дом Кефирный в нарезке 450г')
+        self.assertEqual('bread', product.get_category_key())

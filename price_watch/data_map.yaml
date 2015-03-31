@@ -485,7 +485,7 @@ ProductCategory:
             kefir:
               title: kefir
               keyword: кефир
-              stopword: фруктовый, биокефир
+              stopword: фруктовый, биокефир, хлеб
               density: 1031
               normal_package: 1 l
               min_package_ratio: 0.8

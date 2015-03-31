@@ -473,9 +473,15 @@ class Merchant(Entity):
                 pass
 
     def add_product(self, product):
-        """Add product to products dict"""
+        """Add product to products list"""
         if product not in self.products:
             self.products.append(product)
+            self._p_changed = True
+
+    def remove_product(self, product):
+        """Remove product from list"""
+        if product in self.products:
+            self.products.remove(product)
             self._p_changed = True
 
     @classmethod

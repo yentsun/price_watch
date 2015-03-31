@@ -115,6 +115,23 @@ class TestBasicLogic(unittest.TestCase):
         merchant = Merchant.fetch('test merchant', self.keeper)
         self.assertIn(product, merchant.products)
 
+    def test_merchant_remove_product(self):
+        self.merchant.add_product(self.product)
+        transaction.commit()
+        self.keeper.close()
+
+        keeper = open_storage()
+        product = Product.fetch(u'Молоко Great Milk 1L', keeper)
+        merchant = Merchant.fetch('test merchant', keeper)
+        merchant.remove_product(product)
+        transaction.commit()
+        keeper.close()
+
+        keeper = open_storage()
+        product = Product.fetch(u'Молоко Great Milk 1L', keeper)
+        merchant = Merchant.fetch('test merchant', keeper)
+        self.assertNotIn(product, merchant.products)
+
     def test_report_assembly_new_product(self):
         from uuid import uuid4
         product_title = u'Молоко Great Milk TWO 1L'

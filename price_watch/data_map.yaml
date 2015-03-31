@@ -516,7 +516,7 @@ ProductCategory:
                 soft cheese:
                   title: soft cheese
                   keyword: сыр
-                  stopword: твердый, твёрдый, творожный, плавленый, шоколадный
+                  stopword: твердый, твёрдый, творожный, плавленый, шоколадный, молоко, хлеб
                   normal_package: 0.4 kg
                 cream cheese:
                   title: cream cheese
@@ -549,7 +549,7 @@ ProductCategory:
             sugar:
               title: sugar
               keyword: сахар
-              stopword: тростниковый коричневый
+              stopword: тростниковый коричневый, заменит
               normal_package: 1 kg
               min_package_ratio: 0.8
             salt:
@@ -580,7 +580,7 @@ ProductCategory:
                 rice:
                   title: rice
                   keyword: рис
-                  stopword: черный, чёрный, смесь
+                  stopword: черный, чёрный, смесь, лапша, вермишель
                   normal_package: 1 kg
                   min_package_ratio: 0.8
                 buckwheat:
@@ -722,7 +722,7 @@ ProductCategory:
             cucumber:
               title: cucumber
               keyword: огурцы, огурец
-              stopword: соленые, соленый, маринованые
+              stopword: соленые, соленый, маринованые, малосоль
               normal_package: 1 kg
               min_package_ratio: 0.6
             carrot:
@@ -747,6 +747,7 @@ ProductCategory:
             tomato:
               title: tomato
               keyword: помидоры, томаты, томат
+              stopword: соленые, соленый, маринованые, малосоль
               normal_package: 1 kg
               min_package_ratio: 1
             potato:

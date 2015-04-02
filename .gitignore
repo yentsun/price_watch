@@ -3,6 +3,7 @@ storage
 price_watch.egg-info
 cache
 dist
+build
 *.pyc
 *.log
 VERSION.txt

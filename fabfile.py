@@ -281,7 +281,7 @@ def prepare():
     res = local('git status', capture=True)
     if 'nothing to commit, working directory clean' in res:
         local('git describe --tags > VERSION.txt')
-        local('~/env2/bin/python setup.py sdist --formats=gztar',
+        local('~/env2/bin/python setup.py sdist',
               capture=False)
     else:
         print(yellow('Git: directory not clean.'))

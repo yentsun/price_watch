@@ -778,7 +778,6 @@ class Product(Entity):
                     u'(?<=№\d{3}(\.|,))',
                 ]
                 for pattern in look_behind_patterns:
-                    # TODO screen regex chars in synonym
                     pattern = pattern + re.escape(synonym)
                     match = re.search(pattern, self.title)
                     if match:

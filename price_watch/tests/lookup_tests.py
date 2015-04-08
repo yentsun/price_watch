@@ -143,6 +143,10 @@ class TestPackageLookup(unittest.TestCase):
                           u'200-450г')
         self.assertEqual('0.33 kg', product.get_package_key())
 
+    def test_1_2kg(self):
+        product = Product(u'Сыр эдам виола 40% 1,2кг финляндия')
+        self.assertEqual('1.2 kg', product.get_package_key())
+
 
 class TestCategoryLookup(unittest.TestCase):
 

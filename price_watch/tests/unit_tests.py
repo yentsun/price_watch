@@ -212,20 +212,19 @@ class TestBasicLogic(unittest.TestCase):
 
         self.assertEqual(u'молоко', milk.get_data('keyword').split(', ')[0])
 
-        diary = milk.get_parent()
-        self.assertEqual('diary', diary.title)
+        self.assertEqual('diary', milk.get_category_key())
 
         tuna = ProductCategory('tuna')
-        self.assertEqual('fish', tuna.get_parent().title)
+        self.assertEqual('fish', tuna.get_category_key())
 
         chair = ProductCategory('chair')
-        self.assertEqual('furniture', chair.get_parent().title)
+        self.assertEqual('furniture', chair.get_category_key())
 
         food = ProductCategory('food')
-        self.assertEqual('product_categories', food.get_parent().title)
+        self.assertEqual('product_categories', food.get_category_key())
 
         root = ProductCategory('product_categories')
-        self.assertIsNone(root.get_parent())
+        self.assertIsNone(root.get_category_key())
 
     def tearDown(self):
         self.keeper.close()

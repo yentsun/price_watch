@@ -544,8 +544,33 @@ class ProductPackage(Entity):
         return result
 
 
+class Category(Entity):
+    """
+    General category (type). It can contain other categories but not
+    products
+    """
+    _container_attr = 'categories'
+    namespace = 'types'
+
+    def __init__(self, title):
+        self.title = title
+        self.categories = list()
+
+    def add_categories(self, *categories):
+        """
+        Add child categories to the category
+        """
+        for category in categories:
+            if category not in self.categories:
+                self.categories.append(category)
+                self._p_changed = True
+
+
 class ProductCategory(Entity):
-    """Product category model"""
+    """
+    Product category model. It can contain only products,
+    not other categories
+    """
     _container_attr = 'products'
     namespace = 'categories'
 
@@ -563,14 +588,14 @@ class ProductCategory(Entity):
         except KeyError:
             return None
 
-    def get_parent(self):
-        """Get parent category using `find_parent`"""
+    def get_category_key(self):
+        """Get parent category key using `find_parent`"""
         # TODO decide if this should be taken from storage by default
         data_map = load_data_map(self.__class__.__name__)
         parent_category_dict = traverse(self.title, data_map,
                                         return_parent=True)
         try:
-            return ProductCategory(parent_category_dict['title'])
+            return parent_category_dict['title']
         except TypeError:
             return None
 

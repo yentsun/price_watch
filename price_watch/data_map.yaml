@@ -409,6 +409,10 @@ ProductPackage:
     synonyms:
       - 150г
       - 150 г
+  0.14 kg:
+    synonyms:
+      - 140г
+      - 140 г
   0.13 kg:
     synonyms:
       - 130г
@@ -736,7 +740,7 @@ ProductCategory:
             onion:
               title: onion
               keyword: лук репчатый, лук
-              stopword: порей, шалот, сладкий, зелен, зелён, салат
+              stopword: порей, шалот, сладкий, зелен, зелён, салат, резанец, красн, белый, маца
               normal_package: 1 kg
             cabbage:
               title: cabbage

@@ -6,7 +6,7 @@ import unittest
 import datetime
 import transaction
 
-from price_watch.models import (PriceReport, Merchant, Product,
+from price_watch.models import (PriceReport, Merchant, Product, Category,
                                 ProductCategory, Reporter,
                                 PackageLookupError, StorageManager, HOUR_AGO,
                                 MONTH_AGO, DAY_AGO, WEEK_AGO)
@@ -231,7 +231,7 @@ class TestBasicLogic(unittest.TestCase):
         shutil.rmtree('storage')
 
 
-class TestCalculations(unittest.TestCase):
+class TestFixtures(unittest.TestCase):
 
     def setUp(self):
         self.keeper = StorageManager()
@@ -242,6 +242,8 @@ class TestCalculations(unittest.TestCase):
 
     def test_presense_in_references(self):
         milk = ProductCategory.fetch('milk', self.keeper)
+        diary = Category.fetch('diary', self.keeper)
+        self.assertEqual('diary', diary.title)
         self.assertEqual(4, len(milk.products))
         self.assertIn(64.3, milk.get_prices())
 
@@ -250,17 +252,19 @@ class TestCalculations(unittest.TestCase):
         self.assertIs(milk, report1.product.category)
         self.assertEqual(u'Московский магазин', report1.merchant.title)
         self.assertEqual('Jack', report1.reporter.name)
+        self.assertIs(diary, milk.category)
+        self.assertIn(milk, diary.categories)
 
-    def test_category_median(self):
+    def test_product_category_median(self):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(50.75, milk.get_price())
 
-    def test_category_median_location(self):
+    def test_product_category_median_location(self):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(45.9, milk.get_price(location=u'Санкт-Петербург'))
         self.assertEqual(55.6, milk.get_price(location=u'Москва'))
 
-    def test_category_median_ignore_irrelevant(self):
+    def test_product_category_median_ignore_irrelevant(self):
         raw_data1 = {
             'product_title': u'Молоко Great Milk 0,5л',
             'price_value': 32.6,
@@ -274,7 +278,7 @@ class TestCalculations(unittest.TestCase):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertEqual(50.75, milk.get_price())
 
-    def test_category_get_locations(self):
+    def test_product_category_get_locations(self):
         milk = ProductCategory.fetch('milk', self.keeper)
         self.assertIn(u'Москва', milk.get_locations())
         self.assertIn(u'Санкт-Петербург', milk.get_locations())

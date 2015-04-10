@@ -219,7 +219,7 @@ class StorageManager(object):
                 entity_class = getattr(sys.modules[__name__],
                                        entity_class_name)
                 instance, stats = entity_class.assemble(
-                        storage_manager=self, **fixture)
+                    storage_manager=self, **fixture)
                 if entity_class.namespace not in result:
                     result[entity_class.namespace] = list()
                 result[entity_class.namespace].append(instance)
@@ -231,7 +231,7 @@ class StorageManager(object):
 
 
 class Entity(Persistent):
-    """Master class to inherit from. Used to implement ORM"""
+    """Master class to inherit from"""
     _representation = u'{title}'
     _key_pattern = u'{title}'
     namespace = None
@@ -265,10 +265,23 @@ class Entity(Persistent):
         else:
             raise NotImplementedError
 
-    def __getitem__(self, key):
-        """Container behaviour"""
-        inner_container = self._get_inner_container()
-        return inner_container[key]
+    def add(self, *instances):
+        """Add child instances to the instance container"""
+        container = self._get_inner_container()
+        for instance in instances:
+            if instance not in container:
+                container.append(instance)
+                self._p_changed = True
+
+    def remove(self, *instances):
+        """
+        Remove child instances from the instance container
+        """
+        container = self._get_inner_container()
+        for instance in instances:
+            if instance in container:
+                container.remove(instance)
+                self._p_changed = True
 
     def __contains__(self, key):
         """Container behaviour"""
@@ -282,7 +295,7 @@ class Entity(Persistent):
             'collection': self.namespace,
             'key': urllib.quote(self.key.encode('utf-8'), safe='')
         }
-        return u'{app_url}/{collection}/{key}/'.format(**parts)
+        return u'{app_url}/{collection}/{key}'.format(**parts)
 
     @property
     def key(self):
@@ -404,28 +417,7 @@ class PriceReport(Entity):
 
         if not product:
             prod_is_new = True
-            product = Product(product_title)
-
-            # early get critical info or raise exceptions
-            category_key = product.get_category_key()
-            package_key = product.get_package_key()
-
-            # category
-            category, cat_is_new = ProductCategory.acquire(category_key,
-                                                           storage_manager,
-                                                           True)
-            category.add_product(product)
-
-            # package
-            package, pack_is_new = ProductPackage.acquire(package_key,
-                                                          storage_manager,
-                                                          True)
-            package.add_category(category)
-            product.package = package
-            category.add_package(package)
-            product.package_ratio = package.get_ratio(category)
-
-            storage_manager.register(product)
+            product, stats = Product.assemble(storage_manager, product_title)
 
         # merchant
         merchant_key = Merchant(merchant_title).key
@@ -474,15 +466,11 @@ class Merchant(Entity):
 
     def add_product(self, product):
         """Add product to products list"""
-        if product not in self.products:
-            self.products.append(product)
-            self._p_changed = True
+        self.add(product)
 
     def remove_product(self, product):
         """Remove product from list"""
-        if product in self.products:
-            self.products.remove(product)
-            self._p_changed = True
+        self.remove(product)
 
     @classmethod
     def assemble(cls, storage_manager, title, location=None):
@@ -500,11 +488,6 @@ class ProductPackage(Entity):
     def __init__(self, title):
         self.title = title
         self.categories = OOBTree.BTree()
-
-    def add_category(self, category):
-        """Add category to package"""
-        if category.key not in self.categories:
-            self.categories[category.key] = category
 
     def get_data(self, attribute, default=None):
         """Get category data from `data_map.yaml`"""
@@ -560,10 +543,7 @@ class Category(Entity):
         """
         Add child categories to the category
         """
-        for category in categories:
-            if category not in self.categories:
-                self.categories.append(category)
-                self._p_changed = True
+        self.add(*categories)
 
 
 class ProductCategory(Entity):
@@ -574,9 +554,10 @@ class ProductCategory(Entity):
     _container_attr = 'products'
     namespace = 'categories'
 
-    def __init__(self, title):
+    def __init__(self, title, category=None):
         self.title = title
         self.products = list()
+        self.category = category
 
     def get_data(self, attribute):
         """Get category data from `data_map.yaml`"""
@@ -589,7 +570,9 @@ class ProductCategory(Entity):
             return None
 
     def get_category_key(self):
-        """Get parent category key using `find_parent`"""
+        """
+        Get parent category key using `traverse`. Only `self.title` required
+        """
         # TODO decide if this should be taken from storage by default
         data_map = load_data_map(self.__class__.__name__)
         parent_category_dict = traverse(self.title, data_map,
@@ -603,10 +586,8 @@ class ProductCategory(Entity):
         """Add product(s) to the category and set category to the products"""
 
         for product in products:
-            if product not in self.products:
-                product.category = self
-                self.products.append(product)
-                self._p_changed = True
+            product.category = self
+            self.add(product)
 
     def remove_product(self, product):
         """
@@ -614,17 +595,7 @@ class ProductCategory(Entity):
         attribute to None
         """
         product.category = None
-        if product in self.products:
-            self.products.remove(product)
-            self._p_changed = True
-
-    def add_package(self, package):
-        """Add package to the category"""
-
-        if not hasattr(self, 'packages'):
-            self.packages = OOBTree.BTree()
-        if package.key not in self.packages:
-            self.packages[package.key] = package
+        self.remove(product)
 
     def get_reports(self, date_time=None):
         """Get price reports for the category by datetime"""
@@ -728,18 +699,37 @@ class Product(Entity):
     def assemble(cls, storage_manager, title):
         """The product instance factory"""
         product = cls(title=title)
-        category_key = product.get_category_key()
-        category = ProductCategory.acquire(category_key, storage_manager)
-        category.add_product(product)
-        product.category = category
-        storage_manager.register(product, category)
-        return product, None
+
+        # early get critical info or raise exceptions
+        product_category_key = product.get_category_key()
+        package_key = product.get_package_key()
+
+        # product category
+        product_category, cat_is_new = ProductCategory.acquire(
+            product_category_key, storage_manager, True)
+        product_category.add_product(product)
+        product.category = product_category
+
+        # package
+        package, pack_is_new = ProductPackage.acquire(package_key,
+                                                      storage_manager,
+                                                      True)
+        product.package = package
+        product.package_ratio = package.get_ratio(product_category)
+
+        # category
+        category_key = product_category.get_category_key()
+        category = Category.acquire(category_key, storage_manager)
+        category.add(product_category)
+        product_category.category = category
+
+        storage_manager.register(product, product_category, category)
+        stats = cat_is_new, pack_is_new
+        return product, stats
 
     def add_report(self, report):
         """Add report"""
-        if report not in self.reports:
-            self.reports.append(report)
-            self._p_changed = True
+        self.add(report)
 
     def add_merchant(self, merchant):
         """Add merchant if it's not in list"""
@@ -893,11 +883,6 @@ class Reporter(Entity):
     def __init__(self, name):
         self.name = name
         self.reports = list()
-
-    def add_report(self, report):
-        """Add report"""
-        if report.key not in self.reports:
-            self.reports[report.key] = report
 
 
 class Page(Entity):

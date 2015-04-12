@@ -9,7 +9,7 @@ from fabric.api import *
 from fabric.colors import *
 
 from price_watch.models import (ProductCategory, StorageManager,
-                                ProductPackage, PriceReport,
+                                ProductPackage, PriceReport, Category,
                                 PackageLookupError, Product, Merchant,
                                 CategoryLookupError)
 
@@ -166,21 +166,33 @@ def recreate():
 
 
 @task
-def cleanup():
+def cleanup(entity_class_name=None):
     """Perform cleanup and fixing routines on stored instances"""
 
-    entity_list = [ProductCategory, Product, Merchant]
+    if entity_class_name:
+        entity_list = [entity_class_name]
+    else:
+        entity_list = ['ProductCategory', 'Product', 'Merchant']
 
-    def cycle(entity_class):
+    def cycle(entity_class_name_):
         """Perform all needed routines on an `entity_class`"""
 
-        print(cyan('{} check...'.format(entity_class.__name__)))
+        print(cyan('{} check...'.format(entity_class_name_)))
         keeper = get_storage()
+        entity_class = globals()[entity_class_name_]
         instances = entity_class.fetch_all(keeper, objects_only=False)
 
         for key in instances.keys():
             instance = instances[key]
             if entity_class is ProductCategory:
+
+                if not hasattr(instance, 'category') or not instance.category:
+                    category_key = instance.get_category_key()
+                    category = Category.acquire(category_key, keeper)
+                    instance.category = category
+                    category.add(instance)
+                    print(green(u'Added {} to {}'.format(instance, category)))
+
                 for product in instance.products:
                     if product.category is not instance:
                         instance.remove_product(product)
@@ -254,8 +266,8 @@ def cleanup():
         transaction.commit()
         keeper.close()
 
-    for entity in entity_list:
-        cycle(entity)
+    for entity_class_name in entity_list:
+        cycle(entity_class_name)
 
 
 @task

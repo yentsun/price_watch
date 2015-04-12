@@ -10,6 +10,7 @@
     <meta name="description" content="${self.description()}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Max Korinets" />
+    <link rel="canonical" href="${req.resource_url(req.context)}"/>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="shortcut icon" type="image/png"
           href="${request.static_url('price_watch:static/favicon.png')}"/>
@@ -53,7 +54,7 @@
             % endfor
         </ul>
         % if req.context is not req.root:
-            <a href="/" title="На главную">
+            <a href="${req.resource_url(req.root)}" title="На главную">
         % endif
         <img src="${request.static_url('price_watch:static/img/logo.png')}"
              alt="Логотип" width="230"/>

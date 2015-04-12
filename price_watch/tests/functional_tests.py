@@ -23,7 +23,7 @@ class FunctionalTests(unittest.TestCase):
     def test_root(self):
         res = self.testapp.get('/', status=200)
         self.assertIn(u'Категории', res.body.decode('utf-8'))
-        self.assertIn(u'<a href="/categories/milk/">молоко</a>',
+        self.assertIn(u'<a href="/categories/milk">молоко</a>',
                       res.body.decode('utf-8'))
         self.assertIn(u'Москва', res.body.decode('utf-8'))
 
@@ -351,14 +351,14 @@ class FunctionalTests(unittest.TestCase):
     def test_sitemap(self):
         res = self.testapp.get('/sitemap.xml'.encode('utf-8'))
         self.assertIn('urlset', res.xml.tag)
-        self.assertIn('http://localhost/pages/about/', res.text)
+        self.assertIn('http://localhost/pages/about', res.text)
         self.assertIn('http://localhost/products/%D0%9C%D0%BE%D0%BB%D0%BE%D0%'
-                      'BA%D0%BE%20Deli%20Milk%201L/', res.text)
-        self.assertIn('http://localhost/categories/milk/', res.text)
-        self.assertIn('http://localhost/categories/milk/?location=%D0%A1%D0%'
+                      'BA%D0%BE%20Deli%20Milk%201L', res.text)
+        self.assertIn('http://localhost/categories/milk', res.text)
+        self.assertIn('http://localhost/categories/milk?location=%D0%A1%D0%'
                       'B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%'
                       '80%D0%B1%D1%83%D1%80%D0%B3', res.text)
-        self.assertIn('http://localhost/?location=%D0%A1%D0%'
+        self.assertIn('http://localhost?location=%D0%A1%D0%'
                       'B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%'
                       '80%D0%B1%D1%83%D1%80%D0%B3', res.text)
 

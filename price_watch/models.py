@@ -164,6 +164,10 @@ class StorageManager(object):
         """Container behavior"""
         return self._root[namespace]
 
+    def __resource_url__(self, request, info):
+        """For compatibility with pyramid traversal"""
+        return info['app_url']
+
     def register(self, *instances):
         """Register new instances to appropriate namespaces"""
         for instance in instances:

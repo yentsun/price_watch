@@ -474,6 +474,7 @@ ProductCategory:
       sub:
         diary: &diary
           title: diary
+          title_ru: молочная продукция и яйцо
           sub:
             milk:
               title: milk
@@ -519,10 +520,11 @@ ProductCategory:
               normal_package: 20 pcs
             cheese:
               title: cheese
+              title_ru: сыр
               sub:
                 soft cheese:
                   title: soft cheese
-                  keyword: сыр
+                  keyword: сыр мягкий, сыр
                   stopword: твердый, твёрдый, творожный, плавленый, шоколадный, молоко, хлеб
                   normal_package: 0.4 kg
                 cream cheese:
@@ -539,6 +541,7 @@ ProductCategory:
                   normal_package: 0.4 kg
         grocery:
           title: grocery
+          title_ru: бакалея
           sub:
             pasta:
               title: pasta
@@ -547,6 +550,7 @@ ProductCategory:
               min_package_ratio: 0.8
             oil:
               title: oil
+              title_ru: масло растительное
               sub:
                 sunflower oil:
                   title: sunflower oil
@@ -567,6 +571,7 @@ ProductCategory:
               min_package_ratio: 0.5
             flours:
               title: flours
+              title_ru: мука
               sub:
                 wheat flour:
                   title: wheat flour
@@ -583,6 +588,7 @@ ProductCategory:
                   min_package_ratio: 0.8
             cereals:
               title: cereals
+              title_ru: крупы
               sub:
                 rice:
                   title: rice
@@ -598,6 +604,7 @@ ProductCategory:
                   min_package_ratio: 0.8
         bakery:
           title: bakery
+          title_ru: выпечка
           sub:
             bread:
               title: bread
@@ -613,6 +620,7 @@ ProductCategory:
               title: tuna
         fruits:
           title: fruits
+          title_ru: фрукты
           sub:
             orange:
               title: orange
@@ -690,6 +698,7 @@ ProductCategory:
               normal_package: 1 kg
         vegetables:
           title: vegetables
+          title_ru: овощи
           sub:
             asparagus:
               title: asparagus

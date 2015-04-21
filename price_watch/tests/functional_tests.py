@@ -26,16 +26,20 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn(u'<a href="/categories/milk">молоко</a>',
                       res.body.decode('utf-8'))
         self.assertIn(u'Москва', res.body.decode('utf-8'))
+        self.assertIn(u'молочная продукция и яйцо', res.body.decode('utf-8'))
 
     def test_category(self):
         res = self.testapp.get('/categories/milk', status=200)
         self.assertIn(u'молоко', res.body.decode('utf-8'))
+        self.assertIn(u'молочная продукция и яйцо', res.body.decode('utf-8'))
 
     def test_product(self):
         res = self.testapp.get(
             u'/products/Молоко Красная Цена у-паст. 3.2% 1л'.encode('utf-8'),
             status=200)
         self.assertIn(u'Молоко Красная Цена у/паст. 3.2% 1л',
+                      res.body.decode('utf-8'))
+        self.assertIn(u'молочная продукция и яйцо',
                       res.body.decode('utf-8'))
 
     def test_report_get(self):

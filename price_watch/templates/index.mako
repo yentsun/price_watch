@@ -21,25 +21,21 @@
       <div class="row-fluid marketing">
           <div class="span12">
               <div id="chart_div" style="width: 700px; height: 400px;"></div>
-
               <table class="table">
-                  <thead>
-                  <tr>
-                      <th>Категория</th>
-                      <th>средняя цена (руб.)
-                      </th>
-                      <th>упаковка</th>
-                  </tr>
-                  </thead>
                   <tbody>
-                  % for url, title, price, delta, \
-                         package, locations in categories:
+              % for type_title, type_title_ru, categories in types:
+              <tr id="${type_title}">
+                  <td class="type_title" colspan="3">
+                      ${type_title_ru}
+                  </td>
+              </tr>
+                  % for url, title, price, delta, package in categories:
                     <tr>
                         <td>
                             <a href="${url}">${title}</a>
                         </td>
                         <td>
-                             % if delta > 0:
+                            % if delta > 0:
                             <span title="+${delta}%"
                                   class="glyphicon glyphicon-arrow-up"
                                   style="color:red"></span>
@@ -53,6 +49,7 @@
                         <td>${package}</td>
                     </tr>
                   % endfor
+              % endfor
                   </tbody>
               </table>
               <span title="Время последнего обновления"

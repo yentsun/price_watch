@@ -19,9 +19,13 @@
     <small class="package_title">за ${package_title}</small>
 </div>
 % endif
-<a itemprop="category" id="product_category" href="${category_url}"
+<a id="category" href="${req.resource_url(req.root)}#${category_title}"
+   title="основная категория">
+    ${category_title_ru}
+</a> /
+<a itemprop="category" id="product_category" href="${product_category_url}"
    title="категория">
-    ${category_name}
+    ${product_category_title}
 </a>
 <h1 itemprop="name" id="product_heading">
     ${req.context.title}

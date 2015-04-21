@@ -117,8 +117,12 @@ h3{
     width: 75%;
     margin-top: .1em;
 }
-#product_category{
+#product_category, #category{
     color: gray;
+}
+.table>tbody>tr>td.type_title{
+    padding-top: 2em;
+    border-top: none;
 }
 .footer_separator {
     border: 1px solid lightgray;

@@ -169,9 +169,12 @@ class ProductView(EntityView):
                                product.get_price(date)])
         chart_data = json.dumps(chart_data)
         package_key = product.category.get_data('normal_package')
-        category_name = product.category.get_data('keyword').split(', ')[0]
-        category_url = self.request.resource_url(product.category)
+        product_category_title = product.category.get_data(
+            'keyword').split(', ')[0]
+        product_category_url = self.request.resource_url(product.category)
         package_title = ProductPackage(package_key).get_data('synonyms')[0]
+        category_title = product.category.category.title
+        category_title_ru = product.category.category.get_data('title_ru')
         reports = list()
 
         for report in sorted(product.get_reports(
@@ -191,8 +194,10 @@ class ProductView(EntityView):
             'last_report_url': last_report_url,
             'chart_data': chart_data,
             'reports': reports,
-            'category_name': category_name,
-            'category_url': category_url,
+            'product_category_title': product_category_title,
+            'product_category_url': product_category_url,
+            'category_title': category_title,
+            'category_title_ru': category_title_ru,
             'package_title': package_title
         }
 
@@ -282,7 +287,8 @@ class CategoryView(EntityView):
     @general_region.cache_on_arguments('category')
     def serve_data(self, category, location):
         """Return prepared category data"""
-
+        category_title = category.category.title
+        category_title_ru = category.category.get_data('title_ru')
         cat_title = category.get_data('ru_accu_case')
         median = category.get_price(location=location)
         category_delta = int(category.get_price_delta(self.delta_period,
@@ -330,6 +336,8 @@ class CategoryView(EntityView):
             'cat_title': cat_title,
             'current_location': location,
             'locations': locations,
+            'category_title': category_title,
+            'category_title_ru': category_title_ru,
             'current_path': current_path,
             'package_title': package_title,
             'median_price': self.currency(median) if median else None,
@@ -354,13 +362,14 @@ class RootView(EntityView):
     @general_region.cache_on_arguments('index')
     def served_data(self, location):
         """Serve general index data optionally filter by region"""
-        categories = self.root['categories'].values()
+        product_categories = self.root['categories'].values()
+        categories = self.root['types'].values()
 
         # charts
         datetimes = get_datetimes(self.display_days)
         date_column = [date.strftime('%d.%m') for date in datetimes]
         category_columns = list()
-        for category in categories:
+        for category in product_categories:
             if category.title in self.CHART_CATEGORIES:
                 category_column = [category.get_data('keyword').split(', ')[0]]
                 for date in datetimes:
@@ -369,28 +378,31 @@ class RootView(EntityView):
                 category_columns.append(category_column)
 
         # category list
-        category_tuples = list()
+        types = list()
         all_locations = set()
-        for category in categories:
-            price = category.get_price(location=location)
-            if price:
-                price = self.currency(price)
-                query = {'location': location} if location else None
-                url = self.request.resource_path(category, query=query)
-                title = category.get_data('keyword').split(', ')[0]
-                delta = int(category.get_price_delta(self.delta_period,
-                                                     location=location)*100)
-                package_key = category.get_data('normal_package')
-                package_title = ProductPackage(
-                    package_key).get_data('synonyms')[0]
-                cat_locations = category.get_locations()
-                all_locations.update(cat_locations)
-                locations = ', '.join(cat_locations)
-                category_tuples.append((url, title, price, delta,
-                                        package_title, locations))
+        for type_ in categories:
+            category_tuples = list()
+            type_title_ru = type_.get_data('title_ru')
+            for category in type_.categories:
+                price = category.get_price(location=location)
+                if price:
+                    price = self.currency(price)
+                    query = {'location': location} if location else None
+                    url = self.request.resource_path(category, query=query)
+                    title = category.get_data('keyword').split(', ')[0]
+                    delta = int(category.get_price_delta(self.delta_period,
+                                                         location=location)*100)
+                    package_key = category.get_data('normal_package')
+                    package_title = ProductPackage(
+                        package_key).get_data('synonyms')[0]
+                    cat_locations = category.get_locations()
+                    all_locations.update(cat_locations)
+                    category_tuples.append((url, title, price, delta,
+                                            package_title))
+            types.append((type_.title, type_title_ru, category_tuples))
         time = format_datetime(datetime.datetime.now(), format='long',
                                locale=self.request.locale_name)
-        return {'categories': category_tuples,
+        return {'types': types,
                 'time': time,
                 'current_location': location,
                 'locations': list(all_locations),

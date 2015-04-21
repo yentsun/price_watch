@@ -544,10 +544,18 @@ class Category(Entity):
         self.categories = list()
 
     def add_categories(self, *categories):
-        """
-        Add child categories to the category
-        """
+        """Add child categories to the category"""
         self.add(*categories)
+
+    def get_data(self, attribute):
+        """Get category data from `data_map.yaml`"""
+        data_map = load_data_map(ProductCategory.__name__)
+        category = traverse(self.title, data_map)
+        try:
+            data = category[attribute]
+            return data
+        except KeyError:
+            return None
 
 
 class ProductCategory(Entity):

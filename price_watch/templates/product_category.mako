@@ -30,7 +30,10 @@
         <small class="package_title">за ${package_title}</small>
     </div>
 % endif
-
+<a id="category" href="${req.resource_url(req.root)}#${category_title}"
+   title="основная категория">
+    ${category_title_ru}
+</a>
 <h1>
     Цены на ${cat_title}${location_suffix()}
 </h1>

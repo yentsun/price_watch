@@ -34,17 +34,10 @@
                         <td>
                             <a href="${url}">${title}</a>
                         </td>
-                        <td>
-                            % if delta > 0:
-                            <span title="+${delta}%"
-                                  class="glyphicon glyphicon-arrow-up"
-                                  style="color:red"></span>
-                            % elif delta < 0:
-                                <span title="${delta}%"
-                                      class="glyphicon glyphicon-arrow-down"
-                                      style="color:green"></span>
-                            % endif
-                            ${price}
+                        <td align="center">
+                           <%include
+                           file="partials/price.mako"
+                           args="price=price, delta=delta" />
                         </td>
                         <td>${package}</td>
                     </tr>

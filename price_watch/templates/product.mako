@@ -6,16 +6,8 @@
 <div itemscope itemtype="http://www.data-vocabulary.org/Product">
 % if current_price:
 <div class="pull-right well well-sm cat_price">
-    % if product_delta > 0:
-        <span title="+${product_delta}%"
-              class="fa fa-arrow-up"
-              style="color:red"></span>
-    % elif product_delta < 0:
-        <span title="${product_delta}%"
-              class="fa fa-arrow-down"
-              style="color:green"></span>
-    % endif
-    <span>${current_price}</span><i class="fa fa-rub"></i><br>
+<%include file="partials/price.mako"
+          args="price=current_price, delta=product_delta" /><br>
     <small class="package_title">за ${package_title}</small>
 </div>
 % endif
@@ -52,10 +44,9 @@
                                    href="${url}">${date}</a>
                             </td>
                             <td itemprop="seller">${merchant} (${location})</td>
-                            <td><span itemprop="price">${price}</span>
-                            <i class="fa fa-rub"></i>
-                            <span class="currency_iso"
-                                  itemprop="currency">RUB</span>
+                            <td>
+                                <%include file="partials/price.mako"
+                                          args="price=price"/>
                             </td>
                         </tr>
                     % endfor

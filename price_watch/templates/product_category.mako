@@ -17,16 +17,8 @@
 
 % if median_price:
     <div class="pull-right well well-sm cat_price">
-        % if category_delta > 0:
-            <span title="+${category_delta}%"
-                  class="fa fa-arrow-up"
-                  style="color:red"></span>
-        % elif category_delta < 0:
-            <span title="${category_delta}%"
-                  class="fa fa-arrow-down"
-                  style="color:green"></span>
-        % endif
-        ${median_price}<i class="fa fa-rub"></i><br>
+    <%include file="partials/price.mako"
+          args="price=median_price, delta=category_delta" /><br>
         <small class="package_title">за ${package_title}</small>
     </div>
 % endif
@@ -51,7 +43,7 @@
             <tr>
                 <th>№</th>
                 <th>Продукт</th>
-                <th class="price">Цена <i class="fa fa-rub"></i> / ${package_title}</th>
+                <th class="price">Цена за ${package_title}</th>
             </tr>
             </thead>
             <tbody>
@@ -68,17 +60,9 @@
                                 ${product.title}
                             </a>
                         </td>
-                        <td>
-                            ${price}
-                            % if delta > 0:
-                            <span title="+${delta}%"
-                                  class="glyphicon glyphicon-arrow-up"
-                                  style="color:red"></span>
-                            % elif delta < 0:
-                                <span title="${delta}%"
-                                      class="glyphicon glyphicon-arrow-down"
-                                      style="color:green"></span>
-                            % endif
+                        <td align="center">
+                        <%include file="partials/price.mako"
+                                  args="price=price, delta=delta" />
                         </td>
                     </tr>
                 % endfor

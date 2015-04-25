@@ -133,3 +133,6 @@ h3{
 .currency_iso{
     display: none;
 }
+.price_value{
+    margin-right: -.3em;
+}

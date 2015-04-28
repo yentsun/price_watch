@@ -173,8 +173,11 @@ class ProductView(EntityView):
             'keyword').split(', ')[0]
         product_category_url = self.request.resource_url(product.category)
         package_title = ProductPackage(package_key).get_data('synonyms')[0]
-        category_title = product.category.category.title
-        category_title_ru = product.category.category.get_data('title_ru')
+        type_ = product.category.category
+        category_title = type_.title
+        category_title_ru = type_.get_data('title_ru')
+        category_primary_color = type_.get_data('primary_color')
+        category_background_color = type_.get_data('background_color')
         reports = list()
 
         for report in sorted(product.get_reports(
@@ -198,6 +201,8 @@ class ProductView(EntityView):
             'product_category_url': product_category_url,
             'category_title': category_title,
             'category_title_ru': category_title_ru,
+            'category_background_color': category_background_color,
+            'category_primary_color': category_primary_color,
             'package_title': package_title
         }
 

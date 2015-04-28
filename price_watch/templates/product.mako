@@ -19,13 +19,21 @@
    title="категория">
     ${product_category_title}
 </a>
+    <style>
+        .category_wrapper table>tbody>tr>td a{
+            color: #${category_primary_color}
+        }
+        .category_wrapper{
+            background: #${category_background_color}
+        }
+    </style>
 <h1 itemprop="name" id="product_heading">
     ${req.context.title}
 </h1>
 <div class="row-fluid marketing" itemprop="offers">
-    <div class="span12">
+    <div class="span12 category_wrapper">
         % if len(reports):
-            <div id="chart_div" style="width: 700px; height: 300px;"></div>
+            <div id="chart_div" style="width: 650px; height: 300px;"></div>
             <table class="table">
                 <thead>
                 <tr>
@@ -78,7 +86,9 @@
                 curveType: 'function',
                 legend: {position: 'top'},
                 hAxis: {showTextEvery: 4},
-                chartArea:{left:50, top:50, width:'90%', height:'75%'}
+                chartArea:{left:50, top:50, width:'90%', height:'75%'},
+                colors: ['#${category_primary_color}'],
+                backgroundColor: {fill:'transparent'}
             };
 
             var chart = new google.visualization.LineChart(document.getElementById('chart_div'));

@@ -63,9 +63,9 @@
         % endif
     </div>
 
-    <hr>
+    <hr style="border: none">
     ${next.body()}
-    <hr class="footer_separator clearfix">
+    <hr class="footer_separator clearfix" style="border: none">
 
     <div class="footer">
         <p class="pull-right">

@@ -121,8 +121,10 @@ h3{
     color: gray;
 }
 .table>tbody>tr>td.type_title{
-    padding-top: 2em;
+    padding: 1em 0;
     border-top: none;
+    font-size: 150%;
+    font-weight: bolder;
 }
 .footer_separator {
     border: 1px solid lightgray;
@@ -135,4 +137,17 @@ h3{
 }
 .price_value{
     margin-right: -.3em;
+}
+.category_wrapper{
+    padding: 1em 2em;
+    margin-bottom: 1em;
+}
+.category_wrapper table>tbody>tr>td{
+    border-top: none;
+}
+.category_wrapper .table>thead>tr>th{
+    border-bottom: none;
+}
+.category_title{
+    margin-top: .3em;
 }

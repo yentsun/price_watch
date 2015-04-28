@@ -271,6 +271,16 @@ def cleanup(entity_class_name=None):
 
 
 @task
+def download():
+    """Download the storage file"""
+    print(cyan('Downloading storage...'))
+    local('scp ubuntu@alpha:www/storage/food-price.net/storage.fs '
+          '~/Downloads/storage.fs')
+    local('cp ~/Downloads/storage.fs ~/Dropbox/Vault/food-price.net')
+    local('cp ~/Downloads/storage.fs storage/storage.fs')
+
+
+@task
 def backup():
     """Backup the remote storage"""
     print(yellow('Stopping processes...'))
@@ -282,10 +292,7 @@ def backup():
     print(cyan('Starting processes...'))
     with cd('www'):
         run('~/env/bin/supervisorctl start food-price.net:*')
-    print(cyan('Downloading storage...'))
-    local('scp ubuntu@alpha:www/storage/food-price.net/storage.fs '
-          'storage/storage.fs')
-    local('cp storage/storage.fs ~/Dropbox/Vault/food-price.net')
+    download()
 
 
 @task

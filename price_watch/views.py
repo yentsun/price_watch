@@ -282,34 +282,36 @@ class PriceReportView(EntityView):
 
 
 @view_defaults(context=ProductCategory)
-class CategoryView(EntityView):
+class ProductCategoryView(EntityView):
 
     @general_region.cache_on_arguments('category')
-    def serve_data(self, category, location):
+    def serve_data(self, product_category, location):
         """Return prepared category data"""
-        category_title = category.category.title
-        category_title_ru = category.category.get_data('title_ru')
-        cat_title = category.get_data('ru_accu_case')
-        median = category.get_price(location=location)
-        category_delta = int(category.get_price_delta(self.delta_period,
-                                                      location=location)*100)
-        if not cat_title:
-            cat_title = category.get_data('keyword').split(', ')[0]
-
-        package_key = category.get_data('normal_package')
+        category = product_category.category
+        category_title = category.title
+        category_title_ru = category.get_data('title_ru')
+        category_primary_color = category.get_data('primary_color')
+        category_background_color = category.get_data('background_color')
+        prod_cat_title = product_category.get_data('ru_accu_case')
+        median = product_category.get_price(location=location)
+        category_delta = int(product_category.get_price_delta(
+            self.delta_period, location=location)*100)
+        if not prod_cat_title:
+            prod_cat_title = product_category.get_data(
+                'keyword').split(', ')[0]
+        package_key = product_category.get_data('normal_package')
         package_title = ProductPackage(package_key).get_data('synonyms')[0]
 
         chart_data = list()
         datetimes = get_datetimes(self.display_days)
         for date in datetimes:
             chart_data.append([date.strftime('%d.%m'),
-                               category.get_price(date, location=location)])
-
+                               product_category.get_price(date, location=location)])
         products = list()
-        locations = category.get_locations()
-        current_path = self.request.resource_url(category)
+        locations = product_category.get_locations()
+        current_path = self.request.resource_url(product_category)
         sorted_products = sorted(
-            category.get_qualified_products(location=location),
+            product_category.get_qualified_products(location=location),
             key=lambda pr: pr[1])
         for num, product_tuple in enumerate(sorted_products):
             try:
@@ -333,11 +335,13 @@ class CategoryView(EntityView):
         return {
             'price_data': json.dumps(chart_data),
             'products': products,
-            'cat_title': cat_title,
+            'cat_title': prod_cat_title,
             'current_location': location,
             'locations': locations,
             'category_title': category_title,
             'category_title_ru': category_title_ru,
+            'category_background_color': category_background_color,
+            'category_primary_color': category_primary_color,
             'current_path': current_path,
             'package_title': package_title,
             'median_price': self.currency(median) if median else None,
@@ -356,26 +360,12 @@ class CategoryView(EntityView):
 
 class RootView(EntityView):
     """General root views"""
-    CHART_CATEGORIES = ['milk', 'bread', 'sugar', 'buckwheat', 'flour',
-                        'apple', 'rice', 'sunflower oil']
-
     @general_region.cache_on_arguments('index')
     def served_data(self, location):
         """Serve general index data optionally filter by region"""
-        product_categories = self.root['categories'].values()
-        categories = self.root['types'].values()
-
-        # charts
-        datetimes = get_datetimes(self.display_days)
-        date_column = [date.strftime('%d.%m') for date in datetimes]
-        category_columns = list()
-        for category in product_categories:
-            if category.title in self.CHART_CATEGORIES:
-                category_column = [category.get_data('keyword').split(', ')[0]]
-                for date in datetimes:
-                    category_column.append(
-                        category.get_price(date, location=location))
-                category_columns.append(category_column)
+        categories = list(self.root['types'].values())
+        categories.sort(key=lambda x: float(x.get_data('priority')),
+                        reverse=True)
 
         # category list
         types = list()
@@ -383,6 +373,11 @@ class RootView(EntityView):
         for type_ in categories:
             category_tuples = list()
             type_title_ru = type_.get_data('title_ru')
+            type_primary_color = type_.get_data('primary_color')
+            type_background_color = type_.get_data('background_color')
+            type_.categories.sort(
+                key=lambda x: float(x.get_data('priority', default=0)),
+                reverse=True)
             for category in type_.categories:
                 price = category.get_price(location=location)
                 if price:
@@ -399,16 +394,15 @@ class RootView(EntityView):
                     all_locations.update(cat_locations)
                     category_tuples.append((url, title, price, delta,
                                             package_title))
-            types.append((type_.title, type_title_ru, category_tuples))
+            types.append((type_.title, type_title_ru, type_primary_color,
+                          type_background_color, category_tuples))
         time = format_datetime(datetime.datetime.now(), format='long',
                                locale=self.request.locale_name)
         return {'types': types,
                 'time': time,
                 'current_location': location,
                 'locations': list(all_locations),
-                'root': True,
-                'date_column': json.dumps(date_column),
-                'category_columns': json.dumps(category_columns)}
+                'root': True}
 
     @view_config(request_method='GET', renderer='index.mako')
     def get(self):

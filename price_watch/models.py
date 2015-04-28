@@ -571,7 +571,7 @@ class ProductCategory(Entity):
         self.products = list()
         self.category = category
 
-    def get_data(self, attribute):
+    def get_data(self, attribute, default=None):
         """Get category data from `data_map.yaml`"""
         data_map = load_data_map(self.__class__.__name__)
         category = traverse(self.title, data_map)
@@ -579,7 +579,7 @@ class ProductCategory(Entity):
             data = category[attribute]
             return data
         except KeyError:
-            return None
+            return default
 
     def get_category_key(self):
         """

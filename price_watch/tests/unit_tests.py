@@ -206,6 +206,12 @@ class TestBasicLogic(unittest.TestCase):
         self.assertIn(product, merchant)
         self.assertIn(merchant, product.merchants)
 
+    def test_product_category_get_data(self):
+        milk = ProductCategory('milk')
+        self.assertEqual(1, milk.get_data('priority'))
+        asp = ProductCategory('asparagus')
+        self.assertEqual(0, asp.get_data('priority', default=0))
+
     def test_traverse_yaml(self):
 
         milk = ProductCategory('milk')

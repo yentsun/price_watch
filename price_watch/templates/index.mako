@@ -20,31 +20,40 @@
 </%def>
       <div class="row-fluid marketing">
           <div class="span12">
-              <div id="chart_div" style="width: 700px; height: 400px;"></div>
-              <table class="table">
-                  <tbody>
-              % for type_title, type_title_ru, categories in types:
-              <tr id="${type_title}">
-                  <td class="type_title" colspan="3">
-                      ${type_title_ru}
-                  </td>
-              </tr>
-                  % for url, title, price, delta, package in categories:
-                    <tr>
-                        <td>
-                            <a href="${url}">${title}</a>
-                        </td>
-                        <td align="center">
-                           <%include
+              % for type_title, type_title_ru, type_color, type_background, categories in types:
+                  <style>
+                      #${type_title} .table>tbody>tr>td a{
+                          color: #${type_color}
+                      }
+                      #${type_title} .type_title{
+                          color: #${type_color}
+                  </style>
+                  <div class="category_wrapper" id="${type_title}"
+                       style="background: #${type_background}">
+                      <table class="table">
+                      <tbody>
+                      <tr>
+                          <td class="type_title" colspan="3">
+                              ${type_title_ru}
+                          </td>
+                      </tr>
+                          % for url, title, price, delta, package in categories:
+                              <tr>
+                                  <td>
+                                      <a href="${url}">${title}</a>
+                                  </td>
+                                  <td align="center">
+                                          <%include
                            file="partials/price.mako"
                            args="price=price, delta=delta" />
-                        </td>
-                        <td>${package}</td>
-                    </tr>
-                  % endfor
+                                  </td>
+                                  <td>${package}</td>
+                              </tr>
+                          % endfor
+                      </tbody>
+                  </table>
+              </div>
               % endfor
-                  </tbody>
-              </table>
               <span title="Время последнего обновления"
                     class="label label-default"
                     style="margin-bottom: 3em">
@@ -54,41 +63,4 @@
         </div>
       </div>
 <%def name="js()">
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-        google.load("visualization", "1", {packages:["corechart"]});
-        google.setOnLoadCallback(drawChart);
-        function drawChart() {
-            var date_column = ${date_column|n};
-            var category_columns = ${category_columns|n};
-            var data = new google.visualization.DataTable();
-            var date_col = data.addColumn('string', 'Дата');
-            console.log(category_columns);
-            for (var i=0; i<date_column.length; i++) {
-                var row_n = data.addRow();
-                data.setCell(row_n, date_col, date_column[i]);
-            }
-            for (var j=0; j<category_columns.length; j++) {
-                var title = category_columns[j].shift();
-                console.log(title);
-                var cat_col = data.addColumn('number', title);
-                for (var cr=0; cr<category_columns[j].length; cr++) {
-                    data.setCell(cr, cat_col, category_columns[j][cr]);
-                }
-            }
-
-            var options = {
-                title: 'Категории продуктов',
-                curveType: 'function',
-                legend: {position: 'top'},
-                hAxis: {showTextEvery: 4},
-                chartArea:{left:50, top:50, width:'90%', height:'75%'}
-            };
-
-            var chart = new google.visualization.LineChart(
-                    document.getElementById('chart_div'));
-
-            chart.draw(data, options);
-        }
-    </script>
 </%def>

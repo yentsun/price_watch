@@ -22,18 +22,24 @@
         <small class="package_title">за ${package_title}</small>
     </div>
 % endif
+<style>
+.category_wrapper table>tbody>tr>td a{
+    color: #${category_primary_color}
+}
+</style>
 <a id="category" href="${req.resource_url(req.root)}#${category_title}"
    title="основная категория">
     ${category_title_ru}
 </a>
-<h1>
+<h1 class="category_title" style="color:#${category_primary_color}">
     Цены на ${cat_title}${location_suffix()}
 </h1>
 
 <div class="row-fluid marketing">
-    <div class="span12">
+    <div class="span12 category_wrapper"
+         style="background: #${category_background_color}">
         % if len(products):
-        <div id="chart_div" style="width: 700px; height: 300px;"></div>
+        <div id="chart_div" style="width: 650px; height: 300px;"></div>
         <div>
             Ниже представлен список продуктов, из цен на которые складывается
             средняя цена.
@@ -41,8 +47,7 @@
         <table id="product_list" class="table">
             <thead>
             <tr>
-                <th>№</th>
-                <th>Продукт</th>
+                <th>название</th>
                 <th class="price">Цена за ${package_title}</th>
             </tr>
             </thead>
@@ -54,7 +59,6 @@
                     % else:
                         <tr>
                     % endif
-                        <td>${num}</td>
                         <td>
                             <a href="${url}">
                                 ${product.title}
@@ -88,6 +92,13 @@
                 curveType: 'function',
                 legend: {position: 'top'},
                 hAxis: {showTextEvery: 4},
+                vAxis: {
+                    gridlines: {
+                        color: 'transparent'
+                    }
+                },
+                colors: ['#${category_primary_color}'],
+                backgroundColor: {fill:'transparent'},
                 chartArea:{left:50, top:50, width:'90%', height:'75%'}
             };
 

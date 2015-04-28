@@ -475,6 +475,9 @@ ProductCategory:
         diary: &diary
           title: diary
           title_ru: молочная продукция и яйцо
+          primary_color: 066699
+          background_color: F8F8EC
+          priority: 1
           sub:
             milk:
               title: milk
@@ -483,6 +486,7 @@ ProductCategory:
               density: 1027
               normal_package: 1 l
               min_package_ratio: 0.8
+              priority: 1
             baked milk:
               title: baked milk
               keyword: молоко топленое
@@ -509,11 +513,13 @@ ProductCategory:
               keyword: сметана, сметанный продукт
               ru_accu_case: сметану
               normal_package: 0.4 kg
+              priority: 0.7
             chicken egg:
               title: chicken egg
               keyword: яйцо куриное, яйца куриные, яйцо
               stopword: перепелиное, перепелиные, динозавриное
               normal_package: 10 pcs
+              priority: 0.9
             quail egg:
               title: quail egg
               keyword: яйцо перепелиное
@@ -521,11 +527,14 @@ ProductCategory:
             cheese:
               title: cheese
               title_ru: сыр
+              primary_color: 94577F
+              background_color: FAE89B
+              priority: 0.3
               sub:
                 soft cheese:
                   title: soft cheese
                   keyword: сыр мягкий, сыр
-                  stopword: твердый, твёрдый, творожный, плавленый, шоколадный, молоко, хлеб
+                  stopword: твердый, твёрдый, творожный, плавленый, шоколадный, молоко, хлеб, сырец
                   normal_package: 0.4 kg
                 cream cheese:
                   title: cream cheese
@@ -542,6 +551,9 @@ ProductCategory:
         grocery:
           title: grocery
           title_ru: бакалея
+          primary_color: 352521
+          background_color: EFE7D4
+          priority: 0.7
           sub:
             pasta:
               title: pasta
@@ -551,6 +563,9 @@ ProductCategory:
             oil:
               title: oil
               title_ru: масло растительное
+              primary_color: 788E62
+              background_color: F0F2B6
+              priority: 0.7
               sub:
                 sunflower oil:
                   title: sunflower oil
@@ -560,7 +575,7 @@ ProductCategory:
             sugar:
               title: sugar
               keyword: сахар
-              stopword: трост, коричн, заменит, сырец
+              stopword: трост, коричн, заменит, сырец, без сахара
               normal_package: 1 kg
               min_package_ratio: 0.8
             salt:
@@ -572,6 +587,9 @@ ProductCategory:
             flours:
               title: flours
               title_ru: мука
+              primary_color: 544D3B
+              background_color: FFF1B8
+              priority: 0.5
               sub:
                 wheat flour:
                   title: wheat flour
@@ -589,6 +607,9 @@ ProductCategory:
             cereals:
               title: cereals
               title_ru: крупы
+              primary_color: 814D1B
+              background_color: F9FFC7
+              priority: 0.5
               sub:
                 rice:
                   title: rice
@@ -605,6 +626,9 @@ ProductCategory:
         bakery:
           title: bakery
           title_ru: выпечка
+          primary_color: 5C211B
+          background_color: F6EC92
+          priority: 0.6
           sub:
             bread:
               title: bread
@@ -621,6 +645,9 @@ ProductCategory:
         fruits:
           title: fruits
           title_ru: фрукты
+          primary_color: FA6900
+          background_color: FCF9CE
+          priority: 0.4
           sub:
             orange:
               title: orange
@@ -699,26 +726,32 @@ ProductCategory:
         vegetables:
           title: vegetables
           title_ru: овощи
+          primary_color: 2B5F39
+          background_color: E2EEA6
+          priority: 0.5
           sub:
             asparagus:
               title: asparagus
               keyword: спаржа
+              ru_accu_case: спаржу
               stopword: маринованая
               normal_package: 0.5 kg
             celery root:
               title: celery root
-              keyword: сельдерей корни
-              stopword: стебель
+              keyword: корень селдерея, сельдерей корень, сельдерей корни
+              stopword: стебель, листья
               normal_package: 1 kg
             beet:
               title: beet
               keyword: свекла
+              ru_accu_case: свеклу
               stopword: отварная, сахарная
               normal_package: 1 kg
               min_package_ratio: 0.8
             radish:
               title: radish
               keyword: редька
+              ru_accu_case: редьку
               normal_package: 1 kg
             radishes:
               title: radishes
@@ -754,6 +787,7 @@ ProductCategory:
             cabbage:
               title: cabbage
               keyword: капуста
+              ru_accu_case: капусту
               stopword: кольраби, брокколи, брюссельская, квашеная, кислая, цветная
               normal_package: 1 kg
             broccoli:

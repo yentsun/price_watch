@@ -294,10 +294,10 @@ def cleanup(entity_class_name=None):
                                 correct_norm_price)))
                         instance.normalized_price_value = correct_norm_price
 
-            transaction.commit()
     keeper = get_storage()
     for entity_class_name in entity_list:
         cycle(entity_class_name, keeper)
+    transaction.commit()
     keeper.close()
 
 

@@ -49,6 +49,8 @@ class FunctionalTests(unittest.TestCase):
     def test_404(self):
         res = self.testapp.get('/rubbishness', status=404)
         self.assertIn(u'Страница не найдена', res.body.decode('utf-8'))
+        res = self.testapp.get('/products/rubbishness', status=404)
+        self.assertIn(u'Страница не найдена', res.body.decode('utf-8'))
 
     def test_report_post_bad_request(self):
         bad_data = [('rubbish_field', 'say wha?')]

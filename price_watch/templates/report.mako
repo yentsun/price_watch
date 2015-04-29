@@ -65,10 +65,15 @@
                           </strong>
                       </td>
                   </tr>
-                  <tr class="price_value warning">
+                  <tr>
                       <td>Цена</td>
                       <td>
-                          <strong>${view.currency(req.context.price_value)} руб.</strong> /
+                          <strong>${view.currency(req.context.price_value)} руб.</strong>
+                      </td>
+                  </tr>
+                  <tr class="price_value warning">
+                      <td>Цена за ${req.context.product.category.get_data('normal_package')}</td>
+                      <td>
                           <strong title="Цена за нормированную упаковку">
                               ${view.currency(req.context.normalized_price_value)} руб.
                           </strong>

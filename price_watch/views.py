@@ -7,7 +7,7 @@ from babel.core import Locale
 from babel.numbers import format_currency
 from babel.dates import format_datetime
 from mako.exceptions import TopLevelLookupException
-from pyramid.view import view_config, view_defaults
+from pyramid.view import view_config, view_defaults, notfound_view_config
 from pyramid.renderers import render_to_response, render
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from pyramid_dogpile_cache import get_region
@@ -469,3 +469,9 @@ class RootView(EntityView):
         """Serve sitemap.xml"""
         self.request.response.content_type = 'text/xml'
         return self.serve_sitemap_data()
+
+    @notfound_view_config(renderer='404.mako')
+    def not_found(self):
+        """A general 404 page"""
+        self.request.response.status = 404
+        return {}

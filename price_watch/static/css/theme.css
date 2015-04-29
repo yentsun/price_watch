@@ -151,3 +151,7 @@ h3{
 .category_title{
     margin-top: .3em;
 }
+.major_image{
+    margin: 4em 0 2em 5em;
+    display: block;
+}

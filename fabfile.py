@@ -172,13 +172,12 @@ def cleanup(entity_class_name=None):
     if entity_class_name:
         entity_list = [entity_class_name]
     else:
-        entity_list = ['ProductCategory', 'Product', 'Merchant']
+        entity_list = ['ProductCategory', 'Product', 'Merchant', 'PriceReport']
 
-    def cycle(entity_class_name_):
+    def cycle(entity_class_name_, keeper):
         """Perform all needed routines on an `entity_class`"""
 
         print(cyan('{} check...'.format(entity_class_name_)))
-        keeper = get_storage()
         entity_class = globals()[entity_class_name_]
         instances = entity_class.fetch_all(keeper, objects_only=False)
 
@@ -263,11 +262,44 @@ def cleanup(entity_class_name=None):
                         if type(report) is str:
                             print(yellow('Removing product with str report ...'))
                             product.delete_from(keeper)
-        transaction.commit()
-        keeper.close()
 
+            if entity_class is PriceReport:
+                try:
+                    correct_package_key = instance.product.get_package_key()
+                except PackageLookupError, e:
+                    print(e.message)
+                else:
+                    if instance.product.category is None:
+                        print(yellow(u'Removing report '
+                                     u'for {}'.format(instance.product)))
+                        instance.delete_from(keeper)
+                        break
+                    if instance.product.package.key != correct_package_key:
+                        correct_package = ProductPackage.acquire(
+                            correct_package_key, keeper)
+                        product = Product.fetch(report.product.key, keeper)
+                        print(yellow(u'Fixing package for {}: {}-->{}'.format(
+                            report.product, product.package, correct_package)))
+                        product.package = correct_package
+                        report.product = product
+
+                    old_norm_price = instance.normalized_price_value
+                    correct_norm_price = instance._get_normalized_price(
+                        instance.price_value)
+                    if old_norm_price != correct_norm_price:
+                        print(yellow(
+                            u'Fixing normal price '
+                            u'for {} report ({}-->{})'.format(
+                                instance.product, old_norm_price,
+                                correct_norm_price)))
+                        instance.normalized_price_value = correct_norm_price
+
+            transaction.commit()
+    keeper = get_storage()
     for entity_class_name in entity_list:
-        cycle(entity_class_name)
+        cycle(entity_class_name, keeper)
+    keeper.close()
+
 
 
 @task

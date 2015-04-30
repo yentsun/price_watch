@@ -32,13 +32,22 @@
     <li>
         данные с сайтов собираются с помощью <a href="/pages/bot">Milk Bot</a>
     </li>
+    <li>код проекта <a href="https://github.com/yentsun/price_watch">открыт</a></li>
+    <li>статус кода<a href="https://travis-ci.org/yentsun/price_watch">
+    <img src=" https://travis-ci.org/yentsun/price_watch.svg?branch=master"/></a></li>
+
 </ul>
 
 <h3>Текущие цели:</h3>
 
 <ul>
     <li>собирать данные от бо́льшего числа магазинов</li>
-    <li>выпустить публичный API</li>
-    <li>прием отчетов от пользователей</li>
-    <li>увеличение быстродействия</li>
+    <li>выпустить публичный API
+        (<a href="https://github.com/yentsun/price_watch/milestones/0.6%20API">0.6</a>)
+    </li>
+    <li>распознавание продуктов по разным названиям
+        (<a href="https://github.com/yentsun/price_watch/milestones/0.7%20Product%20recognition">0.7</a>)
+    </li>
+    <li>прием отчетов от пользователей (0.8)</li>
+    <li>увеличение быстродействия (0.9)</li>
 </ul>

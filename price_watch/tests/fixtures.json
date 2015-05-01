@@ -4,6 +4,7 @@
     "price_value": 55.6,
     "url": "http://mosmag.com/products/milk/1",
     "product_title": "Молоко Красная Цена у/паст. 3.2% 1л",
+    "product_sku": "ART97665",
     "merchant_title": "Московский магазин",
     "reporter_name": "Jack"
   },
@@ -12,6 +13,7 @@
     "price_value": 41.7,
     "url": "http://mosmag.com/products/milk/2",
     "product_title": "Молоко Farmers Milk 1L",
+    "product_sku": "ART97667",
     "merchant_title": "Московский магазин",
     "reporter_name": "Jack"
   },
@@ -20,6 +22,7 @@
     "price_value": 64.3,
     "url": "http://mosmag.com/products/milk/3",
     "product_title": "Молоко Deli Milk 1L",
+    "product_sku": "ART97669",
     "merchant_title": "Московский магазин",
     "reporter_name": "Jack"
   },
@@ -28,6 +31,7 @@
     "price_value": 199.9,
     "url": "http://mosmag.com/products/sunflower_oil/345",
     "product_title": "Масло подсолнечное Sunny Oil 1л",
+    "product_sku": "ART97660",
     "merchant_title": "Московский магазин",
     "reporter_name": "Jack",
     "date_time": "2014-09-14 00:00:00"
@@ -37,6 +41,7 @@
     "price_value": 45.9,
     "url": "http://pitermag.com/products/milk/345",
     "product_title": "Молоко Балтика ультрапас. 3.2% 1л",
+    "product_sku": "ART97675",
     "merchant_title": "Питерские продукты",
     "reporter_name": "Jack"
   },
@@ -45,6 +50,7 @@
     "price_value": 145.9,
     "url": "http://pitermag.com/products/pumpkin/345",
     "product_title": "Тыква 1кг",
+    "product_sku": "ART97644",
     "merchant_title": "Питерские продукты",
     "reporter_name": "Jack",
     "date_time": "2014-09-14 00:00:00"

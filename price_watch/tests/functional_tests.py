@@ -10,7 +10,7 @@ from babel.dates import format_datetime
 from price_watch.models import TWO_WEEKS_AGO
 
 
-class FunctionalTests(unittest.TestCase):
+class ViewTests(unittest.TestCase):
 
     def setUp(self):
         boot = bootstrap('testing.ini')
@@ -45,6 +45,7 @@ class FunctionalTests(unittest.TestCase):
         res = self.testapp.get('/reports/{}'.format(self.report_key),
                                status=200)
         self.assertIn(self.report_key, res.body)
+        self.assertIn('ART97665', res.html.find('td', 'sku').text)
 
     def test_404(self):
         res = self.testapp.get('/rubbishness', status=404)
@@ -105,6 +106,7 @@ class FunctionalTests(unittest.TestCase):
             ('url', 'http://howies.com/products/milk/4'),
             ('product_title',
              u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
+            ('product_sku', 'ART97665'),
             ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jack'),
 
@@ -112,6 +114,7 @@ class FunctionalTests(unittest.TestCase):
             ('url', 'http://howies.com/products/milk/5'),
             ('product_title',
              u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('product_sku', ''),
             ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jack'),
 
@@ -119,6 +122,7 @@ class FunctionalTests(unittest.TestCase):
             ('url', 'http://howies.com/products/milk/6'),
             ('product_title',
              u'Волшебный Элексир Красная Цена у/паст. 1% 1л'.encode('utf-8')),
+            ('product_sku', ''),
             ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jill'),
         ]

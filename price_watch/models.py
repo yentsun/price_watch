@@ -392,7 +392,7 @@ class PriceReport(Entity):
     @classmethod
     def assemble(cls, storage_manager, price_value, product_title,
                  merchant_title, reporter_name, url, date_time=None,
-                 uuid=None):
+                 uuid=None, product_sku=None):
         """
         The only encouraged factory method for price reports and all the
         referenced instances:
@@ -421,7 +421,8 @@ class PriceReport(Entity):
 
         if not product:
             prod_is_new = True
-            product, stats = Product.assemble(storage_manager, product_title)
+            product, stats = Product.assemble(storage_manager, product_title,
+                                              product_sku)
 
         # merchant
         merchant_key = Merchant(merchant_title).key
@@ -696,8 +697,11 @@ class Product(Entity):
     namespace = 'products'
 
     def __init__(self, title, category=None, manufacturer=None, package=None,
-                 package_ratio=None):
+                 package_ratio=None, sku=None):
         self.title = title
+        # The Stock Keeping Unit (SKU) http://schema.org/sku
+        if sku:
+            self.sku = sku
         self.manufacturer = manufacturer
         self.category = category
         if self.category is not None:
@@ -708,9 +712,9 @@ class Product(Entity):
         self.merchants = list()
 
     @classmethod
-    def assemble(cls, storage_manager, title):
+    def assemble(cls, storage_manager, title, sku=None):
         """The product instance factory"""
-        product = cls(title=title)
+        product = cls(title=title, sku=sku)
 
         # early get critical info or raise exceptions
         product_category_key = product.get_category_key()

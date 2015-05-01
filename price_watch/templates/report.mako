@@ -41,9 +41,17 @@
                           </td>
                   </tr>
                   <tr>
-                      <td>URL / ID товара</td>
+                      <td>URL</td>
                       <td>
                         <strong>${req.context.url}</strong>
+                      </td>
+                  </tr>
+                  <tr title="Идентификатор продукта у продавца">
+                      <td>SKU</td>
+                      <td class="sku">
+                          % if hasattr(req.context.product, 'sku'):
+                              <strong>${req.context.product.sku}</strong>
+                          % endif
                       </td>
                   </tr>
                   <tr>

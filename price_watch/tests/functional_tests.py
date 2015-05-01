@@ -45,7 +45,6 @@ class ViewTests(unittest.TestCase):
         res = self.testapp.get('/reports/{}'.format(self.report_key),
                                status=200)
         self.assertIn(self.report_key, res.body)
-        self.assertIn('ART97665', res.html.find('td', 'sku').text)
 
     def test_404(self):
         res = self.testapp.get('/rubbishness', status=404)

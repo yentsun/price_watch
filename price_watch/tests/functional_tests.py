@@ -114,7 +114,7 @@ class ViewTests(unittest.TestCase):
             ('url', 'http://howies.com/products/milk/5'),
             ('product_title',
              u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
-            ('product_sku', ''),
+            ('product_sku', 'ART97665'),
             ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jack'),
 
@@ -134,7 +134,9 @@ class ViewTests(unittest.TestCase):
 
         new_report_keys = res.json_body['new_report_keys']
         for key in new_report_keys:
-            self.testapp.get('/reports/{}'.format(key), status=200)
+            res_ = self.testapp.get('/reports/{}'.format(key), status=200)
+            self.assertEqual('ART97665',
+                             res_.html.find('td', 'sku').text.strip())
 
         errors = res.json_body['errors']
         self.assertIn(u'Category lookup failed for product '

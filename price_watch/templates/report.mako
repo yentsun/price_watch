@@ -46,7 +46,7 @@
                         <strong>${req.context.url}</strong>
                       </td>
                   </tr>
-                  <tr title="Идентификатор продукта у продавца">
+                  <tr title="Идентификатор продукта у продавца / Артикул">
                       <td>SKU</td>
                       <td class="sku">
                           % if hasattr(req.context.product, 'sku'):

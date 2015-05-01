@@ -418,11 +418,13 @@ class PriceReport(Entity):
         prod_is_new = cat_is_new = pack_is_new = False
         product_key = Product(product_title).key
         product = Product.fetch(product_key, storage_manager)
-
         if not product:
             prod_is_new = True
             product, stats = Product.assemble(storage_manager, product_title,
                                               product_sku)
+        else:
+            if not hasattr(product, 'sku') and product_sku:
+                product.sku = product_sku
 
         # merchant
         merchant_key = Merchant(merchant_title).key

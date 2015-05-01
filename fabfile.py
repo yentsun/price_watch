@@ -277,11 +277,11 @@ def cleanup(entity_class_name=None):
                     if instance.product.package.key != correct_package_key:
                         correct_package = ProductPackage.acquire(
                             correct_package_key, keeper)
-                        product = Product.fetch(report.product.key, keeper)
+                        product = Product.fetch(instance.product.key, keeper)
                         print(yellow(u'Fixing package for {}: {}-->{}'.format(
-                            report.product, product.package, correct_package)))
+                            instance.product, product.package, correct_package)))
                         product.package = correct_package
-                        report.product = product
+                        instance.product = product
 
                     old_norm_price = instance.normalized_price_value
                     correct_norm_price = instance._get_normalized_price(

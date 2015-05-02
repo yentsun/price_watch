@@ -67,7 +67,7 @@
 
     <hr style="border: none">
     ${next.body()}
-    <hr class="footer_separator clearfix" style="border: none">
+    <hr class="footer_separator clearfix">
 
     <div class="footer">
         <p class="pull-right">

@@ -126,11 +126,12 @@ h3{
     font-size: 150%;
     font-weight: bolder;
 }
-.footer_separator {
-    border: 1px solid lightgray;
+.container-narrow > hr.footer_separator {
+    margin: 0;
+    border: none;
 }
 .footer {
-    margin-top: 3em;
+    margin-top: 0;
 }
 .currency_iso{
     display: none;

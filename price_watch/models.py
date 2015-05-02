@@ -357,8 +357,11 @@ class PriceReport(Entity):
     namespace = 'reports'
 
     def __init__(self, price_value, product, reporter, merchant,
-                 url=None, date_time=None, uuid=None):
+                 url=None, date_time=None, uuid=None, sku=None):
         self.uuid = uuid or uuid4()
+        # The Stock Keeping Unit (SKU) http://schema.org/sku
+        if sku:
+            self.sku = sku
         self.date_time = date_time or datetime.datetime.now()
         self.merchant = merchant
         self.product = product
@@ -392,7 +395,7 @@ class PriceReport(Entity):
     @classmethod
     def assemble(cls, storage_manager, price_value, product_title,
                  merchant_title, reporter_name, url, date_time=None,
-                 uuid=None, product_sku=None):
+                 uuid=None, sku=None):
         """
         The only encouraged factory method for price reports and all the
         referenced instances:
@@ -420,11 +423,7 @@ class PriceReport(Entity):
         product = Product.fetch(product_key, storage_manager)
         if not product:
             prod_is_new = True
-            product, stats = Product.assemble(storage_manager, product_title,
-                                              product_sku)
-        else:
-            if not hasattr(product, 'sku') and product_sku:
-                product.sku = product_sku
+            product, stats = Product.assemble(storage_manager, product_title)
 
         # merchant
         merchant_key = Merchant(merchant_title).key
@@ -436,7 +435,7 @@ class PriceReport(Entity):
         reporter = Reporter.acquire(reporter_name, storage_manager)
         report = cls(price_value=float(price_value), product=product,
                      reporter=reporter, merchant=merchant, url=url,
-                     date_time=date_time, uuid=uuid)
+                     date_time=date_time, uuid=uuid, sku=sku)
         product.add_report(report)
 
         storage_manager.register(report)
@@ -699,11 +698,8 @@ class Product(Entity):
     namespace = 'products'
 
     def __init__(self, title, category=None, manufacturer=None, package=None,
-                 package_ratio=None, sku=None):
+                 package_ratio=None):
         self.title = title
-        # The Stock Keeping Unit (SKU) http://schema.org/sku
-        if sku:
-            self.sku = sku
         self.manufacturer = manufacturer
         self.category = category
         if self.category is not None:
@@ -716,7 +712,7 @@ class Product(Entity):
     @classmethod
     def assemble(cls, storage_manager, title, sku=None):
         """The product instance factory"""
-        product = cls(title=title, sku=sku)
+        product = cls(title=title)
 
         # early get critical info or raise exceptions
         product_category_key = product.get_category_key()

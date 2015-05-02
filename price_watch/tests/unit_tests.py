@@ -292,7 +292,7 @@ class TestFixtures(unittest.TestCase):
     def test_report_assembly(self):
         raw_data1 = {
             'product_title': u'Молоко Great Milk 1L',
-            'product_sku': 'ART97665',
+            'sku': 'ART97665',
             'price_value': 42.6,
             'url': 'http://scottys.com/products/milk/1',
             'merchant_title': "Scotty's grocery",
@@ -353,11 +353,11 @@ class TestFixtures(unittest.TestCase):
         product2 = Product.fetch(u'Молоко Great Milk 0.93 L', self.keeper)
         self.assertIs(milk, product1.category)
         self.assertEqual('1 l', product1.package.title)
-        self.assertEqual('ART97665', product1.sku)
+        self.assertEqual('ART97665', report1.sku)
         self.assertEqual('0.93 l', product2.package.title)
         self.assertEqual(1, product1.package_ratio)
         self.assertEqual(0.93, product2.package_ratio)
-        self.assertFalse(hasattr(product2, 'sku'))
+        self.assertFalse(hasattr(report2, 'sku'))
         self.assertIn(product1, milk.products)
         self.assertEqual('sour cream', report3.product.category.title)
         self.assertIn(u'Сметана Great Sour Cream 450g',

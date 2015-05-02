@@ -105,7 +105,7 @@ class ViewTests(unittest.TestCase):
             ('url', 'http://howies.com/products/milk/4'),
             ('product_title',
              u'Молоко Красная Цена у/паст. 3.2% 1л'.encode('utf-8')),
-            ('product_sku', 'ART97665'),
+            ('sku', 'ART97665'),
             ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jack'),
 
@@ -113,7 +113,7 @@ class ViewTests(unittest.TestCase):
             ('url', 'http://howies.com/products/milk/5'),
             ('product_title',
              u'Молоко Красная Цена у/паст. 1% 1л'.encode('utf-8')),
-            ('product_sku', 'ART97665'),
+            ('sku', 'ART97665'),
             ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jack'),
 
@@ -121,7 +121,7 @@ class ViewTests(unittest.TestCase):
             ('url', 'http://howies.com/products/milk/6'),
             ('product_title',
              u'Волшебный Элексир Красная Цена у/паст. 1% 1л'.encode('utf-8')),
-            ('product_sku', ''),
+            ('sku', ''),
             ('merchant_title', u"Московский магазин"),
             ('reporter_name', 'Jill'),
         ]

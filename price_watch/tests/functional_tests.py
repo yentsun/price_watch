@@ -26,8 +26,19 @@ class APITest(unittest.TestCase):
         self.assertEqual(50.75, res.json_body['price'])
         self.assertEqual('1 l', res.json_body['package'])
 
+    def test_category_at_location(self):
+        res = self.testapp.get('/categories/milk?location=Санкт-Петербург',
+                               status=200, xhr=True)
+        self.assertEqual(45.90, res.json_body['price'])
 
-class ViewTests(unittest.TestCase):
+    def test_categories_view(self):
+        res = self.testapp.get('/categories', status=200, xhr=True)
+        self.assertEqual(u'молоко', res.json_body['title'])
+        self.assertEqual(50.75, res.json_body['price'])
+        self.assertEqual('1 l', res.json_body['package'])
+
+
+class ViewTest(unittest.TestCase):
 
     def setUp(self):
         boot = bootstrap('testing.ini')

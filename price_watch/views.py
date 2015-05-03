@@ -366,14 +366,12 @@ class ProductCategoryView(EntityView):
     def serve_api_data(self, product_category, location):
         """Serve cached category data for API call"""
         median = product_category.get_price(location=location)
-        locations = product_category.get_locations()
         category_delta = int(product_category.get_price_delta(
             self.delta_period, location=location)*100)
         title = product_category.get_data('keyword').split(', ')[0]
         package_key = product_category.get_data('normal_package')
         return {
             'title': title,
-            'locations': locations,
             'price': median,
             'package': package_key,
             'delta_percent': category_delta if median else None

@@ -10,6 +10,23 @@ from babel.dates import format_datetime
 from price_watch.models import TWO_WEEKS_AGO
 
 
+class APITest(unittest.TestCase):
+
+    def setUp(self):
+        boot = bootstrap('testing.ini')
+        result = boot['root'].load_fixtures('fixtures.json')
+        transaction.commit()
+        self.testapp = TestApp(boot['app'])
+        self.report = result['reports'][0]
+        self.report_key = self.report.key
+
+    def test_category(self):
+        res = self.testapp.get('/categories/milk', status=200, xhr=True)
+        self.assertEqual(u'молоко', res.json_body['title'])
+        self.assertEqual(50.75, res.json_body['price'])
+        self.assertEqual('1 l', res.json_body['package'])
+
+
 class ViewTests(unittest.TestCase):
 
     def setUp(self):

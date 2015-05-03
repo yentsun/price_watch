@@ -362,6 +362,31 @@ class ProductCategoryView(EntityView):
             location = self.request.params.getone('location')
         return self.serve_data(category, location)
 
+    @general_region.cache_on_arguments('category')
+    def serve_api_data(self, product_category, location):
+        """Serve cached category data for API call"""
+        median = product_category.get_price(location=location)
+        locations = product_category.get_locations()
+        category_delta = int(product_category.get_price_delta(
+            self.delta_period, location=location)*100)
+        title = product_category.get_data('keyword').split(', ')[0]
+        package_key = product_category.get_data('normal_package')
+        return {
+            'title': title,
+            'locations': locations,
+            'price': median,
+            'package': package_key,
+            'delta_percent': category_delta if median else None
+        }
+
+    @view_config(request_method='GET', renderer='json', xhr=True)
+    def api_get(self):
+        category = self.request.context
+        location = None
+        if 'location' in self.request.params:
+            location = self.request.params.getone('location')
+        return self.serve_api_data(category, location)
+
 
 class RootView(EntityView):
     """General root views"""

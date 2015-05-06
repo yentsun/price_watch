@@ -31,11 +31,15 @@ class APITest(unittest.TestCase):
                                status=200, xhr=True)
         self.assertEqual(45.90, res.json_body['price'])
 
-    def test_categories_view(self):
-        res = self.testapp.get('/categories', status=200, xhr=True)
-        self.assertEqual(u'молоко', res.json_body['title'])
-        self.assertEqual(50.75, res.json_body['price'])
-        self.assertEqual('1 l', res.json_body['package'])
+    # def test_categories_view(self):
+    #     data = [('ingredients',
+    #              u'молоко 200 г/n хлеб 300 г/n яйцо 2 шт')]
+    #     res = self.testapp.get('/categories', data, status=200, xhr=True)
+    #     self.assertEqual(3, len(res.json_body['categories']))
+    #     self.assertEqual(10.75, res.json_body['categories'][u'молоко'])
+    #     self.assertEqual(5, res.json_body['categories'][u'хлеб'])
+    #     self.assertEqual(10.75, res.json_body['categories'][u'яйцо'])
+    #     self.assertEqual(30, res.json_body['total'])
 
 
 class ViewTest(unittest.TestCase):

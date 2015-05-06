@@ -286,6 +286,16 @@ class PriceReportView(EntityView):
         return {'deleted_report_key': self.context.key}
 
 
+@view_defaults(custom_predicates=(namespace_predicate(ProductCategory),))
+class ProductCategoriesView(EntityView):
+    """ProductCategory collection view"""
+
+    @view_config(request_method='GET', renderer='json', xhr=True)
+    def get(self):
+        if 'ingredients' in self.request.params:
+            ingredients_text = self.request.params.getone('ingredients')
+            return {}
+
 @view_defaults(context=ProductCategory)
 class ProductCategoryView(EntityView):
 

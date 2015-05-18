@@ -40,7 +40,7 @@
                           (${req.context.merchant.location})</strong>
                           </td>
                   </tr>
-                  <tr>
+                  <tr class="url">
                       <td>URL</td>
                       <td>
                         <strong>${req.context.url}</strong>

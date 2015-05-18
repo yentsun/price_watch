@@ -95,6 +95,17 @@ h3{
     font-size: larger;
     font-weight: normal;
 }
+#report_card .url strong{
+    /* credit: http://stackoverflow.com/a/18484181/216042 */
+    white-space: -moz-pre-wrap;
+    white-space: -hp-pre-wrap;
+    white-space: -o-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: pre-wrap;
+    white-space: pre-line;
+    word-wrap: break-word;
+    word-break: break-all;
+}
 #report_card .barcode{
     background:url(/static/img/barcode.png) 9px 0 no-repeat;
     padding-top: 30px;

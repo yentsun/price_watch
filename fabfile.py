@@ -7,6 +7,7 @@ import logging
 from ZODB.FileStorage import FileStorage
 from fabric.api import *
 from fabric.colors import *
+from fabric.contrib.console import confirm
 
 from price_watch.models import (ProductCategory, StorageManager,
                                 ProductPackage, PriceReport, Category,
@@ -89,6 +90,25 @@ def set_package_ratio():
             print(yellow(e.message))
     transaction.commit()
 
+
+@task
+def display_report(report_key):
+    """Display a report by key"""
+    keeper = get_storage()
+    report = PriceReport.fetch(report_key, keeper)
+    if not report:
+        print(yellow('No report with key ' + report_key))
+        exit()
+    print('Key: ' + report.key)
+    print('Product: ' + report.product.title)
+    print('Package: ' + report.product.get_package_key())
+    if report.product.category is None:
+        if confirm(yellow('The report is not valid, remove?'), default=False):
+            report.delete_from(keeper)
+            transaction.commit()
+    else:
+        print('Product category: ' + report.product.category.title)
+    keeper.close()
 
 @task
 def display_category(category_key):
@@ -264,16 +284,16 @@ def cleanup(entity_class_name=None):
                             product.delete_from(keeper)
 
             if entity_class is PriceReport:
+                if instance.product.category is None:
+                    print(yellow(u'Removing report '
+                                 u'for {}'.format(instance.product)))
+                    instance.delete_from(keeper)
+                    break
                 try:
                     correct_package_key = instance.product.get_package_key()
                 except PackageLookupError, e:
                     print(e.message)
                 else:
-                    if instance.product.category is None:
-                        print(yellow(u'Removing report '
-                                     u'for {}'.format(instance.product)))
-                        instance.delete_from(keeper)
-                        break
                     if instance.product.package.key != correct_package_key:
                         correct_package = ProductPackage.acquire(
                             correct_package_key, keeper)

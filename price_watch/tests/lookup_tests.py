@@ -215,6 +215,6 @@ class TestCategoryLookup(unittest.TestCase):
         product = Product(u'Груша конференция лоток КЛ 65+ 1кг')
         self.assertEqual('1 kg', product.get_package_key())
 
-    def test_1_5kg(self):
-        product = Product(u'Деревенский фасов.1.5кг Агроторг')
-        self.assertEqual('1.5 kg', product.get_package_key())
+    # def test_1_5kg(self):
+    #     product = Product(u'Деревенский фасов.1.5кг Агроторг')
+    #     self.assertEqual('1.5 kg', product.get_package_key())

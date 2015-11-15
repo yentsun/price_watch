@@ -7,7 +7,7 @@
             % if current_location:
                 ${current_location}
             % else:
-                Россия
+                Все города
             % endif
             <span class="caret"></span>
         </button>
@@ -24,7 +24,7 @@
             <li role="presentation" class="divider"></li>
             <li role="presentation">
                 <a  role="menuitem" tabindex="-1"
-                    href="${current_path}">Россия
+                    href="${current_path}">Все города
                 </a>
             </li>
         </ul>

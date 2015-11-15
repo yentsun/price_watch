@@ -210,3 +210,11 @@ class TestCategoryLookup(unittest.TestCase):
     def test_kefir_bread(self):
         product = Product(u'Хлеб Хлебный дом Кефирный в нарезке 450г')
         self.assertEqual('bread', product.get_category_key())
+
+    def test_1kg(self):
+        product = Product(u'Груша конференция лоток КЛ 65+ 1кг')
+        self.assertEqual('1 kg', product.get_package_key())
+
+    def test_1_5kg(self):
+        product = Product(u'Деревенский фасов.1.5кг Агроторг')
+        self.assertEqual('1.5 kg', product.get_package_key())

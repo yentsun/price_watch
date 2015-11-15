@@ -13,6 +13,10 @@ ProductPackage:
   2 l:
     synonyms:
       - 2л
+      - 2000ml
+      - 2000 ml
+      - 2,000ml
+      - 2L
   1.8 l:
     synonyms:
       - 1,8л
@@ -29,6 +33,11 @@ ProductPackage:
       - 1.45 л
       - 1,45л
       - 1,45 л
+  1.2 l:
+    synonyms:
+      - 1,200ml
+      - 1200ml
+      - 1200 ml
   1 l:
     synonyms:
       - 1л
@@ -38,7 +47,10 @@ ProductPackage:
       - 1l
       - 1 l
     unlike:
-    - 1л + 0,5л
+      - 1л + 0,5л
+  0.946 l:
+    synonyms:
+      - 946ml
   0.95 l:
     synonyms:
       - 0,95л
@@ -70,12 +82,21 @@ ProductPackage:
       - 0.85л
       - 850мл
       - 850 мл
+  0.83 l:
+    synonyms:
+      - 830ml
+      - 830 ml
   0.81 l:
     synonyms:
       - 810мл
       - 810 мл
       - 0,81 л
       - 0.81л
+  0.8 l:
+    synonyms:
+      - 800ml
+      - 800 ml
+      - 200ml x 4 pcs
   0.75 l:
     synonyms:
       - 0,75л
@@ -87,6 +108,9 @@ ProductPackage:
       - 730 мл
       - 0.73 л
       - 0.73л
+  0.6 l:
+    synonyms:
+      - 200ml x 3pcs
   0.5 l:
     synonyms:
       - 0,5л
@@ -100,6 +124,8 @@ ProductPackage:
       - 0,45л
       - 0,45 л
       - 450 мл
+      - 450ml
+      - 450 ml
   0.3 l:
     synonyms:
       - 0,3л
@@ -223,6 +249,7 @@ ProductPackage:
       - 0,9-1,2кг
       - 0,8-1,2кг
       - 0,5-1,5кг
+      - 65+ 1кг
   0.95 kg:
     synonyms:
       - 950г
@@ -379,6 +406,7 @@ ProductPackage:
       - 250г
       - 0,2-0,3кг
       - 0.25кг
+      - 250g
   0.24 kg:
     synonyms:
       - 240г
@@ -399,6 +427,7 @@ ProductPackage:
       - 0,2 кг
       - 0.2кг
       - 0.2 кг
+      - 200g
   0.18 kg:
     synonyms:
       - 180г
@@ -411,6 +440,7 @@ ProductPackage:
     synonyms:
       - 150г
       - 150 г
+      - 150g
   0.14 kg:
     synonyms:
       - 140г
@@ -419,6 +449,9 @@ ProductPackage:
     synonyms:
       - 130г
       - 130 г
+  0.125 kg:
+    synonyms:
+      - 125g
   0.12 kg:
     synonyms:
       - 120гр
@@ -429,11 +462,13 @@ ProductPackage:
       - 110гр
       - 110г
       - 110 г
+      - 110g
   0.1 kg:
     synonyms:
       - 100г
       - 100гр
       - 100 г
+      - 100g
   0.09 kg:
     synonyms:
       - 90г
@@ -483,7 +518,7 @@ ProductCategory:
           sub:
             milk:
               title: milk
-              keyword: молоко, mолоко
+              keyword: молоко, mолоко, milk
               stopword: топленое, козье, овечье
               density: 1027
               normal_package: 1 l
@@ -505,7 +540,7 @@ ProductCategory:
               min_package_ratio: 0.8
             cream:
               title: cream
-              keyword: сливки
+              keyword: сливки, cream
               stopword: сухие
               density: 1012
               normal_package: 0.5 l
@@ -535,20 +570,20 @@ ProductCategory:
               sub:
                 soft cheese:
                   title: soft cheese
-                  keyword: сыр мягкий, сыр
+                  keyword: сыр мягкий, сыр, cheese
                   stopword: твердый, твёрдый, творожный, плавленый, шоколадный, молоко, хлеб, сырец
                   normal_package: 0.4 kg
                 cream cheese:
                   title: cream cheese
-                  keyword: творожный сыр, крем-сыр
+                  keyword: творожный сыр, крем-сыр, cottage cheese, cream cheese, feta cheese
                   normal_package: 0.4 kg
                 processed cheese:
                   title: processed cheese
-                  keyword: сыр плавленый
+                  keyword: сыр плавленый, processed cheese, cheese spread
                   normal_package: 0.4 kg
                 hard cheese:
                   title: hard cheese
-                  keyword: твердый сыр, твёрдый сыр
+                  keyword: твердый сыр, твёрдый сыр, parmesan cheese
                   normal_package: 0.4 kg
         grocery:
           title: grocery

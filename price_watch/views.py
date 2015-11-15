@@ -296,6 +296,7 @@ class ProductCategoriesView(EntityView):
             ingredients_text = self.request.params.getone('ingredients')
             return {}
 
+
 @view_defaults(context=ProductCategory)
 class ProductCategoryView(EntityView):
 

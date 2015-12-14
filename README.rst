@@ -14,3 +14,8 @@ The platform is:
 
 .. image:: https://travis-ci.org/yentsun/price_watch.svg?branch=master
     :target: https://travis-ci.org/yentsun/price_watch
+
+
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/yentsun/price_watch
+   :target: https://gitter.im/yentsun/price_watch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
